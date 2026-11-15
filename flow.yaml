@@ -1,0 +1,54 @@
+# yaml-language-server: $schema=https://dv-flow.github.io/flow.dv.schema.json
+package:
+  name: fw-hdl-spec
+
+  tasks:
+  # The SV API: fw_hdl_pkg, declarations only. A tool compiles the API's
+  # fw_hdl_api.svh into its own fw_hdl_pkg with its own bodies.
+  - name: sv-api
+    uses: std.FileSet
+    with:
+      type: systemVerilogSource
+      base: bindings/sv
+      include:
+      - fw_hdl_pkg.sv
+      incdirs:
+      - .
+
+  # The API with generated default bodies (tools/fw_hdl_bodies.py, an
+  # sv-weave weaver): enough to compile and elaborate code written against
+  # the API with no tool behind it. Outputs sv-api, then the bodies as an
+  # include that fw_hdl_pkg pulls in.
+  - name: sv-api-compile
+    uses: svweave.Weave
+    needs: [sv-api]
+    with:
+      config: tools/sv-weave.yaml
+      verify: full
+
+  # API smoke test: the core-layer1.md worked example, compiled and
+  # elaborated against the spec's fw_hdl_pkg. Behavior is tested in each
+  # tool.
+  - name: smoke-src
+    uses: std.FileSet
+    with:
+      type: systemVerilogSource
+      base: tests/sv/smoke
+      include:
+      - smoke_pkg.sv
+      - smoke_tb.sv
+      incdirs:
+      - .
+
+  - name: smoke-img
+    uses: hdlsim.vlt.SimImage
+    needs: [sv-api-compile, smoke-src]
+    with:
+      top: [smoke_tb]
+
+  - name: smoke
+    uses: hdlsim.vlt.SimRun
+    needs: [smoke-img]
+
+  - name: tests
+    needs: [smoke]

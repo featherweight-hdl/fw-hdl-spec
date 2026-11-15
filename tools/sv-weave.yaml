@@ -1,0 +1,7 @@
+# sv-weave config for the spec's compile check: generates default bodies for
+# every extern method of fw_hdl_pkg (tools/fw_hdl_bodies.py).
+sv-weave:
+  plugin-path: ["."]
+  weavers:
+  - name: "fw_hdl_bodies:DefaultBodies"
+  init: false
