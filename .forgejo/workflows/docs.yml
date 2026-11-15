@@ -1,0 +1,109 @@
+# Docs build for featherweight-hdl/fw-hdl-spec on Forgejo Actions.
+#
+# THIS IS THE ONLY THING THAT PUBLISHES THESE DOCS. dvkit.org owns all
+# documentation for the estate: this repo's docs land at
+# dvkit.org/featherweight-hdl/fw-hdl-spec/. dvkit.org is a single Cloudflare
+# Pages project and a deploy replaces the WHOLE site, so the built HTML leaves
+# as an ARTIFACT and nothing else; the host-side pipeline fetches, promotes
+# and deploys it. This job holds no Cloudflare token.
+#
+# No release-authority gate, deliberately: docs are not a release.
+#
+# The toolchain is docs/requirements.txt, so a local build and this one use the
+# same list. docs/conf.py runs sv-weave to generate the API's default method
+# bodies before sphinx-systemverilog parses bindings/sv.
+#
+# Constraints this file is shaped by (as in sv-weave's docs.yml):
+#  1. No third-party actions; `ubuntu-latest` is catthehacker/ubuntu:act-22.04.
+#  2. `python` unqualified does not exist; use python3.
+#  3. The image's Python is 3.10. sv-weave needs pyslang 12, which needs
+#     Python >= 3.11, so this job installs python3.11 from apt and builds in a
+#     venv made with it.
+#  4. The artifact name is the `docs-<org>-<repo>` convention docs-fetch
+#     matches on, and `path: .../**` makes the build directory the ZIP ROOT:
+#     docs-fetch refuses an artifact with no index.html at the top level.
+
+name: Docs
+
+on:
+  - push
+  - pull_request
+  - workflow_dispatch
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for internal identifiers in tracked files
+        # This repo is published to git.dvkit.org and mirrored to GitHub, so
+        # anything committed here is public. Excludes .forgejo/workflows, which
+        # carries the pattern itself.
+        run: |
+          pattern='perch-char\.ts\.net|\.ts\.net|a9550|100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\.[0-9]+\.[0-9]+'
+          if git grep -nIE "$pattern" -- . ':!.forgejo/workflows/' ; then
+            echo "::error::internal identifier found in a tracked file (see matches above)"
+            exit 1
+          fi
+          echo "OK: no internal identifiers in tracked files"
+
+      - name: Install Python 3.11
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq python3.11 python3.11-venv git > /dev/null
+          python3.11 --version
+
+      - name: Install the documentation toolchain
+        # --break-system-packages is a FALLBACK: some rebuilds of the runner image
+        # mark the interpreter externally-managed (PEP 668).
+        run: |
+          pip_install() {
+            ./py/bin/python3 -m pip install -q "$@" && return 0
+            ./py/bin/python3 -m pip install -q --break-system-packages "$@"
+          }
+          python3.11 -m venv py
+          pip_install --upgrade pip setuptools wheel
+          pip_install -r docs/requirements.txt
+          ./py/bin/python3 -c "import sphinx, furo, sphinx_systemverilog, sv_weave; print('doc toolchain importable')"
+
+      - name: Build HTML docs
+        # -W --keep-going: a parse error in bindings/sv, a broken cross-reference
+        # or a doc comment that is not valid reST is an error, not a warning.
+        run: |
+          ./py/bin/python3 -m sphinx -W --keep-going -b html docs docs/_build/html
+
+      - name: Sanity-check the build
+        # Sphinx exits 0 on a build that produced almost nothing, and an empty
+        # doc set is worse than a failed one because it deploys.
+        run: |
+          test -s docs/_build/html/index.html \
+            || { echo "::error::no index.html in the build output"; exit 1; }
+          n=$(find docs/_build/html -name '*.html' | wc -l)
+          echo "generated pages: $n"
+          # A local build produced 35 pages on 2026-11-15. The floor catches a
+          # COLLAPSED build, not a deleted page.
+          [ "$n" -ge 25 ] || { echo "::error::only $n pages built; a known-good build produces 35"; exit 1; }
+
+      - name: Fail if the API reference is empty
+        # The reference pages are generated from the SV sources. If the sources
+        # are not found, a page renders as headings with nothing under them while
+        # Sphinx still exits 0.
+        run: |
+          grep -q "connect_all" docs/_build/html/api/components.html \
+            || { echo "::error::components.html documents no fw_component members"; exit 1; }
+          grep -q "fw_component_utils" docs/_build/html/api/macros.html \
+            || { echo "::error::macros.html documents no macros"; exit 1; }
+          grep -q "fw_signal" docs/_build/html/api/signals.html \
+            || { echo "::error::signals.html documents no signal classes"; exit 1; }
+          echo "OK: API reference pages have content"
+
+      - name: Upload docs
+        # Consumed by the host-side poller:
+        #   docs-fetch featherweight-hdl/fw-hdl-spec main
+        uses: forgejo/upload-artifact@v4
+        with:
+          name: docs-featherweight-hdl-fw-hdl-spec
+          path: docs/_build/html/**
+          if-no-files-found: error

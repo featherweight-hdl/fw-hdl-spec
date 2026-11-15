@@ -1,0 +1,8 @@
+# The documentation toolchain (docs/conf.py). sphinx-systemverilog extracts the
+# API reference from the doc comments in bindings/sv; sv-weave generates the
+# API's default method bodies so the sources parse. Both from git until their
+# next releases carry what the docs use.
+sphinx
+furo
+sphinx-systemverilog @ git+https://github.com/fvutils/sphinx-systemverilog.git@main
+sv-weave @ git+https://github.com/sv-weave/sv-weave.git@main

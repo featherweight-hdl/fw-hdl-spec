@@ -7,9 +7,12 @@ tool compiles with its own method bodies. The design is in the root repo's
 
 - Compile-check the API and run the smoke test: `dfm run tests`.
 - Build the API reference, extracted from the doc comments in `bindings/sv`
-  by sphinx-systemverilog:
+  by sphinx-systemverilog (toolchain: `pip install -r docs/requirements.txt`):
 
       python -m sphinx -W -b html docs docs/_build/html
+
+  It is published at <https://dvkit.org/featherweight-hdl/fw-hdl-spec/> by
+  `.forgejo/workflows/docs.yml` on every push to `main`.
 
   The build generates the API's default method bodies with sv-weave, as the
   `sv-api-compile` task does, so the sources parse without errors.
