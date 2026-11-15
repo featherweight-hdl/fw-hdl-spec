@@ -1,0 +1,19 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",     "kind": "component", "type": "top",            "params": {}, "param_src": {}},
+    {"path": "top.d16", "kind": "port", "type": "bit[15:0]", "dir": "in",  "width": 16},
+    {"path": "top.d8",  "kind": "port", "type": "bit[7:0]",  "dir": "in",  "width": 8},
+    {"path": "top.v",   "kind": "component", "type": "port_c#('{8,4})",  "params": {}, "param_src": {}},
+    {"path": "top.v.a", "kind": "port", "type": "bit[3:0]",  "dir": "out", "width": 4},
+    {"path": "top.v.d", "kind": "port", "type": "bit[7:0]",  "dir": "in",  "width": 8},
+    {"path": "top.w",   "kind": "component", "type": "port_c#('{16,2})", "params": {}, "param_src": {}},
+    {"path": "top.w.a", "kind": "port", "type": "bit[1:0]",  "dir": "out", "width": 2},
+    {"path": "top.w.d", "kind": "port", "type": "bit[15:0]", "dir": "in",  "width": 16}
+  ],
+  "nets": [
+    {"scope": "top", "source": "top.d16", "tie": null, "sinks": ["top.w.d"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.d8",  "tie": null, "sinks": ["top.v.d"], "signals": [], "inouts": []}
+  ],
+  "diagnostics": []
+}

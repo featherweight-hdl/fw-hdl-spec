@@ -1,0 +1,24 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",        "kind": "component", "type": "top",  "params": {}, "param_src": {}},
+    {"path": "top.a",      "kind": "component", "type": "leaf", "params": {}, "param_src": {}},
+    {"path": "top.a.i",    "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.a.o",    "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.p[0]",   "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.p[1]",   "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.s",      "kind": "signal", "type": "bit", "width": 1},
+    {"path": "top.u[0]",   "kind": "component", "type": "leaf", "params": {}, "param_src": {}},
+    {"path": "top.u[0].i", "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.u[0].o", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.u[1]",   "kind": "component", "type": "leaf", "params": {}, "param_src": {}},
+    {"path": "top.u[1].i", "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.u[1].o", "kind": "port", "type": "bit", "dir": "out", "width": 1}
+  ],
+  "nets": [
+    {"scope": "top", "source": "top.p[0]", "tie": null, "sinks": ["top.a.i"],    "signals": [],        "inouts": []},
+    {"scope": "top", "source": "top.a.o",  "tie": null, "sinks": ["top.u[0].i"], "signals": ["top.s"], "inouts": []},
+    {"scope": "top", "source": "top.p[1]", "tie": null, "sinks": ["top.u[1].i"], "signals": [],        "inouts": []}
+  ],
+  "diagnostics": []
+}

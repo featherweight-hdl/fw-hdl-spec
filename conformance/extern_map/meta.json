@@ -1,0 +1,6 @@
+{
+  "description": "An extern pin map: module parameters (one from params), a prefix rule with a rename, an explicit pin that replaces a rule's choice, an explicit pin, ties, opens, and the default rule for the rest.",
+  "rtl": [
+    "rtl.sv"
+  ]
+}

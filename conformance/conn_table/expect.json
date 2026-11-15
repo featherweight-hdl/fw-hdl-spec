@@ -1,0 +1,33 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",       "kind": "component", "type": "top",   "params": {}, "param_src": {}},
+    {"path": "top.a_in",  "kind": "port", "type": "bit", "dir": "in",    "width": 1},
+    {"path": "top.b1",    "kind": "component", "type": "bidir", "params": {}, "param_src": {}},
+    {"path": "top.b1.io", "kind": "port", "type": "bit", "dir": "inout", "width": 1},
+    {"path": "top.b2",    "kind": "component", "type": "bidir", "params": {}, "param_src": {}},
+    {"path": "top.b2.io", "kind": "port", "type": "bit", "dir": "inout", "width": 1},
+    {"path": "top.b_in",  "kind": "port", "type": "bit", "dir": "in",    "width": 1},
+    {"path": "top.c1",    "kind": "component", "type": "leaf",  "params": {}, "param_src": {}},
+    {"path": "top.c1.i",  "kind": "port", "type": "bit", "dir": "in",    "width": 1},
+    {"path": "top.c1.o",  "kind": "port", "type": "bit", "dir": "out",   "width": 1},
+    {"path": "top.c2",    "kind": "component", "type": "leaf",  "params": {}, "param_src": {}},
+    {"path": "top.c2.i",  "kind": "port", "type": "bit", "dir": "in",    "width": 1},
+    {"path": "top.c2.o",  "kind": "port", "type": "bit", "dir": "out",   "width": 1},
+    {"path": "top.c3",    "kind": "component", "type": "leaf",  "params": {}, "param_src": {}},
+    {"path": "top.c3.i",  "kind": "port", "type": "bit", "dir": "in",    "width": 1},
+    {"path": "top.c3.o",  "kind": "port", "type": "bit", "dir": "out",   "width": 1},
+    {"path": "top.io",    "kind": "port", "type": "bit", "dir": "inout", "width": 1},
+    {"path": "top.s",     "kind": "signal", "type": "bit", "width": 1},
+    {"path": "top.y_out", "kind": "port", "type": "bit", "dir": "out",   "width": 1},
+    {"path": "top.z_out", "kind": "port", "type": "bit", "dir": "out",   "width": 1}
+  ],
+  "nets": [
+    {"scope": "top", "source": "top.a_in", "tie": null, "sinks": ["top.c1.i", "top.c3.i"], "signals": ["top.s"], "inouts": []},
+    {"scope": "top", "source": null,       "tie": null, "sinks": [],                       "signals": [],        "inouts": ["top.b1.io", "top.io"]},
+    {"scope": "top", "source": "top.b_in", "tie": null, "sinks": ["top.z_out"],            "signals": [],        "inouts": []},
+    {"scope": "top", "source": "top.c1.o", "tie": null, "sinks": ["top.c2.i"],             "signals": [],        "inouts": []},
+    {"scope": "top", "source": "top.c2.o", "tie": null, "sinks": ["top.y_out"],            "signals": [],        "inouts": []}
+  ],
+  "diagnostics": []
+}

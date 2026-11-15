@@ -1,0 +1,5 @@
+{"diagnostics": [
+  {"id": "FW-E-IN-OPEN", "path": "top.c.i"},
+  {"id": "FW-E-IN-OPEN", "path": "top.k.in.data"},
+  {"id": "FW-E-IN-OPEN", "path": "top.k.in.valid"}
+]}

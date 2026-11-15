@@ -1,0 +1,3 @@
+{
+  "description": "unused() on an output port, and on a port pin() also maps: FW-E-EXT-PORT on each port. Needs no module header."
+}

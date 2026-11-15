@@ -1,0 +1,3 @@
+{
+  "description": "An override that matches nothing: its glob names a component, but of another params type. FW-W-PARAM-UNUSED on the registering component; elaboration succeeds."
+}

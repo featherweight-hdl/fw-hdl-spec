@@ -1,0 +1,9 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",   "kind": "component", "type": "top",   "params": {}, "param_src": {}},
+    {"path": "top.x", "kind": "component", "type": "cfg_c", "params": {"a": 1, "b": 2, "c": 3}, "param_src": {}}
+  ],
+  "nets": [],
+  "diagnostics": [{"id": "FW-W-PARAM-UNUSED", "path": "top"}]
+}

@@ -1,0 +1,6 @@
+{
+  "description": "unused(): a monitor member and a whole monitor bundle with no pin. Prefix and default rules skip them, the netlist lists them under extern.unused, and the header check does not report them.",
+  "rtl": [
+    "rtl.sv"
+  ]
+}

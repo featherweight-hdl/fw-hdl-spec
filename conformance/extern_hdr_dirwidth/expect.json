@@ -1,0 +1,4 @@
+{"diagnostics": [
+  {"id": "FW-E-EXT-WIDTH", "path": "top.e.d"},
+  {"id": "FW-E-EXT-DIR",   "path": "top.e.q"}
+]}

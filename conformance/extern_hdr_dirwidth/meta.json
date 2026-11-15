@@ -1,0 +1,7 @@
+{
+  "description": "Header check: a port narrower than its pin (FW-E-EXT-WIDTH) and a port whose direction disagrees with its pin (FW-E-EXT-DIR), each on the port. Needs the module header.",
+  "static-only": true,
+  "rtl": [
+    "rtl.sv"
+  ]
+}

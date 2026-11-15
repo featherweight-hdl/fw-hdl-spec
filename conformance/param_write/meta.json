@@ -1,0 +1,4 @@
+{
+  "description": "A component writes its params value: FW-E-PARAM-WRITE on the component. Static only.",
+  "static-only": true
+}

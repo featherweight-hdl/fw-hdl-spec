@@ -1,0 +1,16 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",     "kind": "component", "type": "top",  "params": {}, "param_src": {}},
+    {"path": "top.a",   "kind": "port", "type": "bit[7:0]", "dir": "in", "width": 8},
+    {"path": "top.c",   "kind": "component", "type": "sink", "params": {}, "param_src": {}},
+    {"path": "top.c.i", "kind": "port", "type": "bit[7:0]", "dir": "in", "width": 8},
+    {"path": "top.c.p", "kind": "port", "type": "pair_t",   "dir": "in", "width": 8},
+    {"path": "top.pp",  "kind": "port", "type": "pair_t",   "dir": "in", "width": 8}
+  ],
+  "nets": [
+    {"scope": "top", "source": "top.a",  "tie": null, "sinks": ["top.c.i"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.pp", "tie": null, "sinks": ["top.c.p"], "signals": [], "inouts": []}
+  ],
+  "diagnostics": []
+}

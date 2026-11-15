@@ -1,0 +1,3 @@
+{
+  "description": "Endpoints outside the connecting component's scope: a child's local signal, and a grandchild's port. FW-E-CONN-SCOPE on each."
+}

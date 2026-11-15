@@ -1,0 +1,3 @@
+{
+  "description": "Every legal row of the connection table: own in to child in, child out to child in (siblings), child out to own out, own in to own out, a local signal on a net, and inout to inout. An unconnected output and an unconnected inout are legal."
+}

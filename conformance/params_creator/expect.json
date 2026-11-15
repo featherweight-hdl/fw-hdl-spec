@@ -1,0 +1,12 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",    "kind": "component", "type": "top",   "params": {"k": 7}, "param_src": {}},
+    {"path": "top.d0", "kind": "component", "type": "cfg_c", "params": {"a": 1, "b": 2, "c": 3},  "param_src": {}},
+    {"path": "top.d1", "kind": "component", "type": "cfg_c", "params": {"a": 1, "b": 5, "c": 3},  "param_src": {"b": "creator"}},
+    {"path": "top.d2", "kind": "component", "type": "cfg_c", "params": {"a": 1, "b": 2, "c": 9},  "param_src": {"c": "creator"}},
+    {"path": "top.d3", "kind": "component", "type": "cfg_c", "params": {"a": 1, "b": 2, "c": 14}, "param_src": {"c": "creator"}}
+  ],
+  "nets": [],
+  "diagnostics": []
+}

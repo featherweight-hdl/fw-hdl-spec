@@ -1,0 +1,370 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dvkit.org/featherweight-hdl/fw-hdl-spec/semantics/netlist.schema.json",
+  "title": "fw-hdl elaborated netlist, layer 1",
+  "description": "The normalized form of an elaborated design: the conformance artifact (netlist.md). Every implementation's conformance runner produces it; the suite compares it with a scenario's expect.json. Two implementations given the same design must produce netlists that are equal as JSON values, and byte-identical in canonical text (keys sorted, two-space indent, one trailing newline: Python json.dumps(x, indent=2, sort_keys=True) + '\\n'). Array order is normative, and given under each array. All strings are ASCII. Paths are full names (elaboration.md): the top is named 'top'. Sorting is by Unicode code point (byte-wise for ASCII), so 'u[10]' sorts before 'u[2]'.",
+  "type": "object",
+  "required": [
+    "top",
+    "objects",
+    "nets",
+    "diagnostics"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "top": {
+      "description": "The created type of the top component.",
+      "$ref": "#/$defs/type"
+    },
+    "objects": {
+      "description": "Every structural object in the tree, sorted by path. Objects not in the tree after an error (a duplicate name, late creation) are absent.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/object"
+      }
+    },
+    "nets": {
+      "description": "Every net, listed in the scope that formed it (connections.md). A connection that crosses a hierarchy level gives one net in each scope. Sorted by scope, then by the least path among the net's endpoints (sources, sinks, signals, inouts).",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/net"
+      }
+    },
+    "diagnostics": {
+      "description": "Every diagnostic reported, errors and warnings, each (id, path) pair once, sorted by path then id. A design elaborates successfully exactly when no id begins 'FW-E-'.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    }
+  },
+  "$defs": {
+    "path": {
+      "description": "A full name: 'top', then '.' and a name for each level. A name is an SV identifier with zero or more '[<decimal>]' suffixes.",
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_$]*(\\[[0-9]+\\])*(\\.[A-Za-z_][A-Za-z0-9_$]*(\\[[0-9]+\\])*)*$"
+    },
+    "relpath": {
+      "description": "A path relative to an extern component: 'clk', 'in.valid'.",
+      "type": "string"
+    },
+    "type": {
+      "description": "Canonical type spelling, with no spaces except before 'signed':\n- bit/logic vectors: the keyword, then ' signed' if signed, then each packed dimension as '[msb:lsb]' in decimal, as declared: 'bit', 'bit[7:0]', 'logic signed[3:0]'. Other built-in integral types by keyword: 'int', 'byte', 'longint'.\n- A typedef of a vector type resolves to the vector: 'u8_t' is spelled 'bit[7:0]'. A typedef of a struct, union or enum is spelled by its typedef name alone, without package or keyword: 'pair_t'.\n- A class: its name without package; if it has parameters, '#(' then every parameter's value, including defaulted ones, in declaration order, separated by ',', then ')': 'fifo_chain#(bit[7:0])', 'fw_rv_if#(bit)'. A type parameter is spelled by this rule. A value parameter: an integral value in decimal (as unsigned for a sized literal: 8'hff is 255; a signed int keeps its sign: -5); a string in double quotes; an enum by its label; a struct value as \"'{\" then its members' values in declaration order, separated by ',', then '}': \"port_c#('{16,2})\".\n- A class with no parameters: its name: 'leaf'.",
+      "type": "string"
+    },
+    "object": {
+      "type": "object",
+      "required": [
+        "path",
+        "kind",
+        "type"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "kind": {
+          "enum": [
+            "component",
+            "signal",
+            "port",
+            "bundle",
+            "mirror",
+            "monitor"
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/component"
+        },
+        {
+          "$ref": "#/$defs/signal"
+        },
+        {
+          "$ref": "#/$defs/port"
+        },
+        {
+          "$ref": "#/$defs/bundle"
+        }
+      ]
+    },
+    "component": {
+      "description": "A component. 'type' is its created type.",
+      "type": "object",
+      "required": [
+        "path",
+        "kind",
+        "type",
+        "params",
+        "param_src"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "kind": {
+          "const": "component"
+        },
+        "type": {
+          "$ref": "#/$defs/type"
+        },
+        "params": {
+          "description": "The resolved params value (params.md), one key per field of params_t. Empty for a component whose class (or ancestor) declares no params_t of its own. Field values: an integral field as a JSON number, the non-negative integer whose binary representation is the field's bits (int -1 is 4294967295); a value with x or z bits, or wider than 64 bits, as a string \"'h\" + lowercase hex; a string field as a JSON string; a constructor factory as the canonical type of the realization it creates, or null; a nested struct as an object; an unpacked array or queue as an array.",
+          "type": "object"
+        },
+        "param_src": {
+          "description": "For each params field whose value some source changed: the last source that changed it, comparing the value before and after each source in resolution order (params.md). A field still at its mk_params default is absent, as is one a source set to the value it already had.",
+          "type": "object",
+          "additionalProperties": {
+            "enum": [
+              "creator",
+              "override",
+              "global",
+              "init"
+            ]
+          }
+        },
+        "extern": {
+          "$ref": "#/$defs/extern"
+        }
+      }
+    },
+    "extern": {
+      "description": "Present exactly when the component is an extern: its recorded pin map (extern.md).",
+      "type": "object",
+      "required": [
+        "module",
+        "params",
+        "pins",
+        "ties",
+        "open",
+        "unused"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "module": {
+          "type": "string"
+        },
+        "params": {
+          "description": "Module parameter name -> its value, from param(). A name set twice keeps the later value. 'type' is the value's type T in the canonical spelling (#/$defs/type), or 'type' for fw_type #(T) (a parameter type). 'value' is spelled as a class's value parameter is (#/$defs/type): an integral value in decimal (as unsigned for an unsigned type, with its sign for a signed one), a string in double quotes, an enum by its label, a packed struct as \"'{\" members \"}\"; for a type, the type's canonical spelling.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "type",
+              "value"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "pins": {
+          "description": "Module pin -> the port it maps to, as a path relative to the extern. One entry per port and bundle member of the extern that is not unused (pin(), a prefix rule, or the default rule). If two ports map to one pin (FW-E-EXT-PIN), the one created first is listed.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/relpath"
+          }
+        },
+        "ties": {
+          "description": "Module pin -> tied value, from tie().",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/value"
+          }
+        },
+        "open": {
+          "description": "Module pins left open, from open(), sorted.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unused": {
+          "description": "Ports with no pin, from unused(): each leaf port as a path relative to the extern, sorted.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relpath"
+          }
+        }
+      }
+    },
+    "signal": {
+      "description": "A local signal. 'type' is its value type T; 'width' is $bits(T).",
+      "type": "object",
+      "required": [
+        "path",
+        "kind",
+        "type",
+        "width"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "kind": {
+          "const": "signal"
+        },
+        "type": {
+          "$ref": "#/$defs/type"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "port": {
+      "description": "A port, on a component or a member of a bundle. 'type' is its value type T; 'width' is $bits(T). 'dir' is the effective direction seen from the port's scope (the component that owns it, or the outermost bundle it is in): the declared direction, flipped by each mirror on the path from the scope, and 'in' if any monitor is on that path; 'inout' stays 'inout' (bundles.md). For a port declared directly on a component it is the declared direction.",
+      "type": "object",
+      "required": [
+        "path",
+        "kind",
+        "type",
+        "dir",
+        "width"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "kind": {
+          "const": "port"
+        },
+        "type": {
+          "$ref": "#/$defs/type"
+        },
+        "dir": {
+          "enum": [
+            "in",
+            "out",
+            "inout"
+          ]
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "bundle": {
+      "description": "A bundle in a role: 'bundle' (initiator), 'mirror' or 'monitor'. 'type' is the bundle type B, without the role: 'fw_rv_if#(bit[7:0])'. Its members are listed as objects of their own.",
+      "type": "object",
+      "required": [
+        "path",
+        "kind",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "kind": {
+          "enum": [
+            "bundle",
+            "mirror",
+            "monitor"
+          ]
+        },
+        "type": {
+          "$ref": "#/$defs/type"
+        }
+      }
+    },
+    "value": {
+      "description": "A constant: \"'h\" then lowercase hex digits, without leading zeros ('h0 for zero), x and z for unknown digits: \"'h5a\".",
+      "type": "string",
+      "pattern": "^'h[0-9a-fxz]+$"
+    },
+    "net": {
+      "description": "One net: the endpoints joined, transitively, by the connections and ties a scope made, classified by their role in that scope (connections.md). Every key is always present.",
+      "type": "object",
+      "required": [
+        "scope",
+        "source",
+        "tie",
+        "sinks",
+        "signals",
+        "inouts"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/path"
+        },
+        "source": {
+          "description": "The source endpoint, or null when the net is driven by a tie, by inouts, or by nothing. With several sources (FW-E-NET-MULTI) it is the least of them.",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/path"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tie": {
+          "description": "The tied value, or null. A tie is a source. With several tied endpoints (FW-E-NET-MULTI), the value tied to the least of them.",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/value"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/path"
+          },
+          "description": "Sink endpoints, sorted."
+        },
+        "signals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/path"
+          },
+          "description": "Local signals of the scope on the net, sorted."
+        },
+        "inouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/path"
+          },
+          "description": "Inout endpoints, sorted."
+        }
+      }
+    },
+    "diagnostic": {
+      "description": "A diagnostic: its stable id and the path it names (diagnostics.md says which object each id names). The path is '' when there is none (a global override).",
+      "type": "object",
+      "required": [
+        "id",
+        "path"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^FW-[EW]-[A-Z]+-[A-Z]+$"
+        },
+        "path": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

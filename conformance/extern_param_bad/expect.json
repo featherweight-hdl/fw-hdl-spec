@@ -1,0 +1,8 @@
+{"diagnostics": [
+  {"id": "FW-E-EXT-PARAM", "path": "top.e[0]"},
+  {"id": "FW-E-EXT-PARAM", "path": "top.e[1]"},
+  {"id": "FW-E-EXT-PARAM", "path": "top.e[2]"},
+  {"id": "FW-E-EXT-PARAM", "path": "top.e[3]"},
+  {"id": "FW-E-EXT-PARAM", "path": "top.e[4]"},
+  {"id": "FW-E-EXT-PARAM", "path": "top.e[5]"}
+]}

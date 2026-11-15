@@ -1,0 +1,3 @@
+{
+  "description": "Ties: on a child input, on mirror members, on an own output, and on a local signal that fans out. A tie is the net's source."
+}

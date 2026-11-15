@@ -5,7 +5,7 @@ package:
   tasks:
   # The SV API: fw_hdl_pkg, declarations only. A tool compiles the API's
   # fw_hdl_api.svh into its own fw_hdl_pkg with its own bodies.
-  - name: sv-api
+  - export: sv-api
     uses: std.FileSet
     with:
       type: systemVerilogSource
@@ -29,7 +29,7 @@ package:
   # API smoke test: the core-layer1.md worked example, compiled and
   # elaborated against the spec's fw_hdl_pkg. Behavior is tested in each
   # tool.
-  - name: smoke-src
+  - export: smoke-src
     uses: std.FileSet
     with:
       type: systemVerilogSource
@@ -50,5 +50,21 @@ package:
     uses: hdlsim.vlt.SimRun
     needs: [smoke-img]
 
+  # M1 exit criterion: every conformance scenario's top.sv compiles against
+  # fw_hdl_pkg with the default bodies (Verilator, lint only).
+  - name: conformance-compile
+    needs: [sv-api-compile]
+    shell: bash
+    run: |
+      python3 $TASK_SRCDIR/tools/fw_conformance_compile.py \
+          --conformance $TASK_SRCDIR/conformance --inputs $DFM_INPUTS --log-dir logs
+
+  # Spec lint: the API has no method bodies (except the fw_rv_if bundle
+  # type). Needs pyslang.
+  - name: spec-lint
+    shell: bash
+    run: |
+      python3 $TASK_SRCDIR/tools/fw_api_check.py --spec $TASK_SRCDIR/bindings/sv --lint
+
   - name: tests
-    needs: [smoke]
+    needs: [smoke, conformance-compile, spec-lint]

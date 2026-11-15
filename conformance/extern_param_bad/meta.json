@@ -1,0 +1,7 @@
+{
+  "description": "param() values that do not fit the module: a missing parameter, a string for an int, an int for a string, a type for a value, a value for a type, an enum for an int. FW-E-EXT-PARAM on each extern; e[6] fits.",
+  "static-only": true,
+  "rtl": [
+    "rtl.sv"
+  ]
+}

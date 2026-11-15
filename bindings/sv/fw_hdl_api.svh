@@ -45,6 +45,9 @@ typedef fw_object fw_pair_t[2];
 `include "fw_monitor.svh"
 `include "fw_rv_if.svh"
 
+`include "fw_param_arg.svh"
+`include "fw_value.svh"
+`include "fw_type.svh"
 `include "fw_pin_rule.svh"
 `include "fw_extern_map.svh"
 `include "fw_extern_if.svh"

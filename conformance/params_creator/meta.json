@@ -1,0 +1,3 @@
+{
+  "description": "Params from defaults and from the creator, including a value the creator computes from its own params. A field's source is the last stage that changed it, so a creator value equal to the default has none."
+}

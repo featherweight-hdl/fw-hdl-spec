@@ -1,0 +1,25 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",            "kind": "component", "type": "top",  "params": {}, "param_src": {}},
+    {"path": "top.c2",         "kind": "component", "type": "leaf", "params": {}, "param_src": {}},
+    {"path": "top.c2.i",       "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.c2.o",       "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.r",          "kind": "component", "type": "rx",   "params": {}, "param_src": {}},
+    {"path": "top.r.i",        "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.r.in",       "kind": "mirror", "type": "fw_rv_if#(bit[7:0])"},
+    {"path": "top.r.in.data",  "kind": "port", "type": "bit[7:0]", "dir": "in", "width": 8},
+    {"path": "top.r.in.ready", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.r.in.valid", "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.s",          "kind": "signal", "type": "bit", "width": 1},
+    {"path": "top.y",          "kind": "port", "type": "bit", "dir": "out", "width": 1}
+  ],
+  "nets": [
+    {"scope": "top", "source": null, "tie": "'h1",  "sinks": ["top.c2.i"],       "signals": ["top.s"], "inouts": []},
+    {"scope": "top", "source": null, "tie": "'h0",  "sinks": ["top.r.i"],        "signals": [],        "inouts": []},
+    {"scope": "top", "source": null, "tie": "'h5a", "sinks": ["top.r.in.data"],  "signals": [],        "inouts": []},
+    {"scope": "top", "source": null, "tie": "'h1",  "sinks": ["top.r.in.valid"], "signals": [],        "inouts": []},
+    {"scope": "top", "source": null, "tie": "'h1",  "sinks": ["top.y"],          "signals": [],        "inouts": []}
+  ],
+  "diagnostics": []
+}

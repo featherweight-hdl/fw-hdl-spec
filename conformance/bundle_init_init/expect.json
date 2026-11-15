@@ -1,0 +1,5 @@
+{"diagnostics": [
+  {"id": "FW-E-NET-MULTI",    "path": "top.a.out.data"},
+  {"id": "FW-E-NET-UNDRIVEN", "path": "top.a.out.ready"},
+  {"id": "FW-E-NET-MULTI",    "path": "top.a.out.valid"}
+]}

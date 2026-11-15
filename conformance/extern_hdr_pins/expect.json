@@ -1,0 +1,4 @@
+{"diagnostics": [
+  {"id": "FW-E-EXT-PIN",  "path": "top.e"},
+  {"id": "FW-E-EXT-PORT", "path": "top.e.extra"}
+]}

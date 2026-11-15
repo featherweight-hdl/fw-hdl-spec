@@ -1,0 +1,4 @@
+{
+  "description": "A constructor factory that is still null when used: FW-E-PARAM-NULL on the component that used it. Static only: in a simulator the call is a null dereference.",
+  "static-only": true
+}

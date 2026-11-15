@@ -9,5 +9,6 @@ signals, ports, bundles and externs.
    :maxdepth: 2
 
    overview
+   wrapping
    api/index
    example

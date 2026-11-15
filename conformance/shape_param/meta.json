@@ -1,0 +1,3 @@
+{
+  "description": "A struct-valued shape class parameter drives port widths. The created type spells the struct value positionally. (Verilator 5.055: the shape is packed, and the non-default value a localparam, because unpacked struct values and repeated '{...} literals give mismatched specializations.)"
+}

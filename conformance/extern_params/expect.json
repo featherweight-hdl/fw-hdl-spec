@@ -1,0 +1,22 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",     "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.d",   "kind": "port", "type": "bit[11:0]", "dir": "in", "width": 12},
+    {"path": "top.e",   "kind": "component", "type": "ext", "params": {}, "param_src": {},
+     "extern": {"module": "prm_mod",
+                "params": {"CFG":    {"type": "cfg_t",         "value": "'{4,1}"},
+                           "K":      {"type": "logic[39:0]",   "value": "78187493530"},
+                           "MODE":   {"type": "mode_e",        "value": "MODE_FAST"},
+                           "NAME":   {"type": "string",        "value": "\"u0\""},
+                           "OFS":    {"type": "int",           "value": "-6"},
+                           "cfg_tt": {"type": "type",          "value": "cfg_t"},
+                           "data_t": {"type": "type",          "value": "bit[11:0]"}},
+                "pins": {"d": "d"}, "ties": {}, "open": [], "unused": []}},
+    {"path": "top.e.d", "kind": "port", "type": "bit[11:0]", "dir": "in", "width": 12}
+  ],
+  "nets": [
+    {"scope": "top", "source": "top.d", "tie": null, "sinks": ["top.e.d"], "signals": [], "inouts": []}
+  ],
+  "diagnostics": []
+}

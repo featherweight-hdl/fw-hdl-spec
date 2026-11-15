@@ -9,7 +9,7 @@
 //         `fw_extern_utils(rv_fifo #(T), "fw_rv_fifo")
 //
 //         virtual function void extern_map(fw_extern_map m);
-//             m.param("DEPTH", params.depth);
+//             m.param("DEPTH", fw_value #(int)::of(params.depth));
 //             void'(m.prefix(in, "in_").rename("valid", "vld"));
 //         endfunction
 //     endclass

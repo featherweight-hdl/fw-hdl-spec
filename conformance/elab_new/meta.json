@@ -1,0 +1,3 @@
+{
+  "description": "A port constructed with new() instead of the factory, then connected: FW-E-ELAB-NEW, named by the component whose phase method used it."
+}

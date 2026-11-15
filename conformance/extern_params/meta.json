@@ -1,0 +1,6 @@
+{
+  "description": "param() with fw_value of int (negative), a 40-bit vector, string, enum and packed struct, and fw_type for two type parameters (one sets a port's width). A name set twice keeps the later value.",
+  "rtl": [
+    "rtl.sv"
+  ]
+}

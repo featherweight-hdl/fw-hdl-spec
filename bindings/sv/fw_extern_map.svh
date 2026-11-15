@@ -4,7 +4,7 @@
 //
 // Class-side objects are handles; module-side names are strings. Each module
 // pin is mapped exactly once (``FW-E-EXT-PIN``) and each port maps to a pin
-// (``FW-E-EXT-PORT``):
+// (``FW-E-EXT-PORT``) unless it is marked :sv:func:`fw_extern_map::unused`:
 //
 // - An unmapped port or bundle member maps to the pin with its flattened
 //   name: ``in.data`` maps to pin ``in_data``.
@@ -12,15 +12,20 @@
 //   explicit :sv:func:`fw_extern_map::pin` after a rule replaces the rule's
 //   choice for that member.
 //
-// The method names ``clock``, ``reset``, ``clock_out`` and ``reset_out`` are
-// reserved for the domain layer.
+// Clock and reset pins are mapped like any other pin in layer 1. The domain
+// layer maps them through its own classes, without new methods here.
 class fw_extern_map;
 
-    // Sets a module parameter.
+    // Sets a module parameter: a value of any type
+    // (:sv:func:`fw_value::of`) or, for a ``parameter type``, a type
+    // (:sv:func:`fw_type::get`)::
+    //
+    //     m.param("WIDTH",  fw_value #(int)::of($bits(T)));
+    //     m.param("data_t", fw_type #(T)::get());
     //
     // :param name: the parameter name
     // :param value: its value
-    extern function void param(string name, int value);
+    extern function void param(string name, fw_param_arg value);
 
     // Maps a module pin to a port, or to a member of a bundle port.
     //
@@ -45,5 +50,13 @@ class fw_extern_map;
     //
     // :param name: the pin name
     extern function void open(string name);
+
+    // Marks an input port, or every port of a bundle, as having no pin: the
+    // module does not use it. A monitor of ``fw_rv_if`` that wraps a checker
+    // without a data pin marks ``p.data`` unused. Only inputs may be unused:
+    // an output with no pin would leave its net undriven (``FW-E-EXT-PORT``).
+    //
+    // :param o: a port or bundle of this extern
+    extern function void unused(fw_object o);
 
 endclass

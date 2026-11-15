@@ -1,0 +1,18 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",       "kind": "component", "type": "top",   "params": {}, "param_src": {}},
+    {"path": "top.mid",   "kind": "component", "type": "mid",   "params": {}, "param_src": {}},
+    {"path": "top.mid.x", "kind": "component", "type": "cfg_c",
+     "params": {"a": 20, "b": 20, "c": 21, "d": 7},
+     "param_src": {"a": "override", "b": "override", "c": "override", "d": "global"}},
+    {"path": "top.mid.y", "kind": "component", "type": "cfg_c",
+     "params": {"a": 1, "b": 4, "c": 4, "d": 7},
+     "param_src": {"b": "override", "c": "override", "d": "global"}},
+    {"path": "top.mid.z", "kind": "component", "type": "cfg_c",
+     "params": {"a": 31, "b": 2, "c": 4, "d": 7},
+     "param_src": {"a": "override", "b": "override", "c": "override", "d": "global"}}
+  ],
+  "nets": [],
+  "diagnostics": []
+}

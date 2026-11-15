@@ -1,0 +1,41 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",               "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.a",             "kind": "component", "type": "ini", "params": {}, "param_src": {}},
+    {"path": "top.a.m",           "kind": "bundle", "type": "pair_if"},
+    {"path": "top.a.m.en",        "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.a.m.req",       "kind": "bundle", "type": "ch_if"},
+    {"path": "top.a.m.req.ready", "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.a.m.req.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.a.m.rsp",       "kind": "mirror", "type": "ch_if"},
+    {"path": "top.a.m.rsp.ready", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.a.m.rsp.valid", "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.b",             "kind": "component", "type": "tgt", "params": {}, "param_src": {}},
+    {"path": "top.b.s",           "kind": "mirror", "type": "pair_if"},
+    {"path": "top.b.s.en",        "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.b.s.req",       "kind": "bundle", "type": "ch_if"},
+    {"path": "top.b.s.req.ready", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.b.s.req.valid", "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.b.s.rsp",       "kind": "mirror", "type": "ch_if"},
+    {"path": "top.b.s.rsp.ready", "kind": "port", "type": "bit", "dir": "in",  "width": 1},
+    {"path": "top.b.s.rsp.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.t",             "kind": "component", "type": "tap", "params": {}, "param_src": {}},
+    {"path": "top.t.p",           "kind": "monitor", "type": "pair_if"},
+    {"path": "top.t.p.en",        "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.t.p.req",       "kind": "bundle", "type": "ch_if"},
+    {"path": "top.t.p.req.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.t.p.req.valid", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.t.p.rsp",       "kind": "mirror", "type": "ch_if"},
+    {"path": "top.t.p.rsp.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.t.p.rsp.valid", "kind": "port", "type": "bit", "dir": "in", "width": 1}
+  ],
+  "nets": [
+    {"scope": "top", "source": "top.a.m.en",        "tie": null, "sinks": ["top.b.s.en", "top.t.p.en"],               "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.b.s.req.ready", "tie": null, "sinks": ["top.a.m.req.ready", "top.t.p.req.ready"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.a.m.req.valid", "tie": null, "sinks": ["top.b.s.req.valid", "top.t.p.req.valid"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.a.m.rsp.ready", "tie": null, "sinks": ["top.b.s.rsp.ready", "top.t.p.rsp.ready"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.b.s.rsp.valid", "tie": null, "sinks": ["top.a.m.rsp.valid", "top.t.p.rsp.valid"], "signals": [], "inouts": []}
+  ],
+  "diagnostics": []
+}

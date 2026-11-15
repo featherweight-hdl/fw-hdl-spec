@@ -1,0 +1,3 @@
+{
+  "description": "connect_all with non-equivalent value types (bit[7:0] and logic[7:0]), bundles of different types, and a signal with a bundle: FW-E-CONN-TYPE on the first endpoint of each pair."
+}

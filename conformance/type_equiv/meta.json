@@ -1,0 +1,3 @@
+{
+  "description": "Type equivalence: a typedef of bit[7:0] connects to bit[7:0], and a packed struct keeps its typedef name. Type spellings in the netlist."
+}

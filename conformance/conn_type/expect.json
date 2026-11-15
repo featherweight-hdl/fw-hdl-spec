@@ -1,0 +1,5 @@
+{"diagnostics": [
+  {"id": "FW-E-CONN-TYPE", "path": "top.a"},
+  {"id": "FW-E-CONN-TYPE", "path": "top.ob"},
+  {"id": "FW-E-CONN-TYPE", "path": "top.x"}
+]}

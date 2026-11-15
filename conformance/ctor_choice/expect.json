@@ -1,0 +1,14 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",      "kind": "component", "type": "top",    "params": {}, "param_src": {}},
+    {"path": "top.h0",   "kind": "component", "type": "holder", "params": {"h": "impl_a", "depth": 2}, "param_src": {"h": "init"}},
+    {"path": "top.h0.u", "kind": "component", "type": "impl_a", "params": {"depth": 2}, "param_src": {}},
+    {"path": "top.h1",   "kind": "component", "type": "holder", "params": {"h": "impl_b", "depth": 3}, "param_src": {"h": "creator", "depth": "creator"}},
+    {"path": "top.h1.u", "kind": "component", "type": "impl_b", "params": {"depth": 3}, "param_src": {"depth": "creator"}},
+    {"path": "top.h2",   "kind": "component", "type": "holder", "params": {"h": "impl_b", "depth": 2}, "param_src": {"h": "override"}},
+    {"path": "top.h2.u", "kind": "component", "type": "impl_b", "params": {"depth": 2}, "param_src": {}}
+  ],
+  "nets": [],
+  "diagnostics": []
+}

@@ -1,0 +1,6 @@
+{
+  "description": "Two ports of an extern mapped to the same module pin: FW-E-EXT-PIN on the extern. Needs no module header.",
+  "rtl": [
+    "rtl.sv"
+  ]
+}

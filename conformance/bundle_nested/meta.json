@@ -1,0 +1,3 @@
+{
+  "description": "Nested bundles: pair_if holds an initiator req and a mirror rsp. In the target (a mirror of pair_if), rsp is a mirror inside a mirror, so its members keep their declared directions. A monitor of pair_if makes every nested member an input."
+}

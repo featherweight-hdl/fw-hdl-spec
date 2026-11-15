@@ -1,0 +1,7 @@
+{
+  "description": "Header check: a module pin that nothing maps (FW-E-EXT-PIN, on the extern), and a port whose default pin the module lacks (FW-E-EXT-PORT, on the port). Needs the module header.",
+  "static-only": true,
+  "rtl": [
+    "rtl.sv"
+  ]
+}
