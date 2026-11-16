@@ -1,0 +1,6 @@
+{
+  "description": "Clock crossings: same domain (none), related (information), unrelated (error); unrelated through a local signal; a bundle connection across unrelated clocks, reported once on the lesser interface.",
+  "features": [
+    "domains"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-DOM-BIND",
+      "path": "top"
+    },
+    {
+      "id": "FW-E-DOM-BIND",
+      "path": "top.p"
+    },
+    {
+      "id": "FW-E-DOM-BIND",
+      "path": "top.u"
+    }
+  ]
+}

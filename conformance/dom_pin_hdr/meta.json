@@ -1,0 +1,10 @@
+{
+  "description": "Header checks on domain pins: an input domain pin on an output, a domain pin on a 2-bit input, a domain pin the module lacks, an output domain pin on an input.",
+  "features": [
+    "domains"
+  ],
+  "static-only": true,
+  "rtl": [
+    "rtl.sv"
+  ]
+}

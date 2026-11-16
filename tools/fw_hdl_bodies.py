@@ -23,7 +23,10 @@ def _ret(decl, ret: str) -> str:
 
 
 def _arg(a) -> str:
-    return " ".join(x for x in (a.type, a.name, a.dims) if x)
+    """An argument as the body declares it. The default is repeated:
+    Verilator takes defaults from an out-of-block body, not the prototype."""
+    s = " ".join(x for x in (a.type, a.name, a.dims) if x)
+    return s if a.default is None else "%s = %s" % (s, a.default)
 
 
 def bodies(decl) -> list:

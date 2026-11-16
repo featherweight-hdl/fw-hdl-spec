@@ -1,0 +1,200 @@
+{
+  "diagnostics": [],
+  "nets": [
+    {
+      "inouts": [],
+      "scope": "top",
+      "signals": [],
+      "sinks": [
+        "top.u.i"
+      ],
+      "source": "top.p_in",
+      "tie": null
+    }
+  ],
+  "objects": [
+    {
+      "assoc": {
+        "fw_clock_kind": {
+          "": "top.clk_a"
+        }
+      },
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top",
+      "type": "top"
+    },
+    {
+      "assoc": {
+        "fw_clock_kind": {
+          "": "top.clk_b"
+        }
+      },
+      "kind": "monitor",
+      "path": "top.b",
+      "type": "fw_rv_if#(bit)"
+    },
+    {
+      "dir": "in",
+      "kind": "port",
+      "path": "top.b.data",
+      "type": "bit",
+      "width": 1
+    },
+    {
+      "dir": "in",
+      "kind": "port",
+      "path": "top.b.ready",
+      "type": "bit",
+      "width": 1
+    },
+    {
+      "dir": "in",
+      "kind": "port",
+      "path": "top.b.valid",
+      "type": "bit",
+      "width": 1
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 0,
+        "div": 1,
+        "from": [],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.clk_a",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 0,
+        "div": 1,
+        "from": [],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.clk_b",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "assoc": {
+        "fw_clock_kind": {
+          "": "top.clk_b"
+        }
+      },
+      "dir": "in",
+      "kind": "port",
+      "path": "top.p_in",
+      "type": "bit",
+      "width": 1
+    },
+    {
+      "dir": "in",
+      "kind": "port",
+      "path": "top.q",
+      "type": "bit",
+      "width": 1
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.clk_b"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.seen_b",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.clk_b"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.seen_bv",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.clk_b"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.seen_p",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.clk_a"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.seen_q",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "assoc": {
+        "fw_clock_kind": {
+          "": "top.clk_b"
+        }
+      },
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.u",
+      "type": "leaf"
+    },
+    {
+      "dir": "in",
+      "kind": "port",
+      "path": "top.u.i",
+      "type": "bit",
+      "width": 1
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.clk_b"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.u.seen",
+      "type": "fw_domain#(fw_clock_kind)"
+    }
+  ],
+  "top": "top"
+}

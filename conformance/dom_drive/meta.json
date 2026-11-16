@@ -1,0 +1,6 @@
+{
+  "description": "Drivers: the top drives its root clock and reset from its input ports, the reset active low; a derived clock is driven by a child's output port.",
+  "features": [
+    "domains"
+  ]
+}

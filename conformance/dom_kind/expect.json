@@ -1,0 +1,12 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-DOM-KIND",
+      "path": "top.bad_clk"
+    },
+    {
+      "id": "FW-E-DOM-KIND",
+      "path": "top.bad_rst"
+    }
+  ]
+}

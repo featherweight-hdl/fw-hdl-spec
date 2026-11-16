@@ -1,0 +1,6 @@
+{
+  "description": "relate() in the build phase choosing structure: a child is created for each relation that holds. Relations follow sources through derivations, including a muxed clock with two roots.",
+  "features": [
+    "domains"
+  ]
+}

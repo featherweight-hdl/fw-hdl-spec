@@ -1,0 +1,6 @@
+{
+  "description": "Lookup of default associations: the top's clock inherited three levels down; a middle level setting one child's clock and the reset set on the middle level only. Each component records what get() returned as the source of a probe domain (seen, rseen).",
+  "features": [
+    "domains"
+  ]
+}

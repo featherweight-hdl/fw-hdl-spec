@@ -14,6 +14,12 @@ Summary of the decisions a second implementation must reproduce:
   ([params](params.md)) and, for externs, `extern` ([extern](extern.md)).
   Ports carry their *effective* direction seen from their scope
   ([bundles](bundles.md)).
+- **Domains** ([domains](domains.md)) are objects of kind `domain`, with
+  their params and drivers. The objects that hold them list associations
+  (`assoc`), domain pins (`domain_pins`, on the extern), waivers, port
+  names and stated derivations; each key appears only when it has
+  entries, so a design without domains has none of them. Domain handles
+  in a value are written as paths.
 - **Types** are spelled canonically: class name without package, every
   parameter value in declaration order including defaults, no spaces;
   vectors as `bit[7:0]`; struct/enum typedefs by name; struct values as

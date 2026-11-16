@@ -1,0 +1,20 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-DOM-PHASE",
+      "path": "top"
+    },
+    {
+      "id": "FW-E-DOM-PHASE",
+      "path": "top.clk"
+    },
+    {
+      "id": "FW-E-DOM-PHASE",
+      "path": "top.d_i"
+    },
+    {
+      "id": "FW-E-DOM-PHASE",
+      "path": "top.u0"
+    }
+  ]
+}

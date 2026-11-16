@@ -1,0 +1,12 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-W-DOM-CROSS",
+      "path": "top.a0.o"
+    },
+    {
+      "id": "FW-E-DOM-CROSS",
+      "path": "top.a1.o"
+    }
+  ]
+}

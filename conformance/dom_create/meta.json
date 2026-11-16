@@ -1,0 +1,6 @@
+{
+  "description": "Domain objects: a root of each library kind, every derivation of each, and their netlist form. Unused domains are markers: no diagnostics.",
+  "features": [
+    "domains"
+  ]
+}

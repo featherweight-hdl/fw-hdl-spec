@@ -1,0 +1,6 @@
+{
+  "description": "FW-E-EXT-PIN: a domain pin with the name of a tied pin.",
+  "features": [
+    "domains"
+  ]
+}

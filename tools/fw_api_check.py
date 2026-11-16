@@ -15,7 +15,8 @@ It parses both packages with pyslang (syntax only) and requires that
   plus only names beginning ``__fw_``.
 
 Spec lint (``--lint``): the spec's package has no method bodies except in
-``fw_rv_if`` (a bundle type written with the API), and no out-of-block
+``fw_rv_if`` (a bundle type written with the API) and the domain kind
+classes (a kind's static functions are its definition), and no out-of-block
 bodies.
 
 Usage::
@@ -38,12 +39,14 @@ from pyslang import syntax
 SK = syntax.SyntaxKind
 PKG = "fw_hdl_pkg"
 # Classes whose methods may have bodies in the spec.
-BODY_OK = {"fw_rv_if"}
+BODY_OK = {"fw_rv_if", "fw_domain_kind", "fw_domain_kind_type_of",
+           "fw_clock_kind", "fw_reset_kind"}
 MACROS = {
     "fw_component_utils": "`fw_component_utils(probe)",
     "fw_extern_utils": "`fw_extern_utils(probe, \"probe_mod\")",
     "fw_component_params": "`fw_component_params",
     "fw_component_params_init": "`fw_component_params_init(probe_init)",
+    "fw_domain_kind_utils": "`fw_domain_kind_utils(probe)",
 }
 
 

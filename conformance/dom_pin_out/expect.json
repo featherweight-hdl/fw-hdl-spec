@@ -1,0 +1,150 @@
+{
+  "diagnostics": [],
+  "nets": [],
+  "objects": [
+    {
+      "assoc": {
+        "fw_clock_kind": {
+          "": "top.clk"
+        }
+      },
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top",
+      "type": "top"
+    },
+    {
+      "drivers": [
+        {
+          "attr": {
+            "unused": 0
+          },
+          "signal": "top.clk_i"
+        }
+      ],
+      "kind": "domain",
+      "params": {
+        "deriv": 0,
+        "div": 1,
+        "from": [],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.clk",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "dir": "in",
+      "kind": "port",
+      "path": "top.clk_i",
+      "type": "bit",
+      "width": 1
+    },
+    {
+      "assoc": {
+        "fw_clock_kind": {
+          "": "top.slow"
+        }
+      },
+      "extern": {
+        "domain_pins": {
+          "clk": {
+            "attr": {
+              "unused": 0
+            },
+            "dir": "in",
+            "domain": "top.slow",
+            "kind": "fw_clock_kind"
+          }
+        },
+        "module": "sink_mod",
+        "open": [],
+        "params": {},
+        "pins": {},
+        "ties": {},
+        "unused": []
+      },
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.e",
+      "type": "sink"
+    },
+    {
+      "drivers": [
+        {
+          "attr": {
+            "unused": 0
+          },
+          "extern": "top.u",
+          "pin": "clk_o"
+        }
+      ],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 2,
+        "from": [
+          "top.clk"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.slow",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "assoc": {
+        "fw_clock_kind": {
+          "out": "top.slow"
+        }
+      },
+      "extern": {
+        "domain_pins": {
+          "clk_i": {
+            "attr": {
+              "unused": 0
+            },
+            "dir": "in",
+            "domain": "top.clk",
+            "kind": "fw_clock_kind"
+          },
+          "clk_o": {
+            "attr": {
+              "unused": 0
+            },
+            "dir": "out",
+            "domain": "top.slow",
+            "kind": "fw_clock_kind"
+          }
+        },
+        "module": "clk_div2",
+        "open": [],
+        "params": {},
+        "pins": {},
+        "ties": {},
+        "unused": []
+      },
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.u",
+      "provides": {
+        "fw_clock_kind": {
+          "out": {
+            "deriv": 1,
+            "div": 2,
+            "from": [
+              "top.clk"
+            ],
+            "mul": 1,
+            "phase_deg": 0
+          }
+        }
+      },
+      "type": "div2"
+    }
+  ],
+  "top": "top"
+}

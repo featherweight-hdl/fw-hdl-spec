@@ -25,13 +25,10 @@ pins in ``extern_map()``:
        `fw_component_params
        `fw_extern_utils(rv_fifo #(T), "fw_rv_fifo")
 
-       fw_input  #(bit)            clk, rst;
        fw_mirror #(fw_rv_if #(T))  in;
        fw_bundle #(fw_rv_if #(T))  out;
 
        virtual function void build();
-           clk = fw_input  #(bit)::create("clk", this);
-           rst = fw_input  #(bit)::create("rst", this);
            in  = fw_mirror #(fw_rv_if #(T))::create("in",  this);
            out = fw_bundle #(fw_rv_if #(T))::create("out", this);
        endfunction
@@ -39,6 +36,8 @@ pins in ``extern_map()``:
        virtual function void extern_map(fw_extern_map m);
            m.param("WIDTH", fw_value #(int)::of($bits(T)));
            m.param("DEPTH", fw_value #(int)::of(params.depth));
+           fw_clock_domain::pin(m, "clk");          // the wrapper's clock domain
+           fw_reset_domain::pin(m, "rst");          // its reset, active high
            void'(m.prefix(in,  "in_").rename("valid", "vld").rename("ready", "rdy"));
            void'(m.prefix(out, "out_").rename("valid", "vld").rename("ready", "rdy"));
        endfunction
@@ -52,11 +51,14 @@ The map, in order of precedence:
    Maps every member of a bundle to ``pre`` plus its name, with renames.
    One rule covers any protocol, because a bundle's members come from its
    type.
+``fw_clock_domain::pin(m, name)``, ``fw_reset_domain::pin(m, name, ...)``
+   A clock or reset pin, connected to the wrapper's domain of that kind
+   (:doc:`domains`). It is not a port: nothing wires it by hand.
 ``tie(name, value)`` / ``open(name)``
    An input pin driven with a constant; an output pin left unconnected.
 The default rule
    Any port still unmapped goes to the pin with its flattened name:
-   ``clk``, ``in_data``.
+   ``in_data``.
 
 A tool that has the module's source checks the map against the module
 header: every pin is accounted for exactly once (``FW-E-EXT-PIN``), every
@@ -86,8 +88,6 @@ and connects them in ``connect()``:
        fifo.in.connect_up(in);       // a child's target side, passed up
        fifo.out.connect(slice.s);    // initiator to target, between siblings
        slice.m.connect_up(out);      // a child's initiator side, passed up
-       fifo.clk.connect(clk);
-       fifo.rst.connect(rst);
    endfunction
 
 The compiler checks that the bundle types and roles fit each other.
@@ -98,21 +98,52 @@ undriven net (``FW-E-NET-UNDRIVEN``), and no input left open
 Clocks and resets
 -----------------
 
-Layer 1 has no clock or reset domains. A module's clock and reset pins
-are ordinary ``fw_input #(bit)`` ports, connected by hand. If two wrapped
-modules disagree on reset polarity, the assembly takes both resets as
-ports. The domain layer will replace this.
+The assembly creates a clock and a reset domain, makes them its defaults
+(its children inherit them), and drives them from its inputs. No clock or
+reset is connected by hand:
+
+.. code-block:: systemverilog
+
+   virtual function void build();
+       clk_i = fw_input #(bit)::create("clk_i", this);
+       rst_i = fw_input #(bit)::create("rst_i", this);
+       clk   = fw_clock_domain::create("clk", this);
+       rst   = fw_reset_domain::create("rst", this, fw_reset_kind::root(.clock(clk)));
+       fw_clock_domain::set(this, clk);
+       fw_reset_domain::set(this, rst);
+       ...
+   endfunction
+
+   virtual function void connect();
+       clk.drive(clk_i);
+       rst.drive(rst_i);             // an active-high net
+       ...
+   endfunction
+
+If two wrapped modules disagree on reset polarity, each maps its pin with
+the polarity it expects (``fw_reset_kind::active_low()``), and the
+generated Verilog inverts where a pin differs from its net. Several clocks,
+derived clocks and the crossing check are in :doc:`domains`.
 
 What the generated Verilog looks like
 -------------------------------------
 
 Each generated module has the assembly's ports with bundles flattened
 (``in_valid``, ``in_ready``, ``in_data``) and one instance per wrapper, of
-the wrapped module itself:
+the wrapped module itself. The domains are nets assigned from the
+assembly's inputs, with an inverted reset for the active-low pin:
 
 .. code-block:: systemverilog
+
+   assign clk = clk_i;
+   assign rst = rst_i;
+   assign rst_inv = ~rst;
 
    fw_rv_fifo #(.WIDTH(8), .DEPTH(4)) fifo (
      .clk(clk), .rst(rst),
      .in_data(in_data), .in_vld(in_valid), .in_rdy(in_ready),
      .out_data(fifo_out_data), .out_vld(fifo_out_valid), .out_rdy(slice_s_ready));
+
+   axis_reg #(.DATA_W(8)) slice (
+     .aclk(clk), .aresetn(rst_inv),
+     ...

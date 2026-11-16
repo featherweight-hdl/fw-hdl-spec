@@ -1,0 +1,10 @@
+{
+  "description": "FW-E-DOM-PORTNAME: a class whose subtree realizes its default clock gets a generated input port clk, which collides with a port it declares.",
+  "features": [
+    "domains"
+  ],
+  "static-only": true,
+  "rtl": [
+    "rtl.sv"
+  ]
+}

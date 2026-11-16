@@ -1,0 +1,24 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-DOM-OBJ",
+      "path": "top.b.valid"
+    },
+    {
+      "id": "FW-E-DOM-OBJ",
+      "path": "top.m.l"
+    },
+    {
+      "id": "FW-E-DOM-OBJ",
+      "path": "top.p"
+    },
+    {
+      "id": "FW-E-DOM-OBJ",
+      "path": "top.u"
+    },
+    {
+      "id": "FW-E-DOM-OBJ",
+      "path": "top.u.o"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "description": "FW-W-DOM-STYLE: a pin requiring a synchronous reset on an asynchronous reset domain. Pins requiring any style, or the domain's own, are fine.",
+  "features": [
+    "domains"
+  ]
+}

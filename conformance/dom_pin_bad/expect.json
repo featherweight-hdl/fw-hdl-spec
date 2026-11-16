@@ -1,0 +1,12 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-DOM-PIN",
+      "path": "top.bus"
+    },
+    {
+      "id": "FW-E-DOM-PIN",
+      "path": "top.m_i"
+    }
+  ]
+}

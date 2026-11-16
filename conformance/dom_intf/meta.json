@@ -1,0 +1,6 @@
+{
+  "description": "Interfaces: a port and a bundle set to a domain; a bundle member follows its bundle; an unset port follows its component; a child's port follows the child. Probe domains record what get() returned.",
+  "features": [
+    "domains"
+  ]
+}

@@ -12,6 +12,7 @@ Macro                                      Used in                             D
 :sv:macro:`fw_extern_utils`                every concrete extern               ``create``, ``extern_module``
 :sv:macro:`fw_component_params`            the class declaring ``params_t``    ``params``
 :sv:macro:`fw_component_params_init`       the same, with an init function     ``params``
+:sv:macro:`fw_domain_kind_utils`           every domain kind                   ``get_type``
 =========================================  ==================================  ==================================
 
 .. autosvsummary::

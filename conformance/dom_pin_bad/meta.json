@@ -1,0 +1,6 @@
+{
+  "description": "FW-E-DOM-PIN without a module header: a domain driven by a 2-bit signal; a domain of a marker kind (declared here) driven at all.",
+  "features": [
+    "domains"
+  ]
+}

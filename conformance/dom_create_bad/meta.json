@@ -1,0 +1,6 @@
+{
+  "description": "A domain named like a port (FW-E-NAME-DUP) and a domain created in the connect phase (FW-E-ELAB-LATE).",
+  "features": [
+    "domains"
+  ]
+}

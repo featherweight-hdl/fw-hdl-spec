@@ -1,0 +1,139 @@
+{
+  "diagnostics": [],
+  "nets": [],
+  "objects": [
+    {
+      "assoc": {
+        "fw_clock_kind": {
+          "": "top.c0"
+        }
+      },
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top",
+      "type": "top"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 0,
+        "div": 1,
+        "from": [],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.c0",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 0,
+        "div": 1,
+        "from": [],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.c1",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 0,
+        "div": 1,
+        "from": [],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.c2",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "assoc": {
+        "fw_clock_kind": {
+          "": "top.c1",
+          "rd": "top.c2",
+          "wr": "top.c0"
+        }
+      },
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.d",
+      "type": "dual"
+    },
+    {
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.d.k",
+      "type": "leaf"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.c1"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.d.k.seen",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.c1"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.d.seen_aux",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.c2"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.d.seen_rd",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.c0"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.d.seen_wr",
+      "type": "fw_domain#(fw_clock_kind)"
+    }
+  ],
+  "top": "top"
+}

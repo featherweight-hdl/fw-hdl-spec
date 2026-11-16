@@ -1,0 +1,104 @@
+{
+  "diagnostics": [],
+  "nets": [],
+  "objects": [
+    {
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top",
+      "type": "top"
+    },
+    {
+      "drivers": [
+        {
+          "attr": {
+            "unused": 0
+          },
+          "signal": "top.clk_i"
+        }
+      ],
+      "kind": "domain",
+      "params": {
+        "deriv": 0,
+        "div": 1,
+        "from": [],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.clk",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "dir": "in",
+      "kind": "port",
+      "path": "top.clk_i",
+      "type": "bit",
+      "width": 1
+    },
+    {
+      "drivers": [
+        {
+          "attr": {
+            "unused": 0
+          },
+          "signal": "top.g.o"
+        }
+      ],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 2,
+        "from": [
+          "top.clk"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.d2",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.g",
+      "type": "gen"
+    },
+    {
+      "dir": "out",
+      "kind": "port",
+      "path": "top.g.o",
+      "type": "bit",
+      "width": 1
+    },
+    {
+      "drivers": [
+        {
+          "attr": {
+            "active_low": 1,
+            "style": 2
+          },
+          "signal": "top.rst_ni"
+        }
+      ],
+      "kind": "domain",
+      "params": {
+        "clock": "top.clk",
+        "deriv": 0,
+        "from": [],
+        "style": 0
+      },
+      "path": "top.rst",
+      "type": "fw_domain#(fw_reset_kind)"
+    },
+    {
+      "dir": "in",
+      "kind": "port",
+      "path": "top.rst_ni",
+      "type": "bit",
+      "width": 1
+    }
+  ],
+  "top": "top"
+}

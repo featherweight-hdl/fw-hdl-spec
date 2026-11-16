@@ -1,9 +1,10 @@
 # Diagnostics
 
-Each diagnostic has a stable ID (`FW-<E|W>-<AREA>-<WHAT>`), a message and a
-**path**: the full name of one object, given below for each ID. Conformance
-compares (ID, path) pairs, never messages. Each pair is reported once.
-`FW-E-` IDs are errors: elaboration fails. `FW-W-` IDs are warnings.
+Each diagnostic has a stable ID (`FW-<E|W|I>-<AREA>-<WHAT>`), a message and
+a **path**: the full name of one object, given below for each ID.
+Conformance compares (ID, path) pairs, never messages. Each pair is reported
+once. `FW-E-` IDs are errors: elaboration fails. `FW-W-` IDs are warnings.
+`FW-I-` IDs are information, compared like the others.
 
 Implementations report *all* errors: an error stops only the call that
 caused it, and an object rejected at creation is left out of the tree
@@ -33,6 +34,27 @@ caused it, and an object rejected at creation is left out of the tree
 | `FW-E-EXT-DIR` | port and pin directions disagree (header check) | the port |
 | `FW-E-EXT-WIDTH` | port and pin widths disagree (header check) | the port |
 | `FW-E-RT-NONE` | no implementation registered | `""` |
+
+Domains ([domains](domains.md)):
+
+| ID | Condition | Path |
+|---|---|---|
+| `FW-E-DOM-PHASE` | `set`, `port_name` or `provides` outside the build phase; `drive` or `waive` outside the connect phase | the target, the component, the domain, or the waiver's first interface |
+| `FW-E-DOM-BIND` | the same object, kind and name set twice | the target |
+| `FW-E-DOM-OBJ` | `set` on an object that is not a direct child, the calling component or one of its interfaces; on a bundle member; a named association on an interface; `port_name` or `provides` on another component | the target |
+| `FW-E-DOM-UNUSED` | a named association never read with `get` | the component |
+| `FW-E-DOM-NONE` | a needed domain is `null`: a derivation source, an extern pin's domain, an argument of `relate` | the domain being created, the extern, or the calling component |
+| `FW-E-DOM-KIND` | a derivation source not of the domain's kind; a reset's `clock` that is not a clock domain | the domain being created |
+| `FW-E-DOM-DRIVER` | a domain with more than one driver | the domain |
+| `FW-E-DOM-NODRIVER` | a realized domain with no driver | the domain |
+| `FW-E-DOM-DERIV` | a stated derivation (`provides`) differs from the domain's | the component |
+| `FW-E-DOM-PIN` | a driven signal wider than 1 bit; a pin or driver on a marker kind; a domain pin of the wrong direction or wider than 1 bit (header check) | the signal, or the extern |
+| `FW-E-DOM-PORTNAME` | a generated domain port collides with a port of the module (static front end) | the class's first instance |
+| `FW-E-DOM-CROSS`, `FW-W-DOM-CROSS`, `FW-I-DOM-CROSS` | a crossing, at its kind's severity for the relation | the lesser of the two interfaces |
+| `FW-E-DOM-WAIVE` | a waiver with an empty reason | its first interface |
+| `FW-W-DOM-WAIVE` | a waiver that matches no crossing | its first interface |
+| `FW-W-DOM-STYLE` | a reset pin's required style differs from its domain's | the extern |
+| `FW-W-DOM-RSTSYNC` | a component's reset is synchronous to a clock unrelated to its clock domain | the component where the mismatch starts |
 
 `FW-E-NAME-BAD` is an addition to the initial list in core-layer1.md 3.10,
 which requires legal names but gave no ID.

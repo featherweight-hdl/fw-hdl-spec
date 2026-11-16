@@ -1,4 +1,4 @@
-// fw_hdl_pkg.sv: the package of the fw-hdl core API, layer 1.
+// fw_hdl_pkg.sv: the package of the fw-hdl core API: layer 1 and domains.
 //
 // The API is declarations only (fw_hdl_api.svh): no method bodies. A tool
 // provides its own fw_hdl_pkg, which includes fw_hdl_api.svh unchanged and
@@ -14,8 +14,8 @@
 
 `include "fw_hdl_macros.svh"
 
-// The fw-hdl core API, layer 1: components, signals, ports, bundles and
-// externs.
+// The fw-hdl core API: components, signals, ports, bundles, externs and
+// domains.
 //
 // User code imports it and follows one recipe: declare fields with the API
 // classes, and create anything with ``T::create``::

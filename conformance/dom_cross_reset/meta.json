@@ -1,0 +1,6 @@
+{
+  "description": "Reset crossings: related resets (warning) and unrelated resets (error), all on one clock.",
+  "features": [
+    "domains"
+  ]
+}

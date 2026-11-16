@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://dvkit.org/featherweight-hdl/fw-hdl-spec/semantics/netlist.schema.json",
-  "title": "fw-hdl elaborated netlist, layer 1",
+  "title": "fw-hdl elaborated netlist: layer 1 and domains",
   "description": "The normalized form of an elaborated design: the conformance artifact (netlist.md). Every implementation's conformance runner produces it; the suite compares it with a scenario's expect.json. Two implementations given the same design must produce netlists that are equal as JSON values, and byte-identical in canonical text (keys sorted, two-space indent, one trailing newline: Python json.dumps(x, indent=2, sort_keys=True) + '\\n'). Array order is normative, and given under each array. All strings are ASCII. Paths are full names (elaboration.md): the top is named 'top'. Sorting is by Unicode code point (byte-wise for ASCII), so 'u[10]' sorts before 'u[2]'.",
   "type": "object",
   "required": [
@@ -31,7 +31,7 @@
       }
     },
     "diagnostics": {
-      "description": "Every diagnostic reported, errors and warnings, each (id, path) pair once, sorted by path then id. A design elaborates successfully exactly when no id begins 'FW-E-'.",
+      "description": "Every diagnostic reported, errors, warnings and information, each (id, path) pair once, sorted by path then id. A design elaborates successfully exactly when no id begins 'FW-E-'.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/diagnostic"
@@ -40,7 +40,7 @@
   },
   "$defs": {
     "path": {
-      "description": "A full name: 'top', then '.' and a name for each level. A name is an SV identifier with zero or more '[<decimal>]' suffixes.",
+      "description": "A full name: 'top', then '.' and a name for each level. A name is an SV identifier with zero or more '[<decimal>]' suffixes. Domain handles in a value are written as paths.",
       "type": "string",
       "pattern": "^[A-Za-z_][A-Za-z0-9_$]*(\\[[0-9]+\\])*(\\.[A-Za-z_][A-Za-z0-9_$]*(\\[[0-9]+\\])*)*$"
     },
@@ -70,7 +70,8 @@
             "port",
             "bundle",
             "mirror",
-            "monitor"
+            "monitor",
+            "domain"
           ]
         }
       },
@@ -86,6 +87,9 @@
         },
         {
           "$ref": "#/$defs/bundle"
+        },
+        {
+          "$ref": "#/$defs/domain"
         }
       ]
     },
@@ -111,7 +115,7 @@
           "$ref": "#/$defs/type"
         },
         "params": {
-          "description": "The resolved params value (params.md), one key per field of params_t. Empty for a component whose class (or ancestor) declares no params_t of its own. Field values: an integral field as a JSON number, the non-negative integer whose binary representation is the field's bits (int -1 is 4294967295); a value with x or z bits, or wider than 64 bits, as a string \"'h\" + lowercase hex; a string field as a JSON string; a constructor factory as the canonical type of the realization it creates, or null; a nested struct as an object; an unpacked array or queue as an array.",
+          "description": "The resolved params value (params.md), one key per field of params_t. Empty for a component whose class (or ancestor) declares no params_t of its own. Field values: an integral field as a JSON number, the non-negative integer whose binary representation is the field's bits (int -1 is 4294967295); a value with x or z bits, or wider than 64 bits, as a string \"'h\" + lowercase hex; a string field as a JSON string; a constructor factory as the canonical type of the realization it creates, or null; a nested struct as an object; an unpacked array or queue as an array. A domain handle (in a domain's params) as its path, or null.",
           "type": "object"
         },
         "param_src": {
@@ -128,6 +132,57 @@
         },
         "extern": {
           "$ref": "#/$defs/extern"
+        },
+        "assoc": {
+          "$ref": "#/$defs/assoc"
+        },
+        "waivers": {
+          "description": "Waivers made in this component's connect phase, by waive(): sorted by a, then b, then kind. Present only when there is at least one.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "a",
+              "b",
+              "reason"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string"
+              },
+              "a": {
+                "$ref": "#/$defs/path"
+              },
+              "b": {
+                "$ref": "#/$defs/path"
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "port_names": {
+          "description": "Port names this component set for its class, by port_name(): kind name -> association name -> port name. Present only when there is at least one.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "provides": {
+          "description": "Derivations this component stated by provides(): kind name -> association name -> params, written as a domain's params. Present only when there is at least one.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          }
         }
       }
     },
@@ -194,6 +249,44 @@
           "items": {
             "$ref": "#/$defs/relpath"
           }
+        },
+        "domain_pins": {
+          "description": "Domain pins, from pin() and pin_out() of fw_domain (domains.md): module pin -> its mapping. 'domain' is the domain's path after a null argument is resolved, or null when it resolved to none (FW-E-DOM-NONE). 'dir' is 'in' for pin(), 'out' for pin_out(). 'attr' is the pin_attr_t value, written as params are. If one pin name is mapped twice (FW-E-EXT-PIN), the first is listed. Present only when there is at least one.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "kind",
+              "domain",
+              "dir",
+              "attr"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string"
+              },
+              "domain": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/path"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "dir": {
+                "enum": [
+                  "in",
+                  "out"
+                ]
+              },
+              "attr": {
+                "type": "object"
+              }
+            }
+          }
         }
       }
     },
@@ -254,6 +347,9 @@
         "width": {
           "type": "integer",
           "minimum": 1
+        },
+        "assoc": {
+          "$ref": "#/$defs/assoc"
         }
       }
     },
@@ -279,6 +375,9 @@
         },
         "type": {
           "$ref": "#/$defs/type"
+        },
+        "assoc": {
+          "$ref": "#/$defs/assoc"
         }
       }
     },
@@ -359,10 +458,90 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^FW-[EW]-[A-Z]+-[A-Z]+$"
+          "pattern": "^FW-[EWI]-[A-Z]+-[A-Z]+$"
         },
         "path": {
           "type": "string"
+        }
+      }
+    },
+    "assoc": {
+      "description": "Associations made on this object by set() (domains.md): kind name (the kind class's canonical type spelling, 'fw_clock_kind') -> association name ('' for the default) -> the domain's path. Only the associations made on the object itself, not those it inherits by lookup. Present only when there is at least one.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/$defs/path"
+        }
+      }
+    },
+    "domain": {
+      "description": "A domain object (domains.md). 'type' is its created type, 'fw_domain#(fw_clock_kind)'. 'params' is its params value, written as a component's params are, each domain handle as its path.",
+      "type": "object",
+      "required": [
+        "path",
+        "kind",
+        "type",
+        "params",
+        "drivers"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "kind": {
+          "const": "domain"
+        },
+        "type": {
+          "$ref": "#/$defs/type"
+        },
+        "params": {
+          "type": "object"
+        },
+        "drivers": {
+          "description": "Its drivers: drive() as {'signal', 'attr'}, pin_out() as {'extern', 'pin', 'attr'}; 'attr' written as params are. Sorted by signal or extern path, then pin.",
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "signal",
+                  "attr"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "signal": {
+                    "$ref": "#/$defs/path"
+                  },
+                  "attr": {
+                    "type": "object"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": [
+                  "extern",
+                  "pin",
+                  "attr"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "extern": {
+                    "$ref": "#/$defs/path"
+                  },
+                  "pin": {
+                    "type": "string"
+                  },
+                  "attr": {
+                    "type": "object"
+                  }
+                }
+              }
+            ]
+          }
         }
       }
     }

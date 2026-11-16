@@ -1,0 +1,12 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-DOM-DRIVER",
+      "path": "top.c2"
+    },
+    {
+      "id": "FW-E-DOM-DRIVER",
+      "path": "top.clk"
+    }
+  ]
+}

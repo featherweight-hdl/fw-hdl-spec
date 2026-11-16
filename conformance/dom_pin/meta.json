@@ -1,0 +1,9 @@
+{
+  "description": "Extern domain pins: the default clock, a named clock and an active-low reset expecting an asynchronous reset, next to an ordinary port mapped by the default rule.",
+  "features": [
+    "domains"
+  ],
+  "rtl": [
+    "rtl.sv"
+  ]
+}

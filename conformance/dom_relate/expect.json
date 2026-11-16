@@ -1,0 +1,121 @@
+{
+  "diagnostics": [],
+  "nets": [],
+  "objects": [
+    {
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top",
+      "type": "top"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 0,
+        "div": 1,
+        "from": [],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.c0",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 2,
+        "from": [
+          "top.c0"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.c1",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 0,
+        "div": 1,
+        "from": [],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.c2",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 3,
+        "div": 1,
+        "from": [
+          "top.c1"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.c3",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.chain_ok",
+      "type": "leaf"
+    },
+    {
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.mux_ok",
+      "type": "leaf"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 4,
+        "div": 1,
+        "from": [
+          "top.c1",
+          "top.c2"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.mx",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.rel_ok",
+      "type": "leaf"
+    },
+    {
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.same_ok",
+      "type": "leaf"
+    },
+    {
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.unrel_ok",
+      "type": "leaf"
+    }
+  ],
+  "top": "top"
+}

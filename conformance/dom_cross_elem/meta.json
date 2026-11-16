@@ -1,0 +1,6 @@
+{
+  "description": "A crossing element: a component whose input and output ports are in unrelated clock domains is not a crossing; the nets on each side stay in one domain. Its parent's own ports take part like children's.",
+  "features": [
+    "domains"
+  ]
+}

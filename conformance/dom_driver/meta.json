@@ -1,0 +1,6 @@
+{
+  "description": "FW-E-DOM-DRIVER: a domain driven by two signals; a domain driven by a signal and by an extern's output pin.",
+  "features": [
+    "domains"
+  ]
+}

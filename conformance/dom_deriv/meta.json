@@ -1,0 +1,6 @@
+{
+  "description": "FW-E-DOM-DERIV: a divide-by-2 wrapper states the derivation it produces, but its parent sets its output to a clock divided by 4.",
+  "features": [
+    "domains"
+  ]
+}

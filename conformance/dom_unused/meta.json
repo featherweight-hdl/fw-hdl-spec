@@ -1,0 +1,6 @@
+{
+  "description": "FW-E-DOM-UNUSED: a named association the component never reads. A name read only in the connect phase is read.",
+  "features": [
+    "domains"
+  ]
+}

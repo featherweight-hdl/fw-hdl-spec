@@ -1,0 +1,6 @@
+{
+  "description": "Waivers: a waived crossing is not reported; a waiver with an empty reason is an error and waives nothing; a waiver that matches no crossing is a warning.",
+  "features": [
+    "domains"
+  ]
+}

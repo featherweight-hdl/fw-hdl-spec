@@ -1,0 +1,6 @@
+{
+  "description": "A kind declared only in user code (the toy macro kind: a marker, with information on every crossing). It is associated, looked up, checked at connections and listed in the netlist like a library kind.",
+  "features": [
+    "domains"
+  ]
+}

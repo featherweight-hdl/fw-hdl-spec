@@ -1,0 +1,103 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-I-DOM-CROSS",
+      "path": "top.a.o"
+    }
+  ],
+  "nets": [
+    {
+      "inouts": [],
+      "scope": "top",
+      "signals": [],
+      "sinks": [
+        "top.b.i",
+        "top.c.i"
+      ],
+      "source": "top.a.o",
+      "tie": null
+    }
+  ],
+  "objects": [
+    {
+      "assoc": {
+        "macro_kind": {
+          "": "top.m0"
+        }
+      },
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top",
+      "type": "top"
+    },
+    {
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.a",
+      "type": "src"
+    },
+    {
+      "dir": "out",
+      "kind": "port",
+      "path": "top.a.o",
+      "type": "bit",
+      "width": 1
+    },
+    {
+      "assoc": {
+        "macro_kind": {
+          "": "top.m1"
+        }
+      },
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.b",
+      "type": "snk"
+    },
+    {
+      "dir": "in",
+      "kind": "port",
+      "path": "top.b.i",
+      "type": "bit",
+      "width": 1
+    },
+    {
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.c",
+      "type": "snk"
+    },
+    {
+      "dir": "in",
+      "kind": "port",
+      "path": "top.c.i",
+      "type": "bit",
+      "width": 1
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 0,
+        "from": []
+      },
+      "path": "top.m0",
+      "type": "fw_domain#(macro_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 0,
+        "from": []
+      },
+      "path": "top.m1",
+      "type": "fw_domain#(macro_kind)"
+    }
+  ],
+  "top": "top"
+}

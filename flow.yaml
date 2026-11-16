@@ -60,11 +60,19 @@ package:
           --conformance $TASK_SRCDIR/conformance --inputs $DFM_INPUTS --log-dir logs
 
   # Spec lint: the API has no method bodies (except the fw_rv_if bundle
-  # type). Needs pyslang.
+  # type and the domain kinds). Needs pyslang.
   - name: spec-lint
     shell: bash
     run: |
       python3 $TASK_SRCDIR/tools/fw_api_check.py --spec $TASK_SRCDIR/bindings/sv --lint
 
+  # Every scenario's expect.json is valid against the netlist schema, with
+  # objects and diagnostics in order; meta.json has only known keys. Needs
+  # jsonschema.
+  - name: conformance-schema
+    shell: bash
+    run: |
+      python3 $TASK_SRCDIR/tools/fw_conformance_schema.py --spec $TASK_SRCDIR
+
   - name: tests
-    needs: [smoke, conformance-compile, spec-lint]
+    needs: [smoke, conformance-compile, conformance-schema, spec-lint]

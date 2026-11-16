@@ -1,0 +1,9 @@
+{
+  "description": "A divide-by-2 wrapper drives its parent's derived clock through an output pin, and states the derivation it produces (provides), which matches. A second extern runs on the divided clock.",
+  "features": [
+    "domains"
+  ],
+  "rtl": [
+    "rtl.sv"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "description": "FW-E-DOM-PHASE: set and port_name in the connect phase; drive and waive in the build phase.",
+  "features": [
+    "domains"
+  ]
+}

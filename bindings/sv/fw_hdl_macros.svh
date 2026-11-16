@@ -1,4 +1,4 @@
-// fw_hdl_macros.svh: the user-facing macros of fw_hdl_pkg, layer 1.
+// fw_hdl_macros.svh: the user-facing macros of fw_hdl_pkg.
 //
 // The macro names, arguments and the members they declare are API. A tool
 // provides its own fw_hdl_macros.svh with its expansions; an expansion may
@@ -70,5 +70,19 @@
 // :param FN: a static function of the class taking ``ref params_t``
 `define fw_component_params_init(FN) \
     params_t params;
+
+// Declares ``get_type`` for domain kind ``T``. Every kind uses it::
+//
+//     static function fw_domain_kind_type get_type();
+//
+// ``get_type`` returns the kind's handle, one object per kind: the key for
+// associations, and the way code that does not know ``T`` reaches its
+// rules. See :sv:class:`fw_domain_kind`.
+//
+// :param T: the kind class
+`define fw_domain_kind_utils(T) \
+    static function fw_domain_kind_type get_type(); \
+        return fw_domain_kind_type_of #(T)::get(); \
+    endfunction
 
 `endif // FW_HDL_MACROS_SVH

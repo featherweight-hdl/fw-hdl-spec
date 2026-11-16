@@ -1,0 +1,12 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-NAME-DUP",
+      "path": "top.a"
+    },
+    {
+      "id": "FW-E-ELAB-LATE",
+      "path": "top.late"
+    }
+  ]
+}

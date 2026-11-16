@@ -1,0 +1,6 @@
+{
+  "description": "FW-E-DOM-KIND: a clock derived from a reset domain, and a reset whose clock is a reset domain.",
+  "features": [
+    "domains"
+  ]
+}

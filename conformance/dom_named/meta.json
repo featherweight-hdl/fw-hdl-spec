@@ -1,0 +1,6 @@
+{
+  "description": "Named associations: a component reads two names that are set and one that is not (it falls back to the component's default). Named associations are not inherited: the child sees its parent's default.",
+  "features": [
+    "domains"
+  ]
+}

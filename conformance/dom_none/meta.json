@@ -1,0 +1,6 @@
+{
+  "description": "FW-E-DOM-NONE: a derivation with a null source; relate() with a null argument; an extern pin whose domain resolves to none.",
+  "features": [
+    "domains"
+  ]
+}

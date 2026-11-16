@@ -1,0 +1,6 @@
+{
+  "description": "FW-E-DOM-BIND: the same object, kind and name set twice: a child, the component itself, its own port. Setting a different kind, or a different name, is not a second binding.",
+  "features": [
+    "domains"
+  ]
+}

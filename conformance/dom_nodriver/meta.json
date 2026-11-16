@@ -1,0 +1,6 @@
+{
+  "description": "FW-E-DOM-NODRIVER: a domain realized by an extern pin with no driver. A domain nothing uses physically needs none.",
+  "features": [
+    "domains"
+  ]
+}

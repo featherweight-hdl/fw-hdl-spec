@@ -1,0 +1,6 @@
+{
+  "description": "FW-W-DOM-RSTSYNC: a child put on a clock unrelated to the clock of the reset it inherits; reported where the mismatch starts, not on the child's own child. A child on a related clock is fine.",
+  "features": [
+    "domains"
+  ]
+}

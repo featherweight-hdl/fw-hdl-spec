@@ -1,0 +1,16 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-DOM-CROSS",
+      "path": "top.a1.o"
+    },
+    {
+      "id": "FW-W-DOM-WAIVE",
+      "path": "top.a2.o"
+    },
+    {
+      "id": "FW-E-DOM-WAIVE",
+      "path": "top.b1.i"
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "diagnostics": [],
+  "nets": [],
+  "objects": [
+    {
+      "assoc": {
+        "fw_clock_kind": {
+          "": "top.clk_a"
+        }
+      },
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top",
+      "type": "top"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 0,
+        "div": 1,
+        "from": [],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.clk_a",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "assoc": {
+        "fw_reset_kind": {
+          "": "top.por"
+        }
+      },
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.m",
+      "type": "mid"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 2,
+        "from": [
+          "top.clk_a"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.m.clk_c",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.m.l0",
+      "type": "leaf"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "clock": "top.clk_a",
+        "deriv": 1,
+        "from": [
+          "top.por"
+        ],
+        "style": 0
+      },
+      "path": "top.m.l0.rseen",
+      "type": "fw_domain#(fw_reset_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.clk_a"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.m.l0.seen",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "assoc": {
+        "fw_clock_kind": {
+          "": "top.m.clk_c"
+        }
+      },
+      "kind": "component",
+      "param_src": {},
+      "params": {},
+      "path": "top.m.l1",
+      "type": "leaf"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "clock": "top.m.clk_c",
+        "deriv": 1,
+        "from": [
+          "top.por"
+        ],
+        "style": 0
+      },
+      "path": "top.m.l1.rseen",
+      "type": "fw_domain#(fw_reset_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.m.clk_c"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.m.l1.seen",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "clock": "top.clk_a",
+        "deriv": 1,
+        "from": [
+          "top.por"
+        ],
+        "style": 0
+      },
+      "path": "top.m.rseen",
+      "type": "fw_domain#(fw_reset_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.clk_a"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.m.seen",
+      "type": "fw_domain#(fw_clock_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "clock": null,
+        "deriv": 0,
+        "from": [],
+        "style": 0
+      },
+      "path": "top.por",
+      "type": "fw_domain#(fw_reset_kind)"
+    },
+    {
+      "drivers": [],
+      "kind": "domain",
+      "params": {
+        "deriv": 1,
+        "div": 1,
+        "from": [
+          "top.clk_a"
+        ],
+        "mul": 1,
+        "phase_deg": 0
+      },
+      "path": "top.seen",
+      "type": "fw_domain#(fw_clock_kind)"
+    }
+  ],
+  "top": "top"
+}

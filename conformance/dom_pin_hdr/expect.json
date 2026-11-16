@@ -1,0 +1,20 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-DOM-PIN",
+      "path": "top.e1"
+    },
+    {
+      "id": "FW-E-DOM-PIN",
+      "path": "top.e2"
+    },
+    {
+      "id": "FW-E-EXT-PIN",
+      "path": "top.e3"
+    },
+    {
+      "id": "FW-E-DOM-PIN",
+      "path": "top.e4"
+    }
+  ]
+}

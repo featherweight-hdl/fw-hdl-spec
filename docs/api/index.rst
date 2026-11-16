@@ -11,4 +11,5 @@ API reference
    signals
    bundles
    extern
+   domains
    macros
