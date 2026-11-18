@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://dvkit.org/featherweight-hdl/fw-hdl-spec/semantics/netlist.schema.json",
-  "title": "fw-hdl elaborated netlist: layer 1 and domains",
+  "title": "fw-hdl elaborated netlist: layer 1, domains and protocols",
   "description": "The normalized form of an elaborated design: the conformance artifact (netlist.md). Every implementation's conformance runner produces it; the suite compares it with a scenario's expect.json. Two implementations given the same design must produce netlists that are equal as JSON values, and byte-identical in canonical text (keys sorted, two-space indent, one trailing newline: Python json.dumps(x, indent=2, sort_keys=True) + '\\n'). Array order is normative, and given under each array. All strings are ASCII. Paths are full names (elaboration.md): the top is named 'top'. Sorting is by Unicode code point (byte-wise for ASCII), so 'u[10]' sorts before 'u[2]'.",
   "type": "object",
   "required": [
@@ -35,6 +35,20 @@
       "type": "array",
       "items": {
         "$ref": "#/$defs/diagnostic"
+      }
+    },
+    "protocols": {
+      "description": "The protocols of the design (protocols.md), keyed by the canonical type of each specialization: those named by a bundle, endpoint or converter in the tree, and those of every converter registered with one of them. Present only when there is at least one.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/protocol"
+      }
+    },
+    "bindings": {
+      "description": "Method-level and configuration links (protocols.md): kind 'api', a port (or socket) bound by connect() or connect_up() to an export (or socket); kind 'cfg', a source pushing to a sink, bound by connect(). Sorted by kind, then from, then to. Present only when there is at least one.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/binding"
       }
     }
   },
@@ -71,7 +85,10 @@
             "bundle",
             "mirror",
             "monitor",
-            "domain"
+            "domain",
+            "api_endpoint",
+            "cfg_src",
+            "cfg_sink"
           ]
         }
       },
@@ -90,6 +107,12 @@
         },
         {
           "$ref": "#/$defs/domain"
+        },
+        {
+          "$ref": "#/$defs/api_endpoint"
+        },
+        {
+          "$ref": "#/$defs/cfg_endpoint"
         }
       ]
     },
@@ -223,7 +246,7 @@
           }
         },
         "pins": {
-          "description": "Module pin -> the port it maps to, as a path relative to the extern. One entry per port and bundle member of the extern that is not unused (pin(), a prefix rule, or the default rule). If two ports map to one pin (FW-E-EXT-PIN), the one created first is listed.",
+          "description": "Module pin -> the port it maps to, as a path relative to the extern; for a field of a member mapped field-wise (extern.md, Fields), the member's path then the field path ('aw.data.addr'). One entry per port and bundle member of the extern that is not unused (pin(), a prefix rule, or the default rule), or per field of a field-wise member. If two ports map to one pin (FW-E-EXT-PIN), the one created first is listed.",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/$defs/relpath"
@@ -378,6 +401,14 @@
         },
         "assoc": {
           "$ref": "#/$defs/assoc"
+        },
+        "protocol": {
+          "description": "The protocol the bundle type names with fw_bundle_protocol, as a key of 'protocols'. Absent when it names none.",
+          "$ref": "#/$defs/type"
+        },
+        "role": {
+          "description": "Its role in the protocol (fw_protocol::role_of). Present exactly when 'protocol' is.",
+          "$ref": "#/$defs/role"
         }
       }
     },
@@ -542,6 +573,169 @@
               }
             ]
           }
+        }
+      }
+    },
+    "role": {
+      "enum": [
+        "initiator",
+        "target",
+        "monitor"
+      ]
+    },
+    "protocol": {
+      "description": "One protocol specialization. 'family' is the class name; 'params' its parameter values, written as a component's params are; 'prefix' the prefix of derived names.",
+      "type": "object",
+      "required": [
+        "family",
+        "params",
+        "prefix",
+        "apis",
+        "bundles",
+        "converters"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "type": "string"
+        },
+        "params": {
+          "type": "object"
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "apis": {
+          "description": "The APIs declare() registers, sorted by dir.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "dir",
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "dir": {
+                "enum": [
+                  "req",
+                  "rsp"
+                ]
+              },
+              "type": {
+                "$ref": "#/$defs/type"
+              }
+            }
+          }
+        },
+        "bundles": {
+          "description": "Bundle types that name the protocol, sorted.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/type"
+          }
+        },
+        "converters": {
+          "description": "Registered transactors and abstractors, sorted by type. A transactor has from == to == this protocol and a role; an abstractor has no role.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type",
+              "from",
+              "to"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "$ref": "#/$defs/type"
+              },
+              "from": {
+                "$ref": "#/$defs/type"
+              },
+              "to": {
+                "$ref": "#/$defs/type"
+              },
+              "role": {
+                "$ref": "#/$defs/role"
+              }
+            }
+          }
+        }
+      }
+    },
+    "api_endpoint": {
+      "description": "A method-level endpoint: fw_port, fw_export or fw_socket. 'type' is its created type, 'fw_socket#(fw_put_if#(...),fw_put_if#(...))'; 'protocol' the protocol, when one is known.",
+      "type": "object",
+      "required": [
+        "path",
+        "kind",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "kind": {
+          "const": "api_endpoint"
+        },
+        "type": {
+          "$ref": "#/$defs/type"
+        },
+        "protocol": {
+          "$ref": "#/$defs/type"
+        },
+        "assoc": {
+          "$ref": "#/$defs/assoc"
+        }
+      }
+    },
+    "cfg_endpoint": {
+      "description": "A configuration source or sink (protocols.md). 'type' is its created type, 'fw_cfg_sink#(uart_cfg_t)'.",
+      "type": "object",
+      "required": [
+        "path",
+        "kind",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "kind": {
+          "enum": [
+            "cfg_src",
+            "cfg_sink"
+          ]
+        },
+        "type": {
+          "$ref": "#/$defs/type"
+        }
+      }
+    },
+    "binding": {
+      "description": "One link. For 'api', 'from' is the port side and 'to' the export side; a connect_up() is a link from the inner endpoint to the outer one (for an export, from the outer to the inner). For 'cfg', 'from' is the source and 'to' the sink.",
+      "type": "object",
+      "required": [
+        "kind",
+        "from",
+        "to"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "api",
+            "cfg"
+          ]
+        },
+        "from": {
+          "$ref": "#/$defs/path"
+        },
+        "to": {
+          "$ref": "#/$defs/path"
         }
       }
     }

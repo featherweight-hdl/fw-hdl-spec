@@ -1,0 +1,6 @@
+{
+  "description": "Initiator, target and monitor transactors registered with fw_xtor_utils, connected by their bundles and ports: the converters by role (derived from each transactor's pin mixin), api_endpoint objects and api bindings.",
+  "features": [
+    "protocols"
+  ]
+}

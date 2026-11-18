@@ -30,4 +30,19 @@ class fw_signal #(type T = bit) extends fw_signal_base;
     // :param value: the constant
     extern function void tie(T value);
 
+    // Returns the value of this signal's net, as of the last update: legal
+    // on every direction. A tied signal reads as its constant.
+    //
+    // :returns: the value
+    extern function T read();
+
+    // Writes the whole value; it becomes visible at the update point of the
+    // writing process (layer 2): at once in the settle for ``comb()``, after
+    // the edge for ``step()`` and ``run()``. Writing an effective input is
+    // ``FW-E-WRITE-IN``; a signal written by two processes is
+    // ``FW-E-WRITE-MULTI``.
+    //
+    // :param v: the value
+    extern function void write(T v);
+
 endclass

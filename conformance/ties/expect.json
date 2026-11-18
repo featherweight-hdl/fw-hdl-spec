@@ -7,7 +7,7 @@
     {"path": "top.c2.o",       "kind": "port", "type": "bit", "dir": "out", "width": 1},
     {"path": "top.r",          "kind": "component", "type": "rx",   "params": {}, "param_src": {}},
     {"path": "top.r.i",        "kind": "port", "type": "bit", "dir": "in",  "width": 1},
-    {"path": "top.r.in",       "kind": "mirror", "type": "fw_rv_if#(bit[7:0])"},
+    {"path": "top.r.in",       "kind": "mirror", "type": "fw_rv_if#(bit[7:0])", "protocol": "fw_rv_proto#(bit[7:0])", "role": "target"},
     {"path": "top.r.in.data",  "kind": "port", "type": "bit[7:0]", "dir": "in", "width": 8},
     {"path": "top.r.in.ready", "kind": "port", "type": "bit", "dir": "out", "width": 1},
     {"path": "top.r.in.valid", "kind": "port", "type": "bit", "dir": "in",  "width": 1},
@@ -21,5 +21,8 @@
     {"scope": "top", "source": null, "tie": "'h1",  "sinks": ["top.r.in.valid"], "signals": [],        "inouts": []},
     {"scope": "top", "source": null, "tie": "'h1",  "sinks": ["top.y"],          "signals": [],        "inouts": []}
   ],
-  "diagnostics": []
+  "diagnostics": [],
+  "protocols": {
+    "fw_rv_proto#(bit[7:0])": {"family": "fw_rv_proto", "params": {"T": "bit[7:0]"}, "prefix": "fw_rv", "apis": [{"dir": "req", "type": "fw_put_if#(bit[7:0])"}], "bundles": ["fw_rv_if#(bit[7:0])"], "converters": []}
+  }
 }

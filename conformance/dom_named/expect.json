@@ -22,6 +22,7 @@
         "div": 1,
         "from": [],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.c0",
@@ -35,6 +36,7 @@
         "div": 1,
         "from": [],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.c1",
@@ -48,6 +50,7 @@
         "div": 1,
         "from": [],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.c2",
@@ -84,6 +87,7 @@
           "top.c1"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.d.k.seen",
@@ -99,6 +103,7 @@
           "top.c1"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.d.seen_aux",
@@ -114,6 +119,7 @@
           "top.c2"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.d.seen_rd",
@@ -129,6 +135,7 @@
           "top.c0"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.d.seen_wr",

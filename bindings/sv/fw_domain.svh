@@ -157,4 +157,40 @@ class fw_domain #(type K = fw_domain_kind) extends fw_domain_base;
     // :returns: the params given to ``create``
     extern function params_t params();
 
+    // The operations below are for processes (layer 2): a ``run()`` task
+    // waits on its component's domains through them. Each is keyed by
+    // ``obj``: the calling component, or one of its own ports or bundles in
+    // a role, and acts on the domain ``obj`` resolves to (``get(obj)``).
+    // An object of another component is ``FW-E-DOM-OBJ``; a domain that
+    // does not resolve is ``FW-E-DOM-NONE``. ``tick`` is for clock domains
+    // and the rest for reset domains; any other kind is ``FW-E-DOM-KIND``.
+    // Using a domain this way realizes it. fe-sv lowers none of them in a
+    // task, and ``in_reset`` only in ``step()`` and ``comb()``.
+
+    // Waits for ``n`` active edges of the clock domain of ``obj``. A domain
+    // with no driver, no extern pin and no ``period`` on its root has no
+    // edges: ``FW-E-CLOCK-NONE``.
+    //
+    // :param obj: the calling component, or one of its interfaces
+    // :param n: the number of edges, 1 or more
+    extern static task tick(fw_object obj, int n = 1);
+
+    // Returns 1 while the reset domain of ``obj`` is asserted.
+    //
+    // :param obj: the calling component, or one of its interfaces
+    // :returns: 1 in reset
+    extern static function bit in_reset(fw_object obj);
+
+    // Returns when the reset domain of ``obj`` is not asserted: at once if
+    // it is not, else at its deassertion.
+    //
+    // :param obj: the calling component, or one of its interfaces
+    extern static task wait_reset_done(fw_object obj);
+
+    // Returns at the next assertion of the reset domain of ``obj``. A model
+    // that restarts on reset waits on it.
+    //
+    // :param obj: the calling component, or one of its interfaces
+    extern static task wait_assert(fw_object obj);
+
 endclass

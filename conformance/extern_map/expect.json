@@ -16,21 +16,21 @@
                 "unused": []}},
     {"path": "top.e.cfg",       "kind": "port", "type": "bit[3:0]", "dir": "in", "width": 4},
     {"path": "top.e.clk",       "kind": "port", "type": "bit", "dir": "in", "width": 1},
-    {"path": "top.e.in",        "kind": "mirror", "type": "fw_rv_if#(bit[7:0])"},
+    {"path": "top.e.in",        "kind": "mirror", "type": "fw_rv_if#(bit[7:0])", "protocol": "fw_rv_proto#(bit[7:0])", "role": "target"},
     {"path": "top.e.in.data",   "kind": "port", "type": "bit[7:0]", "dir": "in", "width": 8},
     {"path": "top.e.in.ready",  "kind": "port", "type": "bit", "dir": "out", "width": 1},
     {"path": "top.e.in.valid",  "kind": "port", "type": "bit", "dir": "in", "width": 1},
-    {"path": "top.e.out",       "kind": "bundle", "type": "fw_rv_if#(bit[7:0])"},
+    {"path": "top.e.out",       "kind": "bundle", "type": "fw_rv_if#(bit[7:0])", "protocol": "fw_rv_proto#(bit[7:0])", "role": "initiator"},
     {"path": "top.e.out.data",  "kind": "port", "type": "bit[7:0]", "dir": "out", "width": 8},
     {"path": "top.e.out.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
     {"path": "top.e.out.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1},
     {"path": "top.e.rst_n",     "kind": "port", "type": "bit", "dir": "in", "width": 1},
     {"path": "top.e.stat",      "kind": "port", "type": "bit", "dir": "out", "width": 1},
-    {"path": "top.in",          "kind": "mirror", "type": "fw_rv_if#(bit[7:0])"},
+    {"path": "top.in",          "kind": "mirror", "type": "fw_rv_if#(bit[7:0])", "protocol": "fw_rv_proto#(bit[7:0])", "role": "target"},
     {"path": "top.in.data",     "kind": "port", "type": "bit[7:0]", "dir": "in", "width": 8},
     {"path": "top.in.ready",    "kind": "port", "type": "bit", "dir": "out", "width": 1},
     {"path": "top.in.valid",    "kind": "port", "type": "bit", "dir": "in", "width": 1},
-    {"path": "top.out",         "kind": "bundle", "type": "fw_rv_if#(bit[7:0])"},
+    {"path": "top.out",         "kind": "bundle", "type": "fw_rv_if#(bit[7:0])", "protocol": "fw_rv_proto#(bit[7:0])", "role": "initiator"},
     {"path": "top.out.data",    "kind": "port", "type": "bit[7:0]", "dir": "out", "width": 8},
     {"path": "top.out.ready",   "kind": "port", "type": "bit", "dir": "in", "width": 1},
     {"path": "top.out.valid",   "kind": "port", "type": "bit", "dir": "out", "width": 1},
@@ -47,5 +47,8 @@
     {"scope": "top", "source": "top.e.out.valid", "tie": null,  "sinks": ["top.out.valid"],   "signals": [], "inouts": []},
     {"scope": "top", "source": "top.rst_n",       "tie": null,  "sinks": ["top.e.rst_n"],     "signals": [], "inouts": []}
   ],
-  "diagnostics": []
+  "diagnostics": [],
+  "protocols": {
+    "fw_rv_proto#(bit[7:0])": {"family": "fw_rv_proto", "params": {"T": "bit[7:0]"}, "prefix": "fw_rv", "apis": [{"dir": "req", "type": "fw_put_if#(bit[7:0])"}], "bundles": ["fw_rv_if#(bit[7:0])"], "converters": []}
+  }
 }

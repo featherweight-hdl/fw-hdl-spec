@@ -17,6 +17,7 @@
         "div": 1,
         "from": [],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.c0",
@@ -32,6 +33,7 @@
           "top.c0"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.c1",
@@ -45,6 +47,7 @@
         "div": 1,
         "from": [],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.c2",
@@ -60,6 +63,7 @@
           "top.c1"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.c3",
@@ -90,6 +94,7 @@
           "top.c2"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.mx",

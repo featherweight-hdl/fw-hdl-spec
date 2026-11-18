@@ -24,12 +24,16 @@ class fw_clock_kind extends fw_domain_kind;
     typedef enum { ROOT, DERIVED, PHASE, GATED, MUXED } deriv_e;
 
     // A clock domain's properties. ``from`` holds the source clocks.
+    // ``period`` is a root clock's period for simulation, 0 for none: with
+    // it, a root that nothing drives still has edges, which a class-only
+    // model needs. Derived clocks take theirs from their sources.
     typedef struct {
         deriv_e        deriv;
         fw_domain_base from[$];
         int            div;
         int            mul;
         int            phase_deg;
+        time           period;
     } params_t;
 
     // A clock pin has no attributes.
@@ -37,13 +41,15 @@ class fw_clock_kind extends fw_domain_kind;
 
     // A root clock.
     //
+    // :param period: the period for simulation, 0 for none
     // :returns: the params
-    static function params_t root();
+    static function params_t root(time period = 0);
         params_t p;
         p.deriv = ROOT;
         p.div = 1;
         p.mul = 1;
         p.phase_deg = 0;
+        p.period = period;
         return p;
     endfunction
 

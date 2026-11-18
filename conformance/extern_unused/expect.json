@@ -7,21 +7,21 @@
                 "pins": {"clk": "clk", "rdy": "p.ready", "vld": "p.valid"},
                 "ties": {}, "open": [],
                 "unused": ["aux.data", "aux.ready", "aux.valid", "p.data"]}},
-    {"path": "top.c.aux",       "kind": "monitor", "type": "fw_rv_if#(bit[7:0])"},
+    {"path": "top.c.aux",       "kind": "monitor", "type": "fw_rv_if#(bit[7:0])", "protocol": "fw_rv_proto#(bit[7:0])", "role": "monitor"},
     {"path": "top.c.aux.data",  "kind": "port", "type": "bit[7:0]", "dir": "in", "width": 8},
     {"path": "top.c.aux.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
     {"path": "top.c.aux.valid", "kind": "port", "type": "bit", "dir": "in", "width": 1},
     {"path": "top.c.clk",       "kind": "port", "type": "bit", "dir": "in", "width": 1},
-    {"path": "top.c.p",         "kind": "monitor", "type": "fw_rv_if#(bit[7:0])"},
+    {"path": "top.c.p",         "kind": "monitor", "type": "fw_rv_if#(bit[7:0])", "protocol": "fw_rv_proto#(bit[7:0])", "role": "monitor"},
     {"path": "top.c.p.data",    "kind": "port", "type": "bit[7:0]", "dir": "in", "width": 8},
     {"path": "top.c.p.ready",   "kind": "port", "type": "bit", "dir": "in", "width": 1},
     {"path": "top.c.p.valid",   "kind": "port", "type": "bit", "dir": "in", "width": 1},
     {"path": "top.clk",         "kind": "port", "type": "bit", "dir": "in", "width": 1},
-    {"path": "top.in",          "kind": "mirror", "type": "fw_rv_if#(bit[7:0])"},
+    {"path": "top.in",          "kind": "mirror", "type": "fw_rv_if#(bit[7:0])", "protocol": "fw_rv_proto#(bit[7:0])", "role": "target"},
     {"path": "top.in.data",     "kind": "port", "type": "bit[7:0]", "dir": "in", "width": 8},
     {"path": "top.in.ready",    "kind": "port", "type": "bit", "dir": "out", "width": 1},
     {"path": "top.in.valid",    "kind": "port", "type": "bit", "dir": "in", "width": 1},
-    {"path": "top.out",         "kind": "bundle", "type": "fw_rv_if#(bit[7:0])"},
+    {"path": "top.out",         "kind": "bundle", "type": "fw_rv_if#(bit[7:0])", "protocol": "fw_rv_proto#(bit[7:0])", "role": "initiator"},
     {"path": "top.out.data",    "kind": "port", "type": "bit[7:0]", "dir": "out", "width": 8},
     {"path": "top.out.ready",   "kind": "port", "type": "bit", "dir": "in", "width": 1},
     {"path": "top.out.valid",   "kind": "port", "type": "bit", "dir": "out", "width": 1}
@@ -36,5 +36,8 @@
     {"scope": "top", "source": "top.clk",       "tie": null,
      "sinks": ["top.c.clk"],                                          "signals": [], "inouts": []}
   ],
-  "diagnostics": []
+  "diagnostics": [],
+  "protocols": {
+    "fw_rv_proto#(bit[7:0])": {"family": "fw_rv_proto", "params": {"T": "bit[7:0]"}, "prefix": "fw_rv", "apis": [{"dir": "req", "type": "fw_put_if#(bit[7:0])"}], "bundles": ["fw_rv_if#(bit[7:0])"], "converters": []}
+  }
 }

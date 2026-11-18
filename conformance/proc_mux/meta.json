@@ -1,0 +1,8 @@
+{
+  "description": "A comb() mux: y = sel ? a : b, with b tied; inputs from a step() source.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "lowerable"
+}

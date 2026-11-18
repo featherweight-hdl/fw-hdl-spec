@@ -1,0 +1,6 @@
+{
+  "description": "test_rv_proto at two widths: one family, two specializations in the protocols table, each with its own API and bundle type.",
+  "features": [
+    "protocols"
+  ]
+}

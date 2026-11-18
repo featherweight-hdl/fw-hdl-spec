@@ -1,0 +1,7 @@
+{
+  "description": "A parameterized protocol whose this_t is the default specialization, not its own: FW-E-PROTO-THIS on the class (family name). Static only: it compiles in SV.",
+  "static-only": true,
+  "features": [
+    "protocols"
+  ]
+}

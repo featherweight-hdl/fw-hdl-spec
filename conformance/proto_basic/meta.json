@@ -1,0 +1,6 @@
+{
+  "description": "An unparameterized protocol with one request API, registered with fw_protocol_utils, and a bundle that names it: the netlist's protocols table, and protocol and role on the bundle instance.",
+  "features": [
+    "protocols"
+  ]
+}

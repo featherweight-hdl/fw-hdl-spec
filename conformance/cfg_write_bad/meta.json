@@ -1,0 +1,7 @@
+{
+  "description": "A write to a field of a sink's cfg: FW-E-CFG-WRITE on the sink. Static only: rt-sv covers the run-time form in its own tests.",
+  "static-only": true,
+  "features": [
+    "protocols"
+  ]
+}

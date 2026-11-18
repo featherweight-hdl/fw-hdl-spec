@@ -1,0 +1,5 @@
+{
+  "diagnostics": [
+    {"id": "FW-E-CFG-UNBOUND", "path": "top.r.c"}
+  ]
+}

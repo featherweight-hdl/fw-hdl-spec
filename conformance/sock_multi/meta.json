@@ -1,0 +1,6 @@
+{
+  "description": "A port bound to two exports: FW-E-SOCK-MULTI on the port; an export serving two ports is legal.",
+  "features": [
+    "protocols"
+  ]
+}

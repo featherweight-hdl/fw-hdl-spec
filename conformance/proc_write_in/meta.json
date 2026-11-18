@@ -1,0 +1,8 @@
+{
+  "description": "FW-E-WRITE-IN: a write to an input port, and to a mirror's valid (an effective input). Each write is ignored.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "lowerable"
+}

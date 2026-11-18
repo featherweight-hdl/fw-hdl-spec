@@ -1,0 +1,16 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-WRITE-IN",
+      "path": "top.k.i"
+    },
+    {
+      "id": "FW-E-WRITE-IN",
+      "path": "top.k.in.valid"
+    }
+  ],
+  "trace": {
+    "clock": "top.clk",
+    "edges": 3
+  }
+}

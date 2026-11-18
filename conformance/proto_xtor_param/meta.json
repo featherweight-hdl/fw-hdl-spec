@@ -1,0 +1,6 @@
+{
+  "description": "A parameterized transactor registered with fw_xtor_param_utils, used at two widths: one converter per protocol specialization.",
+  "features": [
+    "protocols"
+  ]
+}

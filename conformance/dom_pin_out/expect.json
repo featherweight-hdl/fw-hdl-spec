@@ -29,6 +29,7 @@
         "div": 1,
         "from": [],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.clk",
@@ -89,6 +90,7 @@
           "top.clk"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.slow",
@@ -139,6 +141,7 @@
               "top.clk"
             ],
             "mul": 1,
+            "period": 0,
             "phase_deg": 0
           }
         }

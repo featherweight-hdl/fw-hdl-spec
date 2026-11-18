@@ -1,0 +1,6 @@
+{
+  "description": "One API, test_put_if #(uart_char_t), registered by two protocols: both table entries list it.",
+  "features": [
+    "protocols"
+  ]
+}

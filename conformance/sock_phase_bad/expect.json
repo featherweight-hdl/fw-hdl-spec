@@ -1,0 +1,6 @@
+{
+  "diagnostics": [
+    {"id": "FW-E-CONN-PHASE", "path": "top.s"},
+    {"id": "FW-E-SOCK-UNBOUND", "path": "top.t"}
+  ]
+}

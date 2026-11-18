@@ -1,0 +1,16 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-WRITE-MULTI",
+      "path": "top.x.o"
+    },
+    {
+      "id": "FW-E-WRITE-MULTI",
+      "path": "top.x.p"
+    }
+  ],
+  "trace": {
+    "clock": "top.clk",
+    "edges": 3
+  }
+}

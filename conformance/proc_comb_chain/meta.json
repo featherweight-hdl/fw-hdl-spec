@@ -1,0 +1,8 @@
+{
+  "description": "Two comb() stages created in reverse order (settle needs two passes), and a step() register that reads the end of the chain: step sees settled values.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "lowerable"
+}

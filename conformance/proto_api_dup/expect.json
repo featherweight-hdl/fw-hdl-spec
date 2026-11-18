@@ -1,0 +1,5 @@
+{
+  "diagnostics": [
+    {"id": "FW-E-PROTO-API", "path": "dup_proto"}
+  ]
+}

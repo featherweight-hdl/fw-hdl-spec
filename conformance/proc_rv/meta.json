@@ -1,0 +1,8 @@
+{
+  "description": "A ready/valid source and a sink whose ready is a comb() of valid and a register that toggles (R2.3): ready answers valid in the same cycle.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "lowerable"
+}

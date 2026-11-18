@@ -1,0 +1,5 @@
+{
+  "diagnostics": [
+    {"id": "FW-E-PROTO-THIS", "path": "bad_proto"}
+  ]
+}

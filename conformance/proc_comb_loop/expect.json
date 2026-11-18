@@ -1,0 +1,12 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-COMB-LOOP",
+      "path": "top.l.a"
+    }
+  ],
+  "trace": {
+    "clock": "top.clk",
+    "edges": 1
+  }
+}

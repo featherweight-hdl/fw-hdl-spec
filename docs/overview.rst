@@ -5,9 +5,10 @@ The API is declarations only
 ----------------------------
 
 ``fw_hdl_pkg`` declares classes, typedefs and macros, with no method bodies:
-every method is an ``extern`` prototype or ``pure virtual``. The one
-exception is :sv:class:`fw_rv_if`, a bundle type written *with* the API like
-a user's.
+every method is an ``extern`` prototype or ``pure virtual``. Bundle
+types such as :sv:class:`fw_rv_if` are written *with* the API like a
+user's, so they live in the standard library ``fw_hdl_std_pkg``
+(:doc:`std`).
 
 Each tool (the reference runtime ``rt-sv``, the static front end ``fe-sv``)
 provides its own ``fw_hdl_pkg``. It includes the spec's declarations

@@ -33,7 +33,9 @@
       },
       "kind": "monitor",
       "path": "top.b",
-      "type": "fw_rv_if#(bit)"
+      "type": "fw_rv_if#(bit)",
+      "protocol": "fw_rv_proto#(bit)",
+      "role": "monitor"
     },
     {
       "dir": "in",
@@ -64,6 +66,7 @@
         "div": 1,
         "from": [],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.clk_a",
@@ -77,6 +80,7 @@
         "div": 1,
         "from": [],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.clk_b",
@@ -111,6 +115,7 @@
           "top.clk_b"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.seen_b",
@@ -126,6 +131,7 @@
           "top.clk_b"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.seen_bv",
@@ -141,6 +147,7 @@
           "top.clk_b"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.seen_p",
@@ -156,6 +163,7 @@
           "top.clk_a"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.seen_q",
@@ -190,11 +198,31 @@
           "top.clk_b"
         ],
         "mul": 1,
+        "period": 0,
         "phase_deg": 0
       },
       "path": "top.u.seen",
       "type": "fw_domain#(fw_clock_kind)"
     }
   ],
-  "top": "top"
+  "top": "top",
+  "protocols": {
+    "fw_rv_proto#(bit)": {
+      "family": "fw_rv_proto",
+      "params": {
+        "T": "bit"
+      },
+      "prefix": "fw_rv",
+      "apis": [
+        {
+          "dir": "req",
+          "type": "fw_put_if#(bit)"
+        }
+      ],
+      "bundles": [
+        "fw_rv_if#(bit)"
+      ],
+      "converters": []
+    }
+  }
 }

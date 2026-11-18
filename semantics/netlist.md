@@ -20,6 +20,15 @@ Summary of the decisions a second implementation must reproduce:
   names and stated derivations; each key appears only when it has
   entries, so a design without domains has none of them. Domain handles
   in a value are written as paths.
+- **Protocols** ([protocols](protocols.md)) are a top-level `protocols`
+  table keyed by specialization (family, params, APIs with direction,
+  bundle types, converters). Bundle instances carry `protocol` and `role`.
+  API endpoints and sockets are objects of kind `api_endpoint`;
+  configuration sources and sinks of kind `cfg_src` and
+  `cfg_sink`. A top-level `bindings` list holds their links: kind
+  `api` (port to export) and kind `cfg` (source to sink). Each
+  appears only when it has entries, so a design without protocols has
+  none of them.
 - **Types** are spelled canonically: class name without package, every
   parameter value in declaration order including defaults, no spaces;
   vectors as `bit[7:0]`; struct/enum typedefs by name; struct values as

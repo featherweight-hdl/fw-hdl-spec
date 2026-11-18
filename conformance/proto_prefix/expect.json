@@ -1,0 +1,15 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top", "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.out", "kind": "bundle", "type": "lnk_bundle", "protocol": "pfx_link_protocol", "role": "initiator"},
+    {"path": "top.out.data", "kind": "port", "type": "byte", "dir": "out", "width": 8},
+    {"path": "top.out.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.out.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1}
+  ],
+  "nets": [],
+  "diagnostics": [],
+  "protocols": {
+    "pfx_link_protocol": {"family": "pfx_link_protocol", "params": {}, "prefix": "lnk", "apis": [{"dir": "req", "type": "test_put_if#(byte)"}], "bundles": ["lnk_bundle"], "converters": []}
+  }
+}

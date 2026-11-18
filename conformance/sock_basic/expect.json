@@ -1,0 +1,15 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top", "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.a", "kind": "component", "type": "src", "params": {}, "param_src": {}},
+    {"path": "top.a.s", "kind": "api_endpoint", "type": "fw_socket#(test_put_if#(byte),test_get_if#(byte))"},
+    {"path": "top.k", "kind": "component", "type": "sink", "params": {}, "param_src": {}},
+    {"path": "top.k.t", "kind": "api_endpoint", "type": "fw_socket#(test_get_if#(byte),test_put_if#(byte))"}
+  ],
+  "nets": [],
+  "diagnostics": [],
+  "bindings": [
+    {"kind": "api", "from": "top.a.s", "to": "top.k.t"}
+  ]
+}

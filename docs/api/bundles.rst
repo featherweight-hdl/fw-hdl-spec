@@ -28,6 +28,3 @@ role.
 
 .. autosvclass:: fw_hdl_pkg::fw_monitor
    :members:
-
-.. autosvclass:: fw_hdl_pkg::fw_rv_if
-   :members:

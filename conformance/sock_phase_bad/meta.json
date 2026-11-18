@@ -1,0 +1,6 @@
+{
+  "description": "A socket bound in build(): FW-E-CONN-PHASE on the socket whose connect was called; the binding in connect() stands.",
+  "features": [
+    "protocols"
+  ]
+}

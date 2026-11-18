@@ -3,6 +3,7 @@
 
 package smoke_pkg;
     import fw_hdl_pkg::*;
+    import fw_hdl_std_pkg::*;
 
     // The abstract FIFO: ports and params only. Realizations extend it.
     virtual class fifo_api #(type T = bit[7:0]) extends fw_component;

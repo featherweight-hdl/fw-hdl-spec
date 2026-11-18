@@ -1,0 +1,32 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",           "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.e",         "kind": "component", "type": "ext", "params": {}, "param_src": {},
+     "extern": {"module": "req_sink",
+                "params": {},
+                "pins": {"r_addr": "r.data.addr", "r_data_len": "r.data.len",
+                         "r_data_tag_user": "r.data.tag.user", "r_ready": "r.ready",
+                         "r_tid": "r.data.tag.id", "r_valid": "r.valid"},
+                "ties": {},
+                "open": [],
+                "unused": []}},
+    {"path": "top.e.r",       "kind": "mirror", "type": "fw_rv_if#(req_t)", "protocol": "fw_rv_proto#(req_t)", "role": "target"},
+    {"path": "top.e.r.data",  "kind": "port", "type": "req_t", "dir": "in", "width": 46},
+    {"path": "top.e.r.ready", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.e.r.valid", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.r",         "kind": "mirror", "type": "fw_rv_if#(req_t)", "protocol": "fw_rv_proto#(req_t)", "role": "target"},
+    {"path": "top.r.data",    "kind": "port", "type": "req_t", "dir": "in", "width": 46},
+    {"path": "top.r.ready",   "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.r.valid",   "kind": "port", "type": "bit", "dir": "in", "width": 1}
+  ],
+  "nets": [
+    {"scope": "top", "source": "top.r.data",    "tie": null, "sinks": ["top.e.r.data"],  "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.e.r.ready", "tie": null, "sinks": ["top.r.ready"],   "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.r.valid",   "tie": null, "sinks": ["top.e.r.valid"], "signals": [], "inouts": []}
+  ],
+  "diagnostics": [],
+  "protocols": {
+    "fw_rv_proto#(req_t)": {"family": "fw_rv_proto", "params": {"T": "req_t"}, "prefix": "fw_rv", "apis": [{"dir": "req", "type": "fw_put_if#(req_t)"}], "bundles": ["fw_rv_if#(req_t)"], "converters": []}
+  }
+}

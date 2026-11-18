@@ -1,0 +1,6 @@
+{
+  "description": "A socket and a bare port left unbound: FW-E-SOCK-UNBOUND on each; an unconnected export is legal.",
+  "features": [
+    "protocols"
+  ]
+}

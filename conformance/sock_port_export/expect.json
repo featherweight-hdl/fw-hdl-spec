@@ -1,0 +1,15 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top", "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.u", "kind": "component", "type": "user", "params": {}, "param_src": {}},
+    {"path": "top.u.p", "kind": "api_endpoint", "type": "fw_port#(test_put_if#(byte))"},
+    {"path": "top.v", "kind": "component", "type": "provider", "params": {}, "param_src": {}},
+    {"path": "top.v.e", "kind": "api_endpoint", "type": "fw_export#(test_put_if#(byte))"}
+  ],
+  "nets": [],
+  "diagnostics": [],
+  "bindings": [
+    {"kind": "api", "from": "top.u.p", "to": "top.v.e"}
+  ]
+}

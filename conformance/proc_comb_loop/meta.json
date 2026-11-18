@@ -1,0 +1,8 @@
+{
+  "description": "FW-E-COMB-LOOP: a comb() that inverts its own output never settles; the run stops at the first edge.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

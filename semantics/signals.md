@@ -25,9 +25,10 @@ domain layer replaces this. It maps clock and reset pins through its own
 classes and adds no methods to the extern map. There is no implicit clock
 or reset connection.
 
-## Reserved (layer 2)
+## Values (layer 2)
 
-Signal values (`read()`, `write(v)`) and their timing come with processes in
-layer 2. Reading will be legal on every direction, writing an effective
-input illegal. A tool keeps value storage behind the object's implementation
-handle, so adding them adds methods but changes no layer-1 declaration.
+Signal values (`read()`, `write(v)`) and their timing are defined with
+processes in [processes](processes.md). Reading is legal on every
+direction; writing an effective input is `FW-E-WRITE-IN`. A tool keeps
+value storage behind the object's implementation handle, so the methods
+change no layer-1 declaration.

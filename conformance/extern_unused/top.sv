@@ -6,6 +6,7 @@
 
 package scenario;
     import fw_hdl_pkg::*;
+    import fw_hdl_std_pkg::*;
 
     class chk extends fw_component implements fw_extern_if;
         `fw_extern_utils(chk, "chk_mod")

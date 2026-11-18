@@ -11,13 +11,12 @@ It parses both packages with pyslang (syntax only) and requires that
   ``extern`` method of an API class;
 - every ``extern`` method of an API class has exactly one body;
 - each API macro, expanded in a probe class with the tool's
-  ``fw_hdl_macros.svh``, declares the members the spec's expansion declares,
-  plus only names beginning ``__fw_``.
+  ``fw_hdl_macros.svh``, declares the members the spec's expansion declares
+  (other than its ``__fw_`` helpers), plus only names beginning ``__fw_``.
 
 Spec lint (``--lint``): the spec's package has no method bodies except in
-``fw_rv_if`` (a bundle type written with the API) and the domain kind
-classes (a kind's static functions are its definition), and no out-of-block
-bodies.
+the domain kind classes (a kind's static functions are its definition),
+and no out-of-block bodies.
 
 Usage::
 
@@ -39,7 +38,7 @@ from pyslang import syntax
 SK = syntax.SyntaxKind
 PKG = "fw_hdl_pkg"
 # Classes whose methods may have bodies in the spec.
-BODY_OK = {"fw_rv_if", "fw_domain_kind", "fw_domain_kind_type_of",
+BODY_OK = {"fw_domain_kind", "fw_domain_kind_type_of",
            "fw_clock_kind", "fw_reset_kind"}
 MACROS = {
     "fw_component_utils": "`fw_component_utils(probe)",
@@ -47,6 +46,16 @@ MACROS = {
     "fw_component_params": "`fw_component_params",
     "fw_component_params_init": "`fw_component_params_init(probe_init)",
     "fw_domain_kind_utils": "`fw_domain_kind_utils(probe)",
+    "fw_component_param_utils": "`fw_component_param_utils(probe)",
+    "fw_protocol_utils": "`fw_protocol_utils(probe)",
+    "fw_protocol_param_utils": "`fw_protocol_param_utils(probe)",
+    "fw_xtor_utils": "`fw_xtor_utils(probe, probe_proto)",
+    "fw_xtor_param_utils": "`fw_xtor_param_utils(probe, probe_proto)",
+    "fw_abstractor_utils": "`fw_abstractor_utils(probe, probe_lo, probe_hi)",
+    "fw_abstractor_param_utils": "`fw_abstractor_param_utils(probe, probe_lo, probe_hi)",
+    "fw_bundle_protocol": "`fw_bundle_protocol(probe_proto)",
+    "fw_comb": "`fw_comb(probe_fn)",
+    "fw_step": "`fw_step(probe_fn)",
 }
 
 
@@ -171,6 +180,8 @@ def member_names(x):
             return [v.name.valueText for v in d.declarators]
         if hasattr(d, "name"):
             return [d.name.valueText]
+    if k == SK.ClassDeclaration:
+        return [x.name.valueText]
     return ["<%s>" % k]
 
 
@@ -228,6 +239,8 @@ def check(spec_dir, pkg, incdirs, macros=None):
         for name in MACROS:
             want, got = set(sm[name]), set(tm[name])
             for n in sorted(want - got):
+                if n.startswith("__fw_"):
+                    continue    # the spec's own helpers; a tool has its own
                 errs.append("tool: `%s does not declare %s" % (name, n))
             for n in sorted(got - want):
                 if not n.startswith("__fw_"):

@@ -15,7 +15,7 @@ tool compiles with its own method bodies. The design is in the root repo's
 - Compile-check the API, lint it, compile every scenario against the
   default bodies, and run the smoke test: `dfm run tests`.
 - Build the API reference, extracted from the doc comments in `bindings/sv`
-  by sphinx-systemverilog (toolchain: `pip install -r docs/requirements.txt`):
+  and `std` by sphinx-systemverilog (toolchain: `pip install -r docs/requirements.txt`):
 
       python -m sphinx -W -b html docs docs/_build/html
 

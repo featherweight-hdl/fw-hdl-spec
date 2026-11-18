@@ -1,5 +1,6 @@
 # Sphinx configuration for the fw-hdl spec: the layer-1 SV API reference,
-# extracted from the doc comments in bindings/sv by sphinx-systemverilog.
+# extracted from the doc comments in bindings/sv (and std/, the standard
+# library) by sphinx-systemverilog.
 import os
 
 from sv_weave.config import load_config
@@ -15,6 +16,7 @@ extensions = ["sphinx_systemverilog"]
 _here = os.path.dirname(os.path.abspath(__file__))
 _root = os.path.dirname(_here)
 _sv = os.path.join(_root, "bindings", "sv")
+_std = os.path.join(_root, "std")
 
 # The API has no method bodies, so pyslang reports every call to an extern
 # method as an error. Generate the default bodies with sv-weave, as the
@@ -25,8 +27,8 @@ _res = run(load_config(os.path.join(_root, "tools", "sv-weave.yaml")),
            out_dir=_bodies, verify="off")
 _inc = _res.includes[0]
 
-sv_build_units = [os.path.join(_sv, "fw_hdl_pkg.sv")]
-sv_include_dirs = [_sv, _bodies]
+sv_build_units = [os.path.join(_sv, "fw_hdl_pkg.sv"), os.path.join(_std, "fw_hdl_std_pkg.sv")]
+sv_include_dirs = [_sv, _std, _bodies]
 sv_defines = {_inc.define: _inc.define_value}
 sv_doc_style = "native"
 # A macro's expansion is each tool's own, so it is not shown.

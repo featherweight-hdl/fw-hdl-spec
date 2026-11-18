@@ -1,0 +1,6 @@
+{
+  "description": "fw_socket#(OUT,IN) bound to its mirror fw_socket#(IN,OUT): api_endpoint objects with no protocol in the netlist, and one api binding from the calling side to the providing side.",
+  "features": [
+    "protocols"
+  ]
+}

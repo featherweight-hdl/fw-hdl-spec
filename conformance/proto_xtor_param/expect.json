@@ -1,0 +1,39 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top", "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.o16", "kind": "bundle", "type": "test_rv_bundle#(16)", "protocol": "test_rv_proto#(16)", "role": "initiator"},
+    {"path": "top.o16.data", "kind": "port", "type": "logic[15:0]", "dir": "out", "width": 16},
+    {"path": "top.o16.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.o16.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.o8", "kind": "bundle", "type": "test_rv_bundle#(8)", "protocol": "test_rv_proto#(8)", "role": "initiator"},
+    {"path": "top.o8.data", "kind": "port", "type": "logic[7:0]", "dir": "out", "width": 8},
+    {"path": "top.o8.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.o8.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.x16", "kind": "component", "type": "rv_init_xtor#(16)", "params": {}, "param_src": {}},
+    {"path": "top.x16.pins", "kind": "bundle", "type": "test_rv_bundle#(16)", "protocol": "test_rv_proto#(16)", "role": "initiator"},
+    {"path": "top.x16.pins.data", "kind": "port", "type": "logic[15:0]", "dir": "out", "width": 16},
+    {"path": "top.x16.pins.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.x16.pins.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.x16.t", "kind": "api_endpoint", "type": "fw_export#(test_put_if#(logic[15:0]))"},
+    {"path": "top.x8", "kind": "component", "type": "rv_init_xtor#(8)", "params": {}, "param_src": {}},
+    {"path": "top.x8.pins", "kind": "bundle", "type": "test_rv_bundle#(8)", "protocol": "test_rv_proto#(8)", "role": "initiator"},
+    {"path": "top.x8.pins.data", "kind": "port", "type": "logic[7:0]", "dir": "out", "width": 8},
+    {"path": "top.x8.pins.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.x8.pins.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.x8.t", "kind": "api_endpoint", "type": "fw_export#(test_put_if#(logic[7:0]))"}
+  ],
+  "nets": [
+    {"scope": "top", "source": "top.x16.pins.data", "tie": null, "sinks": ["top.o16.data"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.o16.ready", "tie": null, "sinks": ["top.x16.pins.ready"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.x16.pins.valid", "tie": null, "sinks": ["top.o16.valid"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.x8.pins.data", "tie": null, "sinks": ["top.o8.data"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.o8.ready", "tie": null, "sinks": ["top.x8.pins.ready"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.x8.pins.valid", "tie": null, "sinks": ["top.o8.valid"], "signals": [], "inouts": []}
+  ],
+  "diagnostics": [],
+  "protocols": {
+    "test_rv_proto#(16)": {"family": "test_rv_proto", "params": {"W": 16}, "prefix": "test_rv", "apis": [{"dir": "req", "type": "test_put_if#(logic[15:0])"}], "bundles": ["test_rv_bundle#(16)"], "converters": [{"type": "rv_init_xtor#(16)", "from": "test_rv_proto#(16)", "to": "test_rv_proto#(16)", "role": "initiator"}]},
+    "test_rv_proto#(8)": {"family": "test_rv_proto", "params": {"W": 8}, "prefix": "test_rv", "apis": [{"dir": "req", "type": "test_put_if#(logic[7:0])"}], "bundles": ["test_rv_bundle#(8)"], "converters": [{"type": "rv_init_xtor#(8)", "from": "test_rv_proto#(8)", "to": "test_rv_proto#(8)", "role": "initiator"}]}
+  }
+}

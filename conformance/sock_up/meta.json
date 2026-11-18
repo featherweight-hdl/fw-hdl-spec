@@ -1,0 +1,6 @@
+{
+  "description": "A socket passed up two levels with connect_up and bound at the top: one api binding per call, inner to outer.",
+  "features": [
+    "protocols"
+  ]
+}

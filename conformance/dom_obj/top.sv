@@ -6,6 +6,7 @@
 
 package scenario;
     import fw_hdl_pkg::*;
+    import fw_hdl_std_pkg::*;
 
     class early_src extends fw_component;
         `fw_component_utils(early_src)

@@ -30,7 +30,21 @@ Entries apply in call order; then the default rule.
    leaf port below it, in creation order) not yet mapped maps to `pre` +
    its part, where the part is the member's path within `b` with `.`
    replaced by `_`, unless `rename(member, part)` gave one for that member
-   path (`rename("valid", "vld")`, `rename("aw.addr", "awaddr")`).
+   path (`rename("valid", "vld")`, `rename("aw.valid", "awvalid")`).
+
+   **Fields.** A rename path may go on past a member whose type is a packed
+   struct into one of its fields (`rename("aw.data.addr", "awaddr")`).
+   Such a member then maps **field-wise**: each field of its type (the
+   top-level fields, in declaration order) maps to its own pin, `pre` +
+   the rename's part for that field, or `pre` + the member's part + `_` +
+   the field name when no rename names it (`aw_data_size`). A field that
+   is itself a packed struct maps whole, unless a rename names a path into
+   it, by the same rule. A member that no rename goes into maps whole, as
+   before. Only the prefix rule maps field-wise: a member mapped by `pin()`
+   (before or after the rule) or by the default rule maps whole, and an
+   unused member has no pins, so renames into it have no effect. A field
+   pin has the member's direction and the field's width; the header checks
+   below treat it as a port of its own.
 3. **Default rule.** A port still unmapped maps to the pin with its flattened
    name: its path relative to the extern with `.` replaced by `_` (`in.data`
    maps to `in_data`).
@@ -53,7 +67,10 @@ A pin name used twice, by two ports or by a port and a tie or open, is
 
 These need the module header, so a static implementation does them; the
 reference runtime records the map but cannot check it. Conformance scenarios
-that need them are marked `static-only`.
+that need them are marked `static-only`. The reference runtime also cannot
+list the fields of a type, so for a field-wise member it records only the
+renamed fields; scenarios with an unrenamed field of a field-wise member are
+`static-only` too.
 
 - Every module pin is accounted for exactly once (`FW-E-EXT-PIN`, on the
   extern).

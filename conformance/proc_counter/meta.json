@@ -1,0 +1,8 @@
+{
+  "description": "A step() counter that clears itself with in_reset(); the reset is held for edges 1-2.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "lowerable"
+}

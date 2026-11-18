@@ -8,6 +8,11 @@ reads its own with ``get``. A domain becomes a net only when an extern pin
 is mapped to it or a signal drives it. The rules are in
 ``semantics/domains.md``.
 
+The domain operations ``tick``, ``in_reset``, ``wait_reset_done`` and
+``wait_assert`` are for processes (:doc:`processes`); a clock root's
+``period`` lets the simulation kernel drive it. Their behaviour is in
+``semantics/processes.md``.
+
 Domain objects and their API
 ----------------------------
 

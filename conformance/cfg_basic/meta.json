@@ -1,0 +1,6 @@
+{
+  "description": "A source set in build() and a sink bound to it explicitly in connect(): cfg_src and cfg_sink objects, one cfg binding. The pushed value is checked by an rt-sv test.",
+  "features": [
+    "protocols"
+  ]
+}

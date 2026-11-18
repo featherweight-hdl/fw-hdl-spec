@@ -1,0 +1,6 @@
+{
+  "description": "A protocol's bundle in all three roles (initiator, mirror, monitor tap): protocol and role on each bundle instance.",
+  "features": [
+    "protocols"
+  ]
+}

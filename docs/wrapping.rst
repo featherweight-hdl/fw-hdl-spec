@@ -50,7 +50,9 @@ The map, in order of precedence:
 ``prefix(bundle, pre)`` and ``rename(member, part)``
    Maps every member of a bundle to ``pre`` plus its name, with renames.
    One rule covers any protocol, because a bundle's members come from its
-   type.
+   type. A rename may name a field of a packed-struct member
+   (``rename("aw.data.addr", "awaddr")``); that member then maps one pin
+   per field, as AXI-style modules need.
 ``fw_clock_domain::pin(m, name)``, ``fw_reset_domain::pin(m, name, ...)``
    A clock or reset pin, connected to the wrapper's domain of that kind
    (:doc:`domains`). It is not a port: nothing wires it by hand.
@@ -124,6 +126,9 @@ If two wrapped modules disagree on reset polarity, each maps its pin with
 the polarity it expects (``fw_reset_kind::active_low()``), and the
 generated Verilog inverts where a pin differs from its net. Several clocks,
 derived clocks and the crossing check are in :doc:`domains`.
+
+To model or verify an interface at method level, with transactors between
+its API and its pins, see :doc:`protocols`.
 
 What the generated Verilog looks like
 -------------------------------------

@@ -1,0 +1,6 @@
+{
+  "description": "A two-port device with a cfg source per port; each transactor's sink bound explicitly: two cfg bindings. Config binding is explicit connect only; there is no FW-E-CFG-AMBIG.",
+  "features": [
+    "protocols"
+  ]
+}

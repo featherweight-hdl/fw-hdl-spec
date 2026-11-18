@@ -1,0 +1,5 @@
+{
+  "diagnostics": [
+    {"id": "FW-E-DOM-CROSS", "path": "top.o.p"}
+  ]
+}

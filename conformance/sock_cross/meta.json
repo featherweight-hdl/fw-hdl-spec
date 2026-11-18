@@ -1,0 +1,7 @@
+{
+  "description": "A socket binding across unrelated clock domains: FW-E-DOM-CROSS on the lesser endpoint path.",
+  "features": [
+    "protocols",
+    "domains"
+  ]
+}

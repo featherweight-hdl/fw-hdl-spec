@@ -1,0 +1,7 @@
+{
+  "description": "A source and its sink in unrelated clock domains: FW-E-DOM-CROSS on the lesser path.",
+  "features": [
+    "protocols",
+    "domains"
+  ]
+}

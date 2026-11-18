@@ -1,0 +1,26 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top", "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.a", "kind": "component", "type": "pkt_over_phy", "params": {}, "param_src": {}},
+    {"path": "top.a.phy", "kind": "bundle", "type": "test_phy_bundle", "protocol": "test_phy_proto", "role": "initiator"},
+    {"path": "top.a.phy.data", "kind": "port", "type": "byte", "dir": "out", "width": 8},
+    {"path": "top.a.phy.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.a.phy.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.a.up", "kind": "api_endpoint", "type": "fw_export#(test_put_if#(test_pkt_t))"},
+    {"path": "top.phy", "kind": "bundle", "type": "test_phy_bundle", "protocol": "test_phy_proto", "role": "initiator"},
+    {"path": "top.phy.data", "kind": "port", "type": "byte", "dir": "out", "width": 8},
+    {"path": "top.phy.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.phy.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1}
+  ],
+  "nets": [
+    {"scope": "top", "source": "top.a.phy.data", "tie": null, "sinks": ["top.phy.data"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.phy.ready", "tie": null, "sinks": ["top.a.phy.ready"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.a.phy.valid", "tie": null, "sinks": ["top.phy.valid"], "signals": [], "inouts": []}
+  ],
+  "diagnostics": [],
+  "protocols": {
+    "test_phy_proto": {"family": "test_phy_proto", "params": {}, "prefix": "test_phy", "apis": [{"dir": "req", "type": "test_put_if#(byte)"}, {"dir": "rsp", "type": "test_get_if#(byte)"}], "bundles": ["test_phy_bundle"], "converters": [{"type": "pkt_over_phy", "from": "test_phy_proto", "to": "test_pkt_proto"}]},
+    "test_pkt_proto": {"family": "test_pkt_proto", "params": {}, "prefix": "test_pkt", "apis": [{"dir": "req", "type": "test_put_if#(test_pkt_t)"}], "bundles": [], "converters": [{"type": "pkt_over_phy", "from": "test_phy_proto", "to": "test_pkt_proto"}]}
+  }
+}

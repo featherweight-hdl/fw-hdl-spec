@@ -1,0 +1,15 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top", "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.o", "kind": "component", "type": "owner", "params": {}, "param_src": {}},
+    {"path": "top.o.p", "kind": "cfg_src", "type": "fw_cfg_src#(uart_cfg_t)"},
+    {"path": "top.r", "kind": "component", "type": "reader", "params": {}, "param_src": {}},
+    {"path": "top.r.c", "kind": "cfg_sink", "type": "fw_cfg_sink#(uart_cfg_t)"}
+  ],
+  "nets": [],
+  "diagnostics": [],
+  "bindings": [
+    {"kind": "cfg", "from": "top.o.p", "to": "top.r.c"}
+  ]
+}

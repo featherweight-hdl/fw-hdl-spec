@@ -1,0 +1,6 @@
+{
+  "description": "An abstractor (pkt_over_phy) registered with fw_abstractor_utils between two protocols: a converter with two sides, listed under both protocols.",
+  "features": [
+    "protocols"
+  ]
+}

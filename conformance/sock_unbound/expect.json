@@ -1,0 +1,6 @@
+{
+  "diagnostics": [
+    {"id": "FW-E-SOCK-UNBOUND", "path": "top.u.p"},
+    {"id": "FW-E-SOCK-UNBOUND", "path": "top.u.s"}
+  ]
+}

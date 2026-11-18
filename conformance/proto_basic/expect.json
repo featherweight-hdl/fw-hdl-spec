@@ -1,0 +1,15 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top", "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.out", "kind": "bundle", "type": "basic_bundle", "protocol": "basic_proto", "role": "initiator"},
+    {"path": "top.out.data", "kind": "port", "type": "byte", "dir": "out", "width": 8},
+    {"path": "top.out.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.out.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1}
+  ],
+  "nets": [],
+  "diagnostics": [],
+  "protocols": {
+    "basic_proto": {"family": "basic_proto", "params": {}, "prefix": "basic", "apis": [{"dir": "req", "type": "test_put_if#(byte)"}], "bundles": ["basic_bundle"], "converters": []}
+  }
+}

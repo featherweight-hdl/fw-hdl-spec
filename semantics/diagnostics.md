@@ -56,5 +56,38 @@ Domains ([domains](domains.md)):
 | `FW-W-DOM-STYLE` | a reset pin's required style differs from its domain's | the extern |
 | `FW-W-DOM-RSTSYNC` | a component's reset is synchronous to a clock unrelated to its clock domain | the component where the mismatch starts |
 
+Processes ([processes](processes.md)). A domain operation keyed by another
+component's object is `FW-E-DOM-OBJ`, on a domain of the wrong kind
+`FW-E-DOM-KIND`, on an unresolved domain `FW-E-DOM-NONE`; each on that
+object.
+
+| ID | Condition | Path |
+|---|---|---|
+| `FW-E-WRITE-IN` | `write()` to an effective input | the signal |
+| `FW-E-WRITE-MULTI` | a signal written by more than one block (`step`, `comb`, `run()`); a component field written by blocks in two domains | the signal, or the component |
+| `FW-E-STEP-DOMAINS` | a `step` block that writes signals of two clock domains | the component |
+| `FW-E-COMB-LOOP` | a settle still changing after 64 passes (run time) | each signal changed in the last pass |
+| `FW-E-CLOCK-NONE` | `tick` on a clock domain with no driver, no extern pin and no `period` | the object `tick` is keyed by |
+| `FW-E-EMIT-RUN` | a component that implements `run()` asked to be emitted (static front end) | the component |
+| `FW-E-EMIT-TIME` | `fw_time` or a waiting domain operation in a lowered process (static front end) | the component |
+
+Protocols ([protocols](protocols.md)). An endpoint bound outside
+`connect()` is `FW-E-CONN-PHASE`; a crossing on a method-level connection
+is `FW-*-DOM-CROSS`. Where the path is a class or a protocol, not an
+object, it is the class's canonical type spelling ([netlist](netlist.md)):
+the family name for `FW-E-PROTO-THIS` and `FW-E-PROTO-XTOR` (a check on
+the class declaration), the specialization (a key of the netlist's
+`protocols` table) for `FW-E-PROTO-API`.
+
+| ID | Condition | Path |
+|---|---|---|
+| `FW-E-PROTO-THIS` | a `_param_utils` class whose `this_t` is not its own specialization (static front end) | the class |
+| `FW-E-PROTO-API` | `declare()` registers two APIs for one direction, or one API twice | the protocol |
+| `FW-E-PROTO-XTOR` | a transactor or abstractor registered for a protocol or role it does not connect: the bundle or API side is missing (static front end) | the class |
+| `FW-E-SOCK-UNBOUND` | a port, or a socket's port side, that resolves to no export after the connect phase | the port |
+| `FW-E-SOCK-MULTI` | a port bound twice | the port |
+| `FW-E-CFG-WRITE` | a write to a sink's `cfg` (static front end: any write target; run time: copy differs from the last push) | the sink |
+| `FW-E-CFG-UNBOUND` | a sink that no source reaches after the connect phase | the sink |
+
 `FW-E-NAME-BAD` is an addition to the initial list in core-layer1.md 3.10,
 which requires legal names but gave no ID.

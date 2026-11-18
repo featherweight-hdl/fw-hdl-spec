@@ -1,0 +1,41 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top", "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.dev", "kind": "component", "type": "uart_dev", "params": {}, "param_src": {}},
+    {"path": "top.dev.c0", "kind": "cfg_src", "type": "fw_cfg_src#(uart_cfg_t)"},
+    {"path": "top.dev.c1", "kind": "cfg_src", "type": "fw_cfg_src#(uart_cfg_t)"},
+    {"path": "top.dev.p0", "kind": "mirror", "type": "test_uart_serial", "protocol": "test_uart_proto", "role": "target"},
+    {"path": "top.dev.p0.rx", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.dev.p0.tx", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.dev.p1", "kind": "mirror", "type": "test_uart_serial", "protocol": "test_uart_proto", "role": "target"},
+    {"path": "top.dev.p1.rx", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.dev.p1.tx", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.x0", "kind": "component", "type": "ux_init", "params": {}, "param_src": {}},
+    {"path": "top.x0.cfg", "kind": "cfg_sink", "type": "fw_cfg_sink#(uart_cfg_t)"},
+    {"path": "top.x0.pins", "kind": "bundle", "type": "test_uart_serial", "protocol": "test_uart_proto", "role": "initiator"},
+    {"path": "top.x0.pins.rx", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.x0.pins.tx", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.x0.t", "kind": "api_endpoint", "type": "fw_export#(test_put_if#(uart_char_t))"},
+    {"path": "top.x1", "kind": "component", "type": "ux_init", "params": {}, "param_src": {}},
+    {"path": "top.x1.cfg", "kind": "cfg_sink", "type": "fw_cfg_sink#(uart_cfg_t)"},
+    {"path": "top.x1.pins", "kind": "bundle", "type": "test_uart_serial", "protocol": "test_uart_proto", "role": "initiator"},
+    {"path": "top.x1.pins.rx", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.x1.pins.tx", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.x1.t", "kind": "api_endpoint", "type": "fw_export#(test_put_if#(uart_char_t))"}
+  ],
+  "nets": [
+    {"scope": "top", "source": "top.dev.p0.rx", "tie": null, "sinks": ["top.x0.pins.rx"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.x0.pins.tx", "tie": null, "sinks": ["top.dev.p0.tx"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.dev.p1.rx", "tie": null, "sinks": ["top.x1.pins.rx"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.x1.pins.tx", "tie": null, "sinks": ["top.dev.p1.tx"], "signals": [], "inouts": []}
+  ],
+  "diagnostics": [],
+  "protocols": {
+    "test_uart_proto": {"family": "test_uart_proto", "params": {}, "prefix": "test_uart", "apis": [{"dir": "req", "type": "test_put_if#(uart_char_t)"}], "bundles": ["test_uart_serial"], "converters": [{"type": "ux_init", "from": "test_uart_proto", "to": "test_uart_proto", "role": "initiator"}]}
+  },
+  "bindings": [
+    {"kind": "cfg", "from": "top.dev.c0", "to": "top.x0.cfg"},
+    {"kind": "cfg", "from": "top.dev.c1", "to": "top.x1.cfg"}
+  ]
+}

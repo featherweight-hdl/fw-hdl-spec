@@ -1,0 +1,8 @@
+{
+  "description": "FW-E-STEP-DOMAINS: one step() writes outputs in two clock domains.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "lowerable"
+}

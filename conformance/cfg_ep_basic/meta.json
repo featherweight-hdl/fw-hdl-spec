@@ -1,0 +1,6 @@
+{
+  "description": "Configured endpoints: fw_port_cfg_src to fw_export_cfg_sink (through a wrapper's export by connect_up) and fw_socket_cfg_sink to fw_socket_cfg_src. Each connection records an api binding and a cfg binding from source to sink; the sinks' values and listener calls are checked by an rt-sv test.",
+  "features": [
+    "protocols"
+  ]
+}

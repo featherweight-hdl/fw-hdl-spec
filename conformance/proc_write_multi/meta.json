@@ -1,0 +1,8 @@
+{
+  "description": "FW-E-WRITE-MULTI: o written by two step blocks; p written by a step and a comb block.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "lowerable"
+}

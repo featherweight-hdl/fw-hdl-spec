@@ -4,6 +4,7 @@
 
 package scenario;
     import fw_hdl_pkg::*;
+    import fw_hdl_std_pkg::*;
 
     // An initiator.
     class src extends fw_component;

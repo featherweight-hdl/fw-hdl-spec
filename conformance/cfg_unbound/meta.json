@@ -1,0 +1,6 @@
+{
+  "description": "A sink that no source reaches: FW-E-CFG-UNBOUND on the sink.",
+  "features": [
+    "protocols"
+  ]
+}

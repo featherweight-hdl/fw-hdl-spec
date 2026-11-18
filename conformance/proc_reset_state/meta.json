@@ -1,0 +1,8 @@
+{
+  "description": "reset_state() sets the reset value while the reset is asserted (edges 1-2); step() runs only out of reset.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "lowerable"
+}

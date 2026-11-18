@@ -1,0 +1,6 @@
+{
+  "description": "Field-wise pins: renames into a packed-struct payload map each field to its own pin; pin() on the member maps it whole instead.",
+  "rtl": [
+    "rtl.sv"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top", "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.d", "kind": "component", "type": "dev", "params": {}, "param_src": {}},
+    {"path": "top.d.p", "kind": "api_endpoint", "type": "fw_port_cfg_src#(test_put_if#(byte),uart_cfg_t)"},
+    {"path": "top.d.s", "kind": "api_endpoint", "type": "fw_socket_cfg_src#(test_put_if#(byte),test_get_if#(byte),uart_cfg_t)"},
+    {"path": "top.w", "kind": "component", "type": "wrap", "params": {}, "param_src": {}},
+    {"path": "top.w.e", "kind": "api_endpoint", "type": "fw_export_cfg_sink#(test_put_if#(byte),uart_cfg_t)"},
+    {"path": "top.w.t", "kind": "api_endpoint", "type": "fw_socket_cfg_sink#(test_get_if#(byte),test_put_if#(byte),uart_cfg_t)"},
+    {"path": "top.w.x", "kind": "component", "type": "xtor", "params": {}, "param_src": {}},
+    {"path": "top.w.x.e", "kind": "api_endpoint", "type": "fw_export_cfg_sink#(test_put_if#(byte),uart_cfg_t)"},
+    {"path": "top.w.x.t", "kind": "api_endpoint", "type": "fw_socket_cfg_sink#(test_get_if#(byte),test_put_if#(byte),uart_cfg_t)"}
+  ],
+  "nets": [],
+  "diagnostics": [],
+  "bindings": [
+    {"kind": "api", "from": "top.d.p", "to": "top.w.e"},
+    {"kind": "cfg", "from": "top.d.p", "to": "top.w.e"},
+    {"kind": "cfg", "from": "top.d.s", "to": "top.w.t"},
+    {"kind": "cfg", "from": "top.w.e", "to": "top.w.x.e"},
+    {"kind": "api", "from": "top.w.t", "to": "top.d.s"},
+    {"kind": "cfg", "from": "top.w.t", "to": "top.w.x.t"},
+    {"kind": "api", "from": "top.w.x.e", "to": "top.w.e"},
+    {"kind": "api", "from": "top.w.x.t", "to": "top.w.t"}
+  ]
+}

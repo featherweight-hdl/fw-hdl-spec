@@ -15,6 +15,20 @@ package:
       incdirs:
       - .
 
+  # The standard library's hand-written source, fw_hdl_std_pkg. Its
+  # derived package is generated from it by fe-sv's GenKit, which passes
+  # this source on with the generated package.
+  - export: std-src
+    uses: std.FileSet
+    with:
+      type: fwHdlSource
+      base: std
+      include:
+      - fw_hdl_std_pkg.sv
+      incdirs:
+      - .
+      - ../bindings/sv
+
   # The API with generated default bodies (tools/fw_hdl_bodies.py, an
   # sv-weave weaver): enough to compile and elaborate code written against
   # the API with no tool behind it. Outputs sv-api, then the bodies as an
@@ -40,9 +54,22 @@ package:
       incdirs:
       - .
 
+  # fw_hdl_std_pkg as plain SV source, for a compile that does not run
+  # GenKit (std-src is fwHdlSource, which plain SV tools skip): the smoke
+  # tests here and in each tool.
+  - export: std-sv
+    uses: std.FileSet
+    with:
+      type: systemVerilogSource
+      base: std
+      include:
+      - fw_hdl_std_pkg.sv
+      incdirs:
+      - .
+
   - name: smoke-img
     uses: hdlsim.vlt.SimImage
-    needs: [sv-api-compile, smoke-src]
+    needs: [sv-api-compile, std-sv, smoke-src]
     with:
       top: [smoke_tb]
 
@@ -51,16 +78,17 @@ package:
     needs: [smoke-img]
 
   # M1 exit criterion: every conformance scenario's top.sv compiles against
-  # fw_hdl_pkg with the default bodies (Verilator, lint only).
+  # fw_hdl_pkg with the default bodies and fw_hdl_std_pkg (Verilator, lint
+  # only).
   - name: conformance-compile
-    needs: [sv-api-compile]
+    needs: [sv-api-compile, std-src]
     shell: bash
     run: |
       python3 $TASK_SRCDIR/tools/fw_conformance_compile.py \
           --conformance $TASK_SRCDIR/conformance --inputs $DFM_INPUTS --log-dir logs
 
-  # Spec lint: the API has no method bodies (except the fw_rv_if bundle
-  # type and the domain kinds). Needs pyslang.
+  # Spec lint: the API has no method bodies (except the domain kinds).
+  # Needs pyslang.
   - name: spec-lint
     shell: bash
     run: |

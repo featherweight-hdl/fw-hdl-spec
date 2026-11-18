@@ -1,0 +1,7 @@
+{
+  "description": "Field-wise pins with default names: an unrenamed field maps to the prefix, the member's part and the field name; a nested packed struct with a rename into it maps field-wise too. Static only: the reference runtime cannot list unrenamed fields.",
+  "static-only": true,
+  "rtl": [
+    "rtl.sv"
+  ]
+}

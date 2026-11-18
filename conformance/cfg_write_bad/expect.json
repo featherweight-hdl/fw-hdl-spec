@@ -1,0 +1,5 @@
+{
+  "diagnostics": [
+    {"id": "FW-E-CFG-WRITE", "path": "top.r.c"}
+  ]
+}

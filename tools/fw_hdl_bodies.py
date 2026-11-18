@@ -42,8 +42,10 @@ def bodies(decl) -> list:
             out.append("function void %s::%s(%s); endfunction" % (decl.name, m.name, args))
         else:
             ret = _ret(decl, m.ret)
+            # The local takes the unqualified type: Verilator 5.055 types a
+            # local ``C::T`` as the default specialization's ``T``.
             out.append("function %s %s::%s(%s); %s __r; return __r; endfunction"
-                       % (ret, decl.name, m.name, args, ret))
+                       % (ret, decl.name, m.name, args, m.ret))
     return out
 
 

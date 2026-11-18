@@ -6,8 +6,8 @@ every scenario it can run; see `../semantics/netlist.md` for the comparison.
 | File | Contents |
 |---|---|
 | `top.sv` | `package scenario`, which imports `fw_hdl_pkg` and declares the top component class `top`. The runner creates it as `scenario::top::create("top", null)`. |
-| `expect.json` | A full netlist (it has `objects`), compared whole; or `{"diagnostics": [...]}`, of which only the diagnostics are compared. Elaboration must fail exactly when an `FW-E-` diagnostic is expected. |
-| `meta.json` | `description`; optional `"static-only": true` (needs module headers or static analysis; skipped by the reference runtime); optional `rtl`: RTL files that hold the modules the scenario's externs wrap, for implementations that check headers; optional `features`: the optional parts of the spec the scenario needs (`"domains"`), which an implementation that lacks them skips. |
+| `expect.json` | A full netlist (it has `objects`), compared whole; or `{"diagnostics": [...]}`, of which only the diagnostics are compared. Elaboration (for a process scenario, elaboration or the run) must fail exactly when an `FW-E-` diagnostic is expected. |
+| `meta.json` | `description`; optional `"static-only": true` (needs module headers or static analysis; skipped by the reference runtime); optional `rtl`: RTL files that hold the modules the scenario's externs wrap, for implementations that check headers; optional `features`: the optional parts of the spec the scenario needs (`"domains"`, `"processes"`), which an implementation that lacks them skips; optional `processes` (below). |
 | `rtl.sv` | The wrapped modules, where `meta.json` lists them. |
 | `*.svh` | Includes shared by `top.sv` and `rtl.sv`. Runners put the scenario directory on the include path. |
 
@@ -17,7 +17,7 @@ implementation.
 `dfm run conformance-compile` (in this repo) compiles every `top.sv`
 against `fw_hdl_pkg` with the spec's default bodies; `dfm run
 conformance-schema` validates every `expect.json` against the netlist
-schema.
+schema, and each process scenario's `trace`.
 
 | Scenario | Checks | Static only |
 |---|---|---|
@@ -47,6 +47,8 @@ schema.
 | extern_pin_dup | `FW-E-EXT-PIN` (pin mapped twice) | |
 | extern_params | `param()` with `fw_value` of int, wide vector, string, enum, packed struct; `fw_type` | |
 | extern_param_bad | `FW-E-EXT-PARAM` (missing parameter; wrong kind or type) | yes |
+| extern_map_fields | field-wise pins: renames into a packed-struct payload; `pin()` maps the member whole | |
+| extern_map_fields_dflt | field-wise pins: default field names, nested packed struct | yes |
 | extern_unused | `unused()`: a member and a whole bundle with no pin | |
 | extern_unused_bad | `FW-E-EXT-PORT` (unused output; unused and pinned) | |
 | extern_hdr_pins | `FW-E-EXT-PIN` (unmapped module pin), `FW-E-EXT-PORT` | yes |
@@ -93,6 +95,65 @@ Domains ([semantics](../semantics/domains.md)); each needs feature
 | dom_portname | `FW-E-DOM-PORTNAME` | yes |
 | dom_deriv | `FW-E-DOM-DERIV` (`provides` differs) | |
 | kind_user | a kind declared only in the scenario: associated, checked (`FW-I-DOM-CROSS`), listed | |
+| proto_basic | `protocols` table of an unparameterized protocol; `protocol`/`role` on a bundle | |
+| proto_param | `test_rv_proto` at two widths: one family, two specializations | |
+| proto_this_bad | `FW-E-PROTO-THIS` (`this_t` is the default specialization) | yes |
+| proto_api_dup | `FW-E-PROTO-API` (two request APIs) | |
+| proto_api_shared | one API registered by two protocols | |
+| proto_prefix | prefix set with `d.prefix()` | |
+| proto_bundle | a protocol's bundle as initiator, mirror and monitor: `role` | |
+| proto_xtor | initiator, target and monitor transactors: converters by role; sockets as `api_endpoint`; `api` bindings | |
+| proto_xtor_param | a parameterized transactor at two widths: one converter per specialization | |
+| proto_abs | an abstractor: a converter with two protocols, listed under both | |
+| sock_basic | `fw_socket#(OUT,IN)` bound to its mirror: `api_endpoint` objects with no protocol; one `api` binding | |
+| sock_up | `connect_up` through two levels: one `api` binding per call, inner to outer | |
+| sock_port_export | bare `fw_port` / `fw_export`: endpoints with no protocol | |
+| sock_unbound | `FW-E-SOCK-UNBOUND` on a socket and on a bare port; an open target socket is legal | |
+| sock_multi | `FW-E-SOCK-MULTI` (a port bound twice); an export serving two ports is legal | |
+| sock_phase_bad | `FW-E-CONN-PHASE` (a socket bound in `build()`) | |
+| sock_cross | `FW-E-DOM-CROSS` on a socket binding across unrelated clocks | |
+| cfg_basic | a source set in `build()`, a sink bound explicitly: `cfg_src`/`cfg_sink`; one `cfg` binding | |
+| cfg_explicit | two publishers, each consumer bound explicitly: two `cfg` bindings | |
+| cfg_write_bad | `FW-E-CFG-WRITE` (a write into a consumer's `cfg`) | yes |
+| cfg_constref_ok | a consumer's `cfg` passed as `const ref`: no diagnostic | yes |
+| cfg_unbound | `FW-E-CFG-UNBOUND` | |
+| cfg_ep_basic | configured endpoints: port/export and socket, source to sink, through `connect_up`; `api` and `cfg` bindings | |
+| cfg_cross | `FW-E-DOM-CROSS` on a `cfg` binding across unrelated clocks | |
+
+Processes ([semantics](../semantics/processes.md)); each needs features
+`domains` and `processes`. The top extends `test_proc_top`
+(`_lib/test_proc.svh`): root clock `top.clk`, period 10 and no driver;
+reset `top.rst`, synchronous, active low, asserted at edges 1 and 2.
+
+- `meta.json` key `processes`: `lowerable` (a static front end lowers the
+  scenario; its Verilog must give the same trace and diagnostics) or
+  `sim-only` (it has `run()` or `fw_time`, or its error is found only at
+  run time).
+- `expect.json` is a diagnostics expectation with a `trace`: `clock`, the
+  clock domain whose edges are counted; `edges`, how many the runner
+  simulates (it stops early at a run-stopping error); and optionally
+  `signals` (full names) and `rows`, one row per edge, one integer per
+  signal. Row *k* holds the values the step phase of edge *k* reads (after
+  its commit and settle); in lowered Verilog, the values just before
+  rising edge *k*. Values before any write are the type default.
+- A crossing is visible to the other domain at the writer's next commit,
+  later than in RTL; `proc_cdc` chooses its periods so that the two agree.
+
+| Scenario | Checks | Mode |
+|---|---|---|
+| proc_counter | `step()` counter; reset through `in_reset` | lowerable |
+| proc_mux | `comb()` mux; a tied input | lowerable |
+| proc_comb_chain | settle in passes (comb blocks out of order); `step` reads settled values | lowerable |
+| proc_comb_loop | `FW-E-COMB-LOOP`; the run stops | sim-only |
+| proc_rv | ready/valid source; sink `ready` a `` `fw_comb `` of `valid` | lowerable |
+| proc_run_put | `run()` puts back to back: one cycle each, no added latency | sim-only |
+| proc_reset_state | `reset_state()` in reset; `step()` out of it | lowerable |
+| proc_cdc | one component in two clocks: a `` `fw_step `` in the other domain | lowerable |
+| proc_step_domains | `FW-E-STEP-DOMAINS` | lowerable |
+| proc_time | `fw_time::delay`, `now`; a root clock's `period`; `tick` | sim-only |
+| proto_timed | kit timed channels (`_lib/test_uart_chan.svh`, over std `fw_timed_channel`): forwarding `uart_tx_chan` (delivery time, configuration passed to the VIP) and sinking `uart_txrx_chan` (each direction timed by its sender, `frame_err` on mismatch); also needs `protocols` | sim-only |
+| proc_write_in | `FW-E-WRITE-IN` (input port; a mirror's `valid`) | lowerable |
+| proc_write_multi | `FW-E-WRITE-MULTI` (two `step` blocks; `step` and `comb`) | lowerable |
 
 Severity options are not covered: the scenario format has no options.
 

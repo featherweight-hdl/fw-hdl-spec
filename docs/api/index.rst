@@ -12,4 +12,6 @@ API reference
    bundles
    extern
    domains
+   processes
+   protocols
    macros

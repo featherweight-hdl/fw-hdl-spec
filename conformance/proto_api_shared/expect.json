@@ -1,0 +1,19 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top", "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.a", "kind": "bundle", "type": "test_uart_serial", "protocol": "test_uart_proto", "role": "initiator"},
+    {"path": "top.a.rx", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.a.tx", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.b", "kind": "bundle", "type": "uart2_bundle", "protocol": "uart2_proto", "role": "initiator"},
+    {"path": "top.b.data", "kind": "port", "type": "uart_char_t", "dir": "out", "width": 9},
+    {"path": "top.b.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.b.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1}
+  ],
+  "nets": [],
+  "diagnostics": [],
+  "protocols": {
+    "test_uart_proto": {"family": "test_uart_proto", "params": {}, "prefix": "test_uart", "apis": [{"dir": "req", "type": "test_put_if#(uart_char_t)"}], "bundles": ["test_uart_serial"], "converters": []},
+    "uart2_proto": {"family": "uart2_proto", "params": {}, "prefix": "uart2", "apis": [{"dir": "req", "type": "test_put_if#(uart_char_t)"}], "bundles": ["uart2_bundle"], "converters": []}
+  }
+}

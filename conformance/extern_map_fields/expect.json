@@ -1,0 +1,47 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top",            "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.ar",         "kind": "mirror", "type": "fw_rv_if#(aw_t)", "protocol": "fw_rv_proto#(aw_t)", "role": "target"},
+    {"path": "top.ar.data",    "kind": "port", "type": "aw_t", "dir": "in", "width": 43},
+    {"path": "top.ar.ready",   "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.ar.valid",   "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.aw",         "kind": "mirror", "type": "fw_rv_if#(aw_t)", "protocol": "fw_rv_proto#(aw_t)", "role": "target"},
+    {"path": "top.aw.data",    "kind": "port", "type": "aw_t", "dir": "in", "width": 43},
+    {"path": "top.aw.ready",   "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.aw.valid",   "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.clk",        "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.e",          "kind": "component", "type": "ext", "params": {}, "param_src": {},
+     "extern": {"module": "axi_sink",
+                "params": {},
+                "pins": {"ardata": "ar.data", "arready": "ar.ready", "arvalid": "ar.valid",
+                         "awaddr": "aw.data.addr", "awlen": "aw.data.len", "awready": "aw.ready",
+                         "awsize": "aw.data.size", "awvalid": "aw.valid",
+                         "clk": "clk"},
+                "ties": {},
+                "open": [],
+                "unused": []}},
+    {"path": "top.e.ar",       "kind": "mirror", "type": "fw_rv_if#(aw_t)", "protocol": "fw_rv_proto#(aw_t)", "role": "target"},
+    {"path": "top.e.ar.data",  "kind": "port", "type": "aw_t", "dir": "in", "width": 43},
+    {"path": "top.e.ar.ready", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.e.ar.valid", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.e.aw",       "kind": "mirror", "type": "fw_rv_if#(aw_t)", "protocol": "fw_rv_proto#(aw_t)", "role": "target"},
+    {"path": "top.e.aw.data",  "kind": "port", "type": "aw_t", "dir": "in", "width": 43},
+    {"path": "top.e.aw.ready", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.e.aw.valid", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.e.clk",      "kind": "port", "type": "bit", "dir": "in", "width": 1}
+  ],
+  "nets": [
+    {"scope": "top", "source": "top.ar.data",     "tie": null, "sinks": ["top.e.ar.data"],  "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.e.ar.ready",  "tie": null, "sinks": ["top.ar.ready"],   "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.ar.valid",    "tie": null, "sinks": ["top.e.ar.valid"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.aw.data",     "tie": null, "sinks": ["top.e.aw.data"],  "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.e.aw.ready",  "tie": null, "sinks": ["top.aw.ready"],   "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.aw.valid",    "tie": null, "sinks": ["top.e.aw.valid"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.clk",         "tie": null, "sinks": ["top.e.clk"],      "signals": [], "inouts": []}
+  ],
+  "diagnostics": [],
+  "protocols": {
+    "fw_rv_proto#(aw_t)": {"family": "fw_rv_proto", "params": {"T": "aw_t"}, "prefix": "fw_rv", "apis": [{"dir": "req", "type": "fw_put_if#(aw_t)"}], "bundles": ["fw_rv_if#(aw_t)"], "converters": []}
+  }
+}

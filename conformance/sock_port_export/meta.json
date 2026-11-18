@@ -1,0 +1,6 @@
+{
+  "description": "A bare fw_port bound to a bare fw_export: api_endpoint objects with no protocol, one api binding.",
+  "features": [
+    "protocols"
+  ]
+}

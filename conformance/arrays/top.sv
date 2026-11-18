@@ -4,6 +4,7 @@
 
 package scenario;
     import fw_hdl_pkg::*;
+    import fw_hdl_std_pkg::*;
 
     // A leaf: one input, one output.
     class leaf extends fw_component;

@@ -1,0 +1,7 @@
+{
+  "description": "A sink's cfg passed as a const ref argument: a read, no diagnostic. Static only.",
+  "static-only": true,
+  "features": [
+    "protocols"
+  ]
+}

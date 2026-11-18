@@ -4,7 +4,8 @@ The M1 exit criterion (core-layer1.md 9): every scenario's top.sv compiles
 against the spec's fw_hdl_pkg with its generated default bodies. Each
 scenario is compiled on its own (they all declare package ``scenario``) with
 ``verilator --lint-only``, together with the filesets given as dfm task
-inputs (a JSON list of std.FileSet items: the API and the woven bodies).
+inputs (a JSON list of std.FileSet items: the API, the woven bodies and
+fw_hdl_std_pkg's source).
 
 Usage::
 
@@ -45,7 +46,7 @@ def fileset_args(items):
             args.append("+incdir+" + os.path.normpath(os.path.join(base, d)))
         for d in fs.get("defines", []):
             args.append("+define+" + d)
-        if fs.get("filetype") == "systemVerilogSource":
+        if fs.get("filetype") in ("systemVerilogSource", "fwHdlSource"):
             files.extend(os.path.join(base, f) for f in fs.get("files", []))
     return args, files
 
@@ -69,7 +70,8 @@ def main(argv=None):
 
     def one(n):
         cmd = [args.verilator, "--lint-only", "-Wno-fatal", "-Wno-lint", "-Wno-style"] + fargs \
-            + ["-I" + os.path.join(args.conformance, n)] \
+            + ["-I" + os.path.join(args.conformance, n),
+               "-I" + os.path.join(args.conformance, "_lib")] \
             + files + [os.path.join(args.conformance, n, "top.sv"), wrapper] \
             + ["--top-module", "fw_compile_top"]
         log = os.path.join(args.log_dir, n + ".log")

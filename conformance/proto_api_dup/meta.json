@@ -1,0 +1,6 @@
+{
+  "description": "A protocol whose declare() registers two APIs for the request direction: FW-E-PROTO-API on the protocol.",
+  "features": [
+    "protocols"
+  ]
+}

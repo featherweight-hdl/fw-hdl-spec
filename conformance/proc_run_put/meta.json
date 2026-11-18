@@ -1,0 +1,8 @@
+{
+  "description": "A run() initiator puts 1, 2, 3 back to back on a ready/valid bundle (R2.4, core-layer2 5.2): a write in the run phase of edge k is committed at edge k+1, and a put completes at the edge where ready is seen, so the puts take one cycle each, with no added latency.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

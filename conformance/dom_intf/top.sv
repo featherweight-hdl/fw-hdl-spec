@@ -5,6 +5,7 @@
 
 package scenario;
     import fw_hdl_pkg::*;
+    import fw_hdl_std_pkg::*;
 
     class leaf extends fw_component;
         `fw_component_utils(leaf)

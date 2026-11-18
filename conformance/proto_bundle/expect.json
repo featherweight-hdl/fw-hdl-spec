@@ -1,0 +1,30 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top", "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.k", "kind": "component", "type": "snk", "params": {}, "param_src": {}},
+    {"path": "top.k.in", "kind": "mirror", "type": "test_rv_bundle#(8)", "protocol": "test_rv_proto#(8)", "role": "target"},
+    {"path": "top.k.in.data", "kind": "port", "type": "logic[7:0]", "dir": "in", "width": 8},
+    {"path": "top.k.in.ready", "kind": "port", "type": "bit", "dir": "out", "width": 1},
+    {"path": "top.k.in.valid", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.m", "kind": "component", "type": "mon", "params": {}, "param_src": {}},
+    {"path": "top.m.p", "kind": "monitor", "type": "test_rv_bundle#(8)", "protocol": "test_rv_proto#(8)", "role": "monitor"},
+    {"path": "top.m.p.data", "kind": "port", "type": "logic[7:0]", "dir": "in", "width": 8},
+    {"path": "top.m.p.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.m.p.valid", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.s", "kind": "component", "type": "src", "params": {}, "param_src": {}},
+    {"path": "top.s.out", "kind": "bundle", "type": "test_rv_bundle#(8)", "protocol": "test_rv_proto#(8)", "role": "initiator"},
+    {"path": "top.s.out.data", "kind": "port", "type": "logic[7:0]", "dir": "out", "width": 8},
+    {"path": "top.s.out.ready", "kind": "port", "type": "bit", "dir": "in", "width": 1},
+    {"path": "top.s.out.valid", "kind": "port", "type": "bit", "dir": "out", "width": 1}
+  ],
+  "nets": [
+    {"scope": "top", "source": "top.s.out.data", "tie": null, "sinks": ["top.k.in.data", "top.m.p.data"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.k.in.ready", "tie": null, "sinks": ["top.m.p.ready", "top.s.out.ready"], "signals": [], "inouts": []},
+    {"scope": "top", "source": "top.s.out.valid", "tie": null, "sinks": ["top.k.in.valid", "top.m.p.valid"], "signals": [], "inouts": []}
+  ],
+  "diagnostics": [],
+  "protocols": {
+    "test_rv_proto#(8)": {"family": "test_rv_proto", "params": {"W": 8}, "prefix": "test_rv", "apis": [{"dir": "req", "type": "test_put_if#(logic[7:0])"}], "bundles": ["test_rv_bundle#(8)"], "converters": []}
+  }
+}

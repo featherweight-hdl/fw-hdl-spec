@@ -1,0 +1,12 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-STEP-DOMAINS",
+      "path": "top.x"
+    }
+  ],
+  "trace": {
+    "clock": "top.clk",
+    "edges": 2
+  }
+}
