@@ -197,9 +197,10 @@ Transactors
 A transactor converts between the protocol's API and its bundle. It is a
 component with an endpoint on one side and a bundle on the other, and it
 registers with the hub with :sv:macro:`fw_xtor_utils` (which also declares
-``create``). Its role is not stated: the bundle mixin gives it on the pin
-side, and on the method side whether the protocol's request API goes out
-or comes in:
+``create``). Its role is not stated: it comes from the pin side only, the
+mixin of its bundle member (``fw_bundle`` initiator, ``fw_mirror`` target,
+``fw_monitor`` monitor). The method side has no role rule; here the
+initiator takes its requests in through an export:
 
 .. code-block:: systemverilog
 
@@ -211,9 +212,10 @@ or comes in:
        ...
    endclass
 
-A static front end checks the registration against the ports: a
-transactor needs a bundle port of its protocol and an endpoint of its API
-(``FW-E-PROTO-XTOR``). Finding the transactor for a bundle is static:
+The registration is checked against the ports (``FW-E-PROTO-XTOR``): a
+transactor needs a bundle port of its protocol and, unless it is a
+monitor, an endpoint of one of the protocol's APIs or of its channel APIs.
+fe-sv checks every converter class it registers; rt-sv each one created. Finding the transactor for a bundle is static:
 the tools go from the bundle to its protocol, to the registered
 transactors, to the one whose pin side is the opposite mixin over the
 same bundle type. In fw-hdl-fe-sv this is ``ScanResult.xtor_for(bundle,
@@ -264,8 +266,11 @@ other:
        ...
    endclass
 
-``fw_protocol::abstractor_for(from, to)`` finds one in either direction.
-It finds a single hop; chains are built by connecting abstractors. What
+``fw_protocol::abstractor_for(from, to)`` finds one in either direction,
+and ``p.abstractors()`` lists those with ``p`` on either side. Both look
+among the classes the design names: an abstractor without parameters,
+and each specialization of a parameterized one that the source names,
+created or not. It finds a single hop; chains are built by connecting abstractors. What
 the upper level keeps is exactly its payload's fields, so what it drops
 (UART bit timing) is dropped visibly.
 
@@ -434,6 +439,18 @@ testbench for a design can be generated. In fw-hdl-fe-sv:
   ``fw_pin_bridge`` per class pin, the clock and reset, and the
   class ``TB`` elaborated as ``top``. ``+fw_edges=N`` sets the run length
   (default 100 edges).
+
+A port's bundle may hold bundles (a bundle of channels). Its transactor
+and monitor are those of the outermost level that carries a protocol (the
+port's own bundle), never the inner channels'; if the scan has none of the
+opposite role, ``gen_tb`` and ``gen_bind`` report ``FW-E-TB-XTOR``
+(``FW-E-TB-MON``) naming the protocol, the role and the port. A port
+whose own bundle has no protocol, but holds bundles that do, is
+``FW-E-TB-NOPROTO``: a port is one protocol. Every leaf
+signal is a pin named by its member path joined with ``_`` and bridged in
+its direction for the DUT, reversed at each ``fw_mirror`` on the path.
+The class package imports the packages of the bundle, the transactors and
+the payload types; the module names payload types with their package.
 
 With ``bind=True`` the class also has, per port, an :sv:class:`fw_monitor`
 pin bundle ``mon_<port>_pins`` and the monitor ``mon_<port>``.

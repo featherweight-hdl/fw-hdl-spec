@@ -1,0 +1,6 @@
+{
+  "description": "The constructor queries: fw_protocol::abstractor_for(from, to), asked in the direction opposite to the registration, and p.abstractors() on both protocols find pkt_over_phy, which the design names only by its declaration; abstractor_for is null for a pair with no abstractor. The abstractor is created through the returned constructor, so the netlist is proto_abs's.",
+  "features": [
+    "protocols"
+  ]
+}

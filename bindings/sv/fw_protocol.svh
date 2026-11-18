@@ -6,11 +6,11 @@
 // typedef and :sv:macro:`fw_protocol_param_utils`), and registers its APIs
 // in ``declare()``::
 //
-//     class uart_proto #(uart_param_t P = UART_PARAM_DEFAULT) extends fw_protocol;
-//         typedef uart_proto #(P) this_t;
+//     class uart_proto #(int W = 8) extends fw_protocol;
+//         typedef uart_proto #(W) this_t;
 //         `fw_protocol_param_utils(uart_proto)
 //         static function void declare(fw_protocol_decl d);
-//             d.api(fw_api_type_of #(fw_put_if #(uart_char_t))::get(), FW_PROTO_REQ);
+//             d.api(fw_api_type_of #(fw_put_if #(logic [W-1:0]))::get(), FW_PROTO_REQ);
 //         endfunction
 //     endclass
 //

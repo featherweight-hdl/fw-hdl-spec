@@ -83,7 +83,7 @@ the class declaration), the specialization (a key of the netlist's
 |---|---|---|
 | `FW-E-PROTO-THIS` | a `_param_utils` class whose `this_t` is not its own specialization (static front end) | the class |
 | `FW-E-PROTO-API` | `declare()` registers two APIs for one direction, or one API twice | the protocol |
-| `FW-E-PROTO-XTOR` | a transactor or abstractor registered for a protocol or role it does not connect: the bundle or API side is missing (static front end) | the class |
+| `FW-E-PROTO-XTOR` | a transactor or abstractor registered for a protocol it does not connect: the bundle or API side is missing ([protocols](protocols.md), "Converters"; static front end: every converter class; run time: each one created) | the class |
 | `FW-E-SOCK-UNBOUND` | a port, or a socket's port side, that resolves to no export after the connect phase | the port |
 | `FW-E-SOCK-MULTI` | a port bound twice | the port |
 | `FW-E-CFG-WRITE` | a write to a sink's `cfg` (static front end: any write target; run time: copy differs from the last push) | the sink |

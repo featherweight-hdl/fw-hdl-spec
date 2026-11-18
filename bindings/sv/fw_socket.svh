@@ -5,9 +5,8 @@
 // socket. ``IN`` is implemented as an export's is: by the parent, or by
 // :sv:func:`fw_socket::set_imp`.
 //
-// Against a protocol, the socket's role is derived from which way the
-// protocol's APIs travel: an outbound request (or inbound response) makes
-// it an initiator, an outbound response (or inbound request) a target.
+// A socket has no role against a protocol: a converter's role comes from
+// its pin side only (``fw_bundle``, ``fw_mirror``, ``fw_monitor``).
 //
 // :param OUT: the API it calls
 // :param IN: the API it provides

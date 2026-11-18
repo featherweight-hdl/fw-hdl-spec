@@ -72,23 +72,29 @@ bundle variant, transactor or abstractor without editing the protocol.
   registration kind, a **converter** with two sides and a direction; a
   transactor is the converter whose two sides are the same protocol, the
   API on one and the bundle on the other. A static front end checks the
-  registration against the converter's ports: a transactor needs a bundle
-  port of `PROTO` and an endpoint of its API, an abstractor an endpoint or
-  bundle of each side (`FW-E-PROTO-XTOR`, on the class).
-- **Completeness.** The static view is complete: a static front end sees
-  every registration macro in the source. At run time a parameterized
-  class registers only for the specializations present in the image, so
-  `abstractors()` lists only those. `of`, `role_of` and
-  `api` are always complete, because a bundle's protocol is present
-  wherever the bundle is. Complete lookups (generators) are made
-  statically; generated testbench and bind code names each
-  specialization it needs, so its image holds those registrations.
-- **Roles are derived, never registered.** A converter's role comes from
-  its endpoints: on the pin side, the bundle mixin (`fw_bundle`
-  initiator, `fw_mirror` target, `fw_monitor` monitor); on the method
-  side, which way the protocol's APIs travel (an outbound `req` or inbound
-  `rsp` is an initiator, an outbound `rsp` or inbound `req` a target).
-  Two sides that disagree are an elaboration error.
+  registration against the converter's ports, and a runtime checks each
+  converter it creates after the connect phase: a transactor needs a
+  bundle port of `PROTO` and, unless it is a monitor (see "Derived
+  shapes"), an endpoint of one of `PROTO`'s APIs or of its channel APIs
+  (`<p>_req_if`, `<p>_rsp_if`); an abstractor an endpoint or bundle of
+  each side (`FW-E-PROTO-XTOR`, on the class).
+- **Completeness.** The registered converters are the classes the
+  design names: every converter class without parameters, and each
+  specialization of a parameterized one that the source names (a member,
+  typedef, type parameter or base class), whether or not it is created.
+  `abstractors()` and `abstractor_for` answer from that set, the same in a
+  static front end and at run time; a specialization nothing names is
+  not in it. `of`, `role_of` and `api` are always complete, because a
+  bundle's protocol is present wherever the bundle is. Generators look
+  converters up statically, over every registration macro in the source;
+  generated testbench and bind code names each specialization it needs,
+  so those are in the set.
+- **Roles are derived, never registered.** A converter's role comes
+  from its pin side only: the mixin of its bundle member (`fw_bundle`
+  initiator, `fw_mirror` target, `fw_monitor` monitor). The method side
+  has no role rule: its endpoints are whatever the protocol's APIs need
+  (std's `fw_rv_initiator` takes requests in through an export), and
+  they are not compared with the pin side.
 - **Finding a transactor is static.** From a bundle: its protocol, the
   protocol's registered transactors, and the one whose pin side is the
   opposite mixin over the same bundle type (a monitor tap: the monitor).
@@ -103,11 +109,11 @@ never methods on bundles or components.
 |---|---|
 | `fw_protocol::of(x)` | the protocol of a bundle in any role, a transactor, an abstractor side or an endpoint; `null` if none |
 | `fw_protocol::role_of(b)` | initiator for an `fw_bundle`, target for an `fw_mirror`, monitor for an `fw_monitor` |
-| `fw_protocol::abstractor_for(from, to)` | a constructor of an abstractor between two protocols, in either direction; `null` if none |
+| `fw_protocol::abstractor_for(from, to)` | a constructor of an abstractor between two protocols, in either direction, among the classes the design names; `null` if none |
 | `p.family()`, `p.params()`, `p.name()` | the family, the parameters, the canonical specialization name |
 | `p.api(dir)`, `p.apis()` | the API registered for `dir` (`null` if none), all of them |
 | `p.bundles()` | the bundle types that name `p` |
-| `p.abstractors()` | constructors of the registered abstractors |
+| `p.abstractors()` | constructors of the abstractors with `p` on either side, among the classes the design names (see "Completeness") |
 | `a.protocols()`, `a.family()` | every protocol that registers API `a`; its family |
 
 ## API conventions
@@ -121,10 +127,15 @@ derived code and foreign bindings (Python) can be generated from them:
   before it calls. A blocking form is a shim over the split API.
 - **Signatures.** A method is a task if it may block, else a function.
   Arguments are `input` or `output`; no `ref`, events or class handles;
-  argument types are packed types and queues of them, spelled with
-  class-local typedefs.
-- **One parameter struct** per protocol, `#(<p>_param_t P)`, on every
-  class and module of the kit.
+  argument types are packed types and queues of them. A named argument
+  or payload type is a typedef at package level, in the kit's package
+  (`sbus_req_t`), not one declared inside a class.
+- **Parameters.** A parameterized protocol, API or bundle takes plain
+  parameters: a type (`#(type T)`, as std's `fw_rv_proto` and `fw_put_if`)
+  or a value (`#(int W)`). Each derived class takes the parameters of the
+  API or bundle it is derived from. A width that follows a parameter is
+  written on a non-struct type (`logic [W-1:0]`); a struct payload has
+  fixed widths.
 - **Channel APIs** have one method per channel, named as the channel. That
   name is the only link a transactor needs between a method and its pins.
 
@@ -136,10 +147,10 @@ API `<api>` with method `<m>`, and protocol prefix `<p>`:
 
 | Class | Shape |
 |---|---|
-| `<api>_base` | implements `<api>`; each method reports an error, or does nothing when marked `fw_default` |
+| `<api>_base` | implements `<api>`; each method reports an error (it is not implemented) and zeroes its outputs and return value |
 | `<api>_listener` | a function `<m>_pre(inputs)` and `<m>_post(inputs, outputs)` per method; with `_listener_base` (empty bodies) and `_listener_fanout` (to many) |
 | `<api>_proxy` | implements `<api>`: calls each listener's `<m>_pre`, forwards to its target, then calls each `<m>_post` |
-| `<api>_imp #(P, IMP)` | implements `<api>` by forwarding to `IMP`'s methods; how a component implements an export |
+| `<api>_imp #(..., IMP)` | `<api>`'s parameters, then `IMP`: implements `<api>` by forwarding to `IMP`'s methods; how a component implements an export |
 | `<api>_txn`, `<api>_<m>_txn` | a virtual base, and one transaction class per method: its inputs and outputs, `rand`-capable, with `sprint` and `compare` |
 | `<api>_txn_sink` | an interface class with `put(<api>_txn t)`: where recorded transactions go |
 | `<api>_txn_listener` | a listener that emits a `<api>_<m>_txn` to a sink at `<m>_post` |
@@ -168,9 +179,8 @@ API `<api>` with method `<m>`, and protocol prefix `<p>`:
 - **Sockets.** `fw_socket #(OUT, IN)` calls `OUT` (as a port, through
   `get_if()`) and provides `IN` (as an export). Its peer is
   `fw_socket #(IN, OUT)`. A socket is its own endpoint class, not a port
-  and an export. Against a protocol, a socket's role is derived as a
-  converter's is (Registration); a symmetric socket
-  (`fw_socket #(A, A)`) is both.
+  and an export. A socket has no role against a protocol: roles belong
+  to converters and come from their pin side (Registration).
 - **Implementation.** An export's implementation is derived: when its
   parent implements `API`, the parent is the implementation, with no
   call; a socket's `IN` is derived the same way. `set_imp(imp)` sets
@@ -250,7 +260,10 @@ API `<api>` with method `<m>`, and protocol prefix `<p>`:
   connection updated on an event. It is listed as a connection, takes part
   in the crossing check, and lowers in hardware to wires from the
   configuration registers. The no-write rule is what makes the
-  single-writer claim hold.
+  single-writer claim hold. The pushes above happen at run time. A
+  static front end records each binding, each sink's resolved source and
+  each `add_listener`, linking a change to the action that runs on it.
+  It neither pushes values nor calls listeners.
 
 ## Timing
 

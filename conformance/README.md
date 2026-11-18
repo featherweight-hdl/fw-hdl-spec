@@ -104,7 +104,9 @@ Domains ([semantics](../semantics/domains.md)); each needs feature
 | proto_bundle | a protocol's bundle as initiator, mirror and monitor: `role` | |
 | proto_xtor | initiator, target and monitor transactors: converters by role; sockets as `api_endpoint`; `api` bindings | |
 | proto_xtor_param | a parameterized transactor at two widths: one converter per specialization | |
+| proto_xtor_bad | `FW-E-PROTO-XTOR` (no API endpoint; a bundle port of another protocol; a parameterized transactor with no bundle port, on its family; an abstractor with nothing of one side); a monitor with no endpoint passes | |
 | proto_abs | an abstractor: a converter with two protocols, listed under both | |
+| proto_abs_query | `abstractor_for` (either direction, `null` for no abstractor) and `abstractors()` find an abstractor named only by its declaration; created through the returned constructor | |
 | sock_basic | `fw_socket#(OUT,IN)` bound to its mirror: `api_endpoint` objects with no protocol; one `api` binding | |
 | sock_up | `connect_up` through two levels: one `api` binding per call, inner to outer | |
 | sock_port_export | bare `fw_port` / `fw_export`: endpoints with no protocol | |

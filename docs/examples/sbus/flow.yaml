@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://dv-flow.github.io/flow.dv.schema.json
+# The sbus protocol package of docs/protocol-packages.rst.
+#
+#   dfm run kit-gen    scan src/sbus_pkg.sv and write sbus_pkg_gen_pkg.sv
+#   dfm run kit-scan   only the protocol table (scan.json, scan.zir)
+#
+# check.py builds and runs the back-to-back and RTL tests from Python.
+package:
+  name: sbus
+
+  tasks:
+  # The hand-written source of the protocol package.
+  - name: kit
+    uses: std.FileSet
+    with:
+      type: fwHdlSource
+      base: src
+      include: [sbus_pkg.sv]
+
+  # Everything derived from it, as one package: sbus_pkg_gen_pkg.
+  - root: kit-gen
+    uses: fw.hdl.fe.sv.GenKit
+    needs: [kit]
+
+  - root: kit-scan
+    uses: fw.hdl.fe.sv.Scan
+    needs: [kit]

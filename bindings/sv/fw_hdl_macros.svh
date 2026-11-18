@@ -128,9 +128,9 @@
 
 // Declares ``create`` for transactor (or monitor) ``C``, as
 // :sv:macro:`fw_component_utils` does, and registers ``C`` with protocol
-// ``PROTO``. Its role is not stated: it is derived from its endpoints
-// (the bundle mixin on the pin side, the request or response direction on
-// the method side).
+// ``PROTO``. Its role is not stated: it is derived from its pin side only,
+// the mixin of its bundle member (``fw_bundle`` initiator, ``fw_mirror``
+// target, ``fw_monitor`` monitor).
 //
 // :param C: the class, without parameters
 // :param PROTO: the protocol class, with its parameters
