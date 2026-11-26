@@ -1,0 +1,24 @@
+{
+  "top": "top",
+  "objects": [
+    {"path": "top", "kind": "component", "type": "top", "params": {}, "param_src": {}},
+    {"path": "top.o", "kind": "component", "type": "owner", "params": {}, "param_src": {}},
+    {"path": "top.o.p", "kind": "cfg_src", "type": "fw_cfg_src#(uart_cfg_t)"},
+    {"path": "top.r", "kind": "component", "type": "reader", "params": {}, "param_src": {}},
+    {"path": "top.r.c", "kind": "cfg_sink", "type": "fw_cfg_sink#(uart_cfg_t)"},
+    {"path": "top.r.d", "kind": "cfg_sink", "type": "fw_cfg_sink#(uart_cfg_t)"},
+    {"path": "top.w", "kind": "component", "type": "watcher", "params": {}, "param_src": {}}
+  ],
+  "nets": [],
+  "diagnostics": [],
+  "bindings": [
+    {"kind": "cfg", "from": "top.o.p", "to": "top.r.c"},
+    {"kind": "cfg", "from": "top.o.p", "to": "top.r.d"}
+  ],
+  "listeners": [
+    {"sink": "top.r.c", "order": 0, "scope": "top.r", "listener": "top.r"},
+    {"sink": "top.r.c", "order": 1, "scope": "top.r", "listener": null},
+    {"sink": "top.r.c", "order": 2, "scope": "top", "listener": "top.w"},
+    {"sink": "top.r.d", "order": 0, "scope": "top.r", "listener": null}
+  ]
+}

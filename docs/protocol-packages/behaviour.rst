@@ -103,12 +103,15 @@ needs one written by hand. std's ready/valid initiator is the shape:
 
 A transactor:
 
-- is a component registered with ```fw_xtor_utils(C, PROTO)`` (or
-  ``_param_utils`` with ``this_t``), which also declares ``create``;
-- has a **pin side**, one member of the protocol's bundle type: an
-  ``fw_bundle`` for an initiator, an ``fw_mirror`` for a target, an
-  ``fw_monitor`` for a monitor. Its role is derived from this member only
-  and is never stated;
+- extends the base class of its role over the protocol's bundle type,
+  ``fw_xtor_initiator``, ``fw_xtor_target`` or ``fw_xtor_monitor``, and
+  registers with ```fw_xtor_utils(C)`` (or ``_param_utils`` with
+  ``this_t``), which also declares ``create``;
+- has a **pin side**, the base's ``pins``: an ``fw_bundle`` for an
+  initiator, an ``fw_mirror`` for a target, an ``fw_monitor`` for a
+  monitor, created by the base's ``build()`` (an override calls
+  ``super.build()``). Its role and protocol are the base's, static facts
+  of the class;
 - has a **method side**: an export of the protocol's request API for an
   initiator, a port of it for a target, listeners for a monitor. This is
   the usual shape, not a rule: the method side does not set the role and
@@ -196,12 +199,8 @@ When the abstract level is a protocol on its own (packets over a byte
 PHY), there are two protocols and an *abstractor* between them: a
 component with an endpoint or bundle of each, registered with both by
 ```fw_abstractor_utils(C, FROM, TO)``. Neither protocol names the other.
-``fw_protocol::abstractor_for(from, to)`` finds one hop in either
-direction. What the upper level keeps is exactly its payload's fields, so
-what it drops is dropped visibly. See :doc:`../protocols`, "Abstractors",
-and the conformance scenarios ``proto_abs`` and ``proto_abs_query``. The
-query looks among the classes the design names (a parameterized
-abstractor: the specializations its source names), in fe-sv and rt-sv
-alike.
+It converts one hop. What the upper level keeps is exactly its payload's
+fields, so what it drops is dropped visibly. See :doc:`../protocols`,
+"Abstractors", and the conformance scenario ``proto_abs``.
 
 Next: :doc:`testing`.

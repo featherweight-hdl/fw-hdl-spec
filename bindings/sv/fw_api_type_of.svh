@@ -1,7 +1,5 @@
-// The handle of API ``API``, an interface class. A protocol registers its
-// APIs with it, in ``declare()``::
-//
-//     d.api(fw_api_type_of #(fw_put_if #(uart_char_t))::get(), FW_PROTO_REQ);
+// The handle of API ``API``, an interface class: the key the tools use
+// for the APIs a protocol names in :sv:macro:`fw_protocol_utils`.
 //
 // :param API: the API interface class, with its parameters
 class fw_api_type_of #(type API = int) extends fw_api_type;

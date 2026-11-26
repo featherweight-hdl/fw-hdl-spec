@@ -1,0 +1,8 @@
+{
+  "description": "FW-E-CLOCK-PERIOD: a derived clock (mul 3 of 10 ns) whose edge times are not whole numbers of the time precision; a 45-degree phase (1.25 ns) is fine.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

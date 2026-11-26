@@ -1,0 +1,8 @@
+{
+  "description": "A derived domain's edges are its source's edges div, 2div, ... from time 0: tick() from any time returns at its next one. Edges of a root and its derived domains at one time are one group: a step block of the derived domain reads the root's registers from before the shared edge.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

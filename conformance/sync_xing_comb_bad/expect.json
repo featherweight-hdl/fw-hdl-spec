@@ -1,0 +1,16 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-XING-COMB",
+      "path": "top.x.reqs"
+    },
+    {
+      "id": "FW-E-XING-COMB",
+      "path": "top.x.rsps"
+    }
+  ],
+  "trace": {
+    "clock": "top.clk",
+    "edges": 3
+  }
+}

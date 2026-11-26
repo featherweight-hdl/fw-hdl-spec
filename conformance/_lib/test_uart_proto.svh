@@ -19,13 +19,9 @@ typedef struct packed {
 
 // The protocol.
 class test_uart_proto extends fw_protocol;
-    `fw_protocol_utils(test_uart_proto)
+    `fw_protocol_utils(test_uart_proto, test_put_if #(uart_char_t))
 
     typedef uart_cfg_t cfg_t;
-
-    static function void declare(fw_protocol_decl d);
-        d.api(fw_api_type_of #(test_put_if #(uart_char_t))::get(), FW_PROTO_REQ);
-    endfunction
 
     // The time one character takes on the line, in ns: start, data,
     // parity and stop bits at ``c.baud``.
@@ -48,7 +44,7 @@ endclass
 
 // The serial bundle, from the transmitter's view.
 virtual class test_uart_serial extends fw_bundle_base;
-    `fw_bundle_protocol(test_uart_proto)
+    `fw_bundle_utils(test_uart_serial, test_uart_proto)
 
     fw_output #(bit) tx;
     fw_input  #(bit) rx;

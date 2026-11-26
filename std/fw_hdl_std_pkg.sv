@@ -19,6 +19,8 @@ package fw_hdl_std_pkg;
     `include "fw_rv_proto.svh"
     `include "fw_rv_if.svh"
     `include "fw_rv_xtor.svh"
+    `include "fw_to_sync_ep.svh"
+    `include "fw_from_sync_ep.svh"
 
     // The base of a kit's timed channels.
     `include "fw_timed_channel.svh"

@@ -52,8 +52,8 @@ uses :sv:macro:`fw_protocol_param_utils`:
        `fw_protocol_param_utils(rv_proto)
    endclass
 
-``P::get_type()`` is the specialization (``rv_proto #(16)``), and
-``P::get_type().family()`` the class without parameters. Connection checks
+``P::get_type()`` is the specialization (``rv_proto #(16)``), and the
+family is the class without parameters. Connection checks
 and transactor choice key on the specialization; generators, rules and
 naming key on the family. A ``this_t`` that is not the class's own
 specialization is ``FW-E-PROTO-THIS``.
@@ -79,9 +79,9 @@ written from the initiator's (here the transmitter's) view, as any bundle:
    endclass
 
 A protocol may have several bundle forms. For any instance, in any role,
-``fw_protocol::of(b)`` gives its protocol and ``fw_protocol::role_of(b)``
-the role: initiator for an :sv:class:`fw_bundle`, target for an
-:sv:class:`fw_mirror`, monitor for an :sv:class:`fw_monitor`.
+the bundle type names the protocol and the mixin is the role: initiator
+for an :sv:class:`fw_bundle`, target for an :sv:class:`fw_mirror`,
+monitor for an :sv:class:`fw_monitor`.
 
 Endpoints and sockets
 ---------------------
@@ -195,27 +195,34 @@ Transactors
 -----------
 
 A transactor converts between the protocol's API and its bundle. It is a
-component with an endpoint on one side and a bundle on the other, and it
-registers with the hub with :sv:macro:`fw_xtor_utils` (which also declares
-``create``). Its role is not stated: it comes from the pin side only, the
-mixin of its bundle member (``fw_bundle`` initiator, ``fw_mirror`` target,
-``fw_monitor`` monitor). The method side has no role rule; here the
-initiator takes its requests in through an export:
+component with an endpoint on one side and a bundle on the other. It
+extends the base class of its role over its bundle type,
+:sv:class:`fw_xtor_initiator`, :sv:class:`fw_xtor_target` or
+:sv:class:`fw_xtor_monitor`, and registers with the hub with
+:sv:macro:`fw_xtor_utils` (which also declares ``create``). The base holds
+the pin side, ``pins`` (``fw_bundle``, ``fw_mirror`` or ``fw_monitor``),
+and states the role and the protocol (the bundle's) as static facts of the
+class. The method side has no role rule; here the initiator takes its
+requests in through an export:
 
 .. code-block:: systemverilog
 
-   class ux_init extends fw_component implements test_put_if #(uart_char_t);
-       `fw_xtor_utils(ux_init, test_uart_proto)
+   class ux_init extends fw_xtor_initiator #(test_uart_serial)  // pins, out
+           implements test_put_if #(uart_char_t);
+       `fw_xtor_utils(ux_init)
        fw_export #(test_put_if #(uart_char_t)) t;     // the API, in
-       fw_bundle #(test_uart_serial)           pins;  // the pins, out
        fw_cfg_sink #(uart_cfg_t)               cfg;
-       ...
+       virtual function void build();
+           super.build();                             // creates pins
+           ...
    endclass
 
 The registration is checked against the ports (``FW-E-PROTO-XTOR``): a
-transactor needs a bundle port of its protocol and, unless it is a
-monitor, an endpoint of one of the protocol's APIs or of its channel APIs.
-fe-sv checks every converter class it registers; rt-sv each one created. Finding the transactor for a bundle is static:
+transactor needs, unless it is a monitor, an endpoint of one of the
+protocol's APIs or of its channel APIs. Its bundle port is the base's
+``pins``.
+fe-sv checks every converter class it registers (a static check; rt-sv
+does not make it). Finding the transactor for a bundle is static:
 the tools go from the bundle to its protocol, to the registered
 transactors, to the one whose pin side is the opposite mixin over the
 same bundle type. In fw-hdl-fe-sv this is ``ScanResult.xtor_for(bundle,
@@ -225,8 +232,8 @@ initiator.
 A generated initiator and target run back to back, with no RTL, by
 connecting their ``pins`` directly.
 
-A monitor is a transactor too, registered in the monitor role (its pins
-are an :sv:class:`fw_monitor`), so ``xtor_for(bundle, "monitor")`` finds
+A monitor is a transactor too, in the monitor role (it extends
+:sv:class:`fw_xtor_monitor`; its pins are an :sv:class:`fw_monitor`), so ``xtor_for(bundle, "monitor")`` finds
 it. Its class side is a list of listeners rather than an endpoint: it
 calls each listener at the first cycle of a transfer and at the
 handshake. For :sv:class:`fw_rv_monitor` the listener extends
@@ -266,11 +273,8 @@ other:
        ...
    endclass
 
-``fw_protocol::abstractor_for(from, to)`` finds one in either direction,
-and ``p.abstractors()`` lists those with ``p`` on either side. Both look
-among the classes the design names: an abstractor without parameters,
-and each specialization of a parameterized one that the source names,
-created or not. It finds a single hop; chains are built by connecting abstractors. What
+An abstractor converts a single hop; chains are built by connecting
+abstractors. What
 the upper level keeps is exactly its payload's fields, so what it drops
 (UART bit timing) is dropped visibly.
 

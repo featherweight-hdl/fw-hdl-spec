@@ -14,4 +14,5 @@ API reference
    domains
    processes
    protocols
+   acc
    macros

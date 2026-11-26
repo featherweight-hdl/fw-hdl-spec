@@ -8,14 +8,11 @@ package scenario;
     `include "test_apis.svh"
 
     class basic_proto extends fw_protocol;
-        `fw_protocol_utils(basic_proto)
-        static function void declare(fw_protocol_decl d);
-            d.api(fw_api_type_of #(test_put_if #(byte))::get(), FW_PROTO_REQ);
-        endfunction
+        `fw_protocol_utils(basic_proto, test_put_if #(byte))
     endclass
 
     virtual class basic_bundle extends fw_rv_if #(byte);
-        `fw_bundle_protocol(basic_proto)
+        `fw_bundle_utils(basic_bundle, basic_proto)
     endclass
 
     class top extends fw_component;

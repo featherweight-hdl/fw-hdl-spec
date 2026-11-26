@@ -9,14 +9,11 @@ package scenario;
 
     class bad_proto #(int W = 8) extends fw_protocol;
         typedef bad_proto #() this_t;           // should be bad_proto #(W)
-        `fw_protocol_param_utils(bad_proto)
-        static function void declare(fw_protocol_decl d);
-            d.api(fw_api_type_of #(test_put_if #(logic [W-1:0]))::get(), FW_PROTO_REQ);
-        endfunction
+        `fw_protocol_param_utils(bad_proto, test_put_if #(logic [W-1:0]))
     endclass
 
     virtual class bad_bundle #(int W = 8) extends fw_rv_if #(logic [W-1:0]);
-        `fw_bundle_protocol(bad_proto #(W))
+        `fw_bundle_utils(bad_bundle, bad_proto #(W))
     endclass
 
     class top extends fw_component;

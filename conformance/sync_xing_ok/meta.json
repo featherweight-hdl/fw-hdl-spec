@@ -1,0 +1,8 @@
+{
+  "description": "Task-sync crossings used from their sides (X1-X6): a run() puts 1, 2, 3 to a child's fw_to_sync and gets each answer from its fw_from_sync; the child's comb() shows the head item, and its step() takes an item and gives back item + 100 in the same edge.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

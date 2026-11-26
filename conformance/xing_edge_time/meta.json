@@ -1,0 +1,8 @@
+{
+  "description": "C1, C4: a delay that ends at a generated edge's time resumes after the edge's release (at the edge, whatever the process order); a delay off the edge leaves the run() between edges, where reads return the current value and writes are sampled by the next edge.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

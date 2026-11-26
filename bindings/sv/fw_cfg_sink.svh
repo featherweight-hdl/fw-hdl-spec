@@ -32,6 +32,9 @@ class fw_cfg_sink #(type T = int) extends fw_object;
 
     // Adds ``l``, called with the new value after each push to this
     // sink, the first at binding. A sink with no listener pays nothing.
+    // Valid only in a phase method (``build`` or ``connect``): a listener
+    // is structural, like a connection; added later it is
+    // ``FW-E-CONN-PHASE``.
     //
     // :param l: the listener
     extern function void add_listener(fw_cfg_listener_if #(T) l);

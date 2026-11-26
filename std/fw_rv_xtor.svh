@@ -9,50 +9,44 @@
 //     ...
 //     x.put(8'h5a);                    // in a run() task
 //
-// ``put`` hands ``d`` to the transactor's own ``run()`` in zero time, so
-// the pins are driven from the transactor's clock domain whoever calls it.
+// ``put`` hands ``d`` to the sync code through a :sv:class:`fw_to_sync`
+// (semantics/processes.md, "Task-sync crossings"). ``comb()`` drives
+// ``valid`` and ``data`` from it, so the item is on the pins from the edge
+// after the call; ``step()`` takes it at the handshake, and ``put``
+// returns at that edge. There is no thread.
 //
 // :param T: the payload type
-class fw_rv_initiator #(type T = bit) extends fw_component
-        implements fw_put_if #(T), fw_run_if;
+class fw_rv_initiator #(type T = bit) extends fw_xtor_initiator #(fw_rv_if #(T))
+        implements fw_put_if #(T), fw_comb_if, fw_step_if;
     typedef fw_rv_initiator #(T) this_t;
-    `fw_xtor_param_utils(fw_rv_initiator, fw_rv_proto #(T))
+    `fw_xtor_param_utils(fw_rv_initiator)
 
-    // The method side: the transactor implements ``put``.
-    fw_export #(fw_put_if #(T)) t;
+    // The item being offered.
+    fw_to_sync #(T) req;
 
-    // The pin side.
-    fw_bundle #(fw_rv_if #(T)) pins;
-
-    // Creates ``t`` and ``pins``.
+    // Creates ``pins`` and ``t`` (the base: an export of ``put``), and
+    // ``req``.
     virtual function void build();
-        t    = fw_export #(fw_put_if #(T))::create("t", this);
-        pins = fw_bundle #(fw_rv_if #(T))::create("pins", this);
+        super.build();
+        req = fw_to_sync #(T)::create("req", this);
     endfunction
-
-    mailbox #(T)   req = new(1);
-    mailbox #(bit) ack = new(1);
 
     // Offers ``d`` and returns at the edge where it is accepted.
     virtual task put(input T d);
-        bit b;
         req.put(d);
-        ack.get(b);
     endtask
 
-    // Drives each offered item until the handshake.
-    virtual task run();
+    // Offers the waiting item, if any.
+    virtual function void comb();
+        pins.valid.write(req.valid());
+        pins.data.write(req.peek());
+    endfunction
+
+    // Takes the item at the handshake.
+    virtual function void step();
         T d;
-        forever begin
-            req.get(d);
-            pins.valid.write(1);
-            pins.data.write(d);
-            do fw_clock_domain::tick(this);
-            while (!pins.ready.read());
-            pins.valid.write(0);
-            ack.put(1);
-        end
-    endtask
+        if (pins.valid.read() && pins.ready.read()) void'(req.take(d));
+    endfunction
 endclass
 
 // The ready/valid target transactor (protocol-kit prep §6, Inbound): each
@@ -66,38 +60,103 @@ endclass
 //     x.pins.connect(dut_out);         // in connect()
 //     x.p.connect(sink.e);
 //
+// The pin timing is sync code: ``comb()`` raises ``ready`` while ``run()``
+// waits for a beat (:sv:func:`fw_from_sync::waiting`), and ``step()``
+// gives the beat at the handshake. ``run()`` only makes the call.
+//
 // :param T: the payload type
-class fw_rv_target #(type T = bit) extends fw_component implements fw_run_if;
+class fw_rv_target #(type T = bit) extends fw_xtor_target #(fw_rv_if #(T))
+        implements fw_run_if, fw_comb_if, fw_step_if;
     typedef fw_rv_target #(T) this_t;
-    `fw_xtor_param_utils(fw_rv_target, fw_rv_proto #(T))
+    `fw_xtor_param_utils(fw_rv_target)
 
-    // The method side: where each beat goes.
-    fw_port #(fw_put_if #(T)) p;
+    // The beats taken, for ``run()``.
+    fw_from_sync #(T) beats;
 
-    // The pin side.
-    fw_mirror #(fw_rv_if #(T)) pins;
-
-    // Creates ``p`` and ``pins``.
+    // Creates ``pins`` and ``p`` (the base: a port of ``put``), and
+    // ``beats``.
     virtual function void build();
-        p    = fw_port #(fw_put_if #(T))::create("p", this);
-        pins = fw_mirror #(fw_rv_if #(T))::create("pins", this);
+        super.build();
+        beats = fw_from_sync #(T)::create("beats", this);
     endfunction
 
-    // Takes each beat at the handshake edge and puts it; ``ready`` is low
-    // while the put blocks.
+    // Puts each beat.
     virtual task run();
         fw_put_if #(T) i = p.get_if();
         T d;
-        pins.ready.write(1);
         forever begin
-            do fw_clock_domain::tick(this);
-            while (!(pins.valid.read() && pins.ready.read()));
-            d = pins.data.read();
-            pins.ready.write(0);
+            beats.get(d);
             i.put(d);
-            pins.ready.write(1);
         end
     endtask
+
+    // Ready while ``run()`` waits for a beat.
+    virtual function void comb();
+        pins.ready.write(beats.waiting());
+    endfunction
+
+    // Takes the beat at the handshake.
+    virtual function void step();
+        if (pins.valid.read() && pins.ready.read()) void'(beats.give(pins.data.read()));
+    endfunction
+endclass
+
+// The ready/valid get endpoint (sync-task-domains.md §5.1): the receiving
+// counterpart of :sv:class:`fw_rv_initiator`. ``get`` raises ``ready`` in
+// the cycle it is called and returns the beat at the edge where ``valid &&
+// ready`` holds. ``ready`` is low while no ``get`` is pending, so nothing
+// is taken early and nothing is buffered; a back-to-back ``get`` keeps it
+// high::
+//
+//     fw_rv_get_ep #(bit [7:0]) x;
+//     ...
+//     x.pins.connect(dut_out);         // in connect()
+//     ...
+//     x.get(d);                        // in a run() task
+//
+// Unlike :sv:class:`fw_rv_target`, which pushes each beat to a ``put``
+// callee, the caller pulls. It isn't a converter of
+// :sv:class:`fw_rv_proto` (whose API is ``put``), so it registers as a
+// component. ``get`` waits on a :sv:class:`fw_from_sync`; ``comb()``
+// raises ``ready`` while it waits, and ``step()`` gives the beat at the
+// handshake. There is no thread.
+//
+// :param T: the payload type
+class fw_rv_get_ep #(type T = bit) extends fw_component
+        implements fw_get_if #(T), fw_comb_if, fw_step_if;
+    typedef fw_rv_get_ep #(T) this_t;
+    `fw_component_param_utils(fw_rv_get_ep)
+
+    // The pin side, in the target role.
+    fw_mirror #(fw_rv_if #(T)) pins;
+
+    // The method side: the endpoint implements ``get``.
+    fw_export #(fw_get_if #(T)) t;
+
+    // The beat being returned.
+    fw_from_sync #(T) rsp;
+
+    // Creates ``pins``, ``t`` and ``rsp``.
+    virtual function void build();
+        pins = fw_mirror #(fw_rv_if #(T))::create("pins", this);
+        t    = fw_export #(fw_get_if #(T))::create("t", this);
+        rsp  = fw_from_sync #(T)::create("rsp", this);
+    endfunction
+
+    // Returns the next beat, at the edge where it is taken.
+    virtual task get(output T t);
+        rsp.get(t);
+    endtask
+
+    // Ready while a ``get`` waits.
+    virtual function void comb();
+        pins.ready.write(rsp.waiting());
+    endfunction
+
+    // Takes the beat at the handshake.
+    virtual function void step();
+        if (pins.valid.read() && pins.ready.read()) void'(rsp.give(pins.data.read()));
+    endfunction
 endclass
 
 // The pin core of :sv:class:`fw_rv_monitor`: per cycle, ``fire`` is the
@@ -168,31 +227,29 @@ endclass
 // beat. A user extends it and overrides the hooks, or attaches listeners,
 // which see the same calls as ``put_pre``/``put_post``::
 //
-//     m.p.connect(x.pins);             // tap a link
+//     m.pins.connect(x.pins);          // tap a link
 //     m.add_listener(l);
 //
 // It is the converter for a monitor tap of :sv:class:`fw_rv_proto`.
 //
 // :param T: the payload type
-class fw_rv_monitor #(type T = bit) extends fw_component implements fw_run_if;
+class fw_rv_monitor #(type T = bit) extends fw_xtor_monitor #(fw_rv_if #(T))
+        implements fw_run_if;
     typedef fw_rv_monitor #(T) this_t;
-    `fw_xtor_param_utils(fw_rv_monitor, fw_rv_proto #(T))
-
-    // The tapped link.
-    fw_monitor #(fw_rv_if #(T)) p;
+    `fw_xtor_param_utils(fw_rv_monitor)
 
     // The pin core.
     fw_rv_mon_core #(T) c;
 
-    // Creates ``p`` and ``c``.
+    // Creates ``pins`` (the base, the tapped link) and ``c``.
     virtual function void build();
-        p = fw_monitor #(fw_rv_if #(T))::create("p", this);
+        super.build();
         c = fw_rv_mon_core #(T)::create("c", this);
     endfunction
 
-    // Taps ``p`` with the core.
+    // Taps ``pins`` with the core.
     virtual function void connect();
-        c.p.connect(p);
+        c.p.connect(pins);
     endfunction
 
     // Called for the first cycle of a transfer.
@@ -227,7 +284,7 @@ class fw_rv_monitor #(type T = bit) extends fw_component implements fw_run_if;
         T d;
         forever begin
             fw_clock_domain::tick(this);
-            d = p.data.read();
+            d = pins.data.read();
             if (c.first.read()) begin
                 pre(d);
                 foreach (m_listeners[i]) m_listeners[i].put_pre(d);

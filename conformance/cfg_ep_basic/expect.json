@@ -23,5 +23,9 @@
     {"kind": "cfg", "from": "top.w.t", "to": "top.w.x.t"},
     {"kind": "api", "from": "top.w.x.e", "to": "top.w.e"},
     {"kind": "api", "from": "top.w.x.t", "to": "top.w.t"}
+  ],
+  "listeners": [
+    {"sink": "top.w.x.e", "order": 0, "scope": "top.w.x", "listener": "top.w.x"},
+    {"sink": "top.w.x.t", "order": 0, "scope": "top.w.x", "listener": "top.w.x"}
   ]
 }

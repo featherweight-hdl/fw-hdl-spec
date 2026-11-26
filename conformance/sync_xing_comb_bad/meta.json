@@ -1,0 +1,8 @@
+{
+  "description": "FW-E-XING-COMB (X2), on the crossing: take (reqs) and give (rsps) in a comb block, which runs at every settle.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

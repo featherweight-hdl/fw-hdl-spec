@@ -1,8 +1,8 @@
 // A two-flop synchronizer written as one component in two clocks (core-layer2
 // 4.4): its step block writes q, in clk_b (period 17), and reads a, in clk
-// (period 10). The trace is sampled at clk_b's edges (17, 34, ...). The
-// periods are chosen so that no clk_b edge falls between t's write (edge 40)
-// and its commit (edge 50); see conformance/README.md.
+// (period 10). The trace is sampled at clk_b's edges (17, 34, ...); t
+// rises after clk's update at 40, so clk_b's edge at 51 is the first to
+// read it.
 `timescale 1ns/1ps
 `include "fw_hdl_macros.svh"
 

@@ -34,6 +34,7 @@ typedef enum { FW_DOMAIN_SAME, FW_DOMAIN_RELATED, FW_DOMAIN_UNRELATED } fw_domai
 typedef enum { FW_SEV_NONE, FW_SEV_INFO, FW_SEV_WARNING, FW_SEV_ERROR } fw_severity_e;
 
 `include "fw_impl_if.svh"
+`include "fw_no_api.svh"
 
 `include "fw_object.svh"
 `include "fw_component.svh"
@@ -79,6 +80,8 @@ typedef fw_domain #(fw_reset_kind) fw_reset_domain;
 `include "fw_run_if.svh"
 `include "fw_reset_state_if.svh"
 `include "fw_time.svh"
+`include "fw_to_sync.svh"
+`include "fw_from_sync.svh"
 
 typedef class fw_protocol;
 typedef class fw_protocol_type;
@@ -91,29 +94,16 @@ typedef class fw_socket_cfg_src;
 typedef class fw_socket_cfg_sink;
 
 // The direction of a protocol's API: the request, from the initiator, or
-// the response, from the target. See :sv:func:`fw_protocol_decl::api`.
+// the response, from the target. See :sv:macro:`fw_protocol_utils`.
 typedef enum { FW_PROTO_REQ, FW_PROTO_RSP } fw_proto_dir_e;
 
 // The role a bundle or a transactor plays in a protocol.
 typedef enum { FW_ROLE_INITIATOR, FW_ROLE_TARGET, FW_ROLE_MONITOR } fw_proto_role_e;
 
-// A list of protocol handles, as :sv:func:`fw_api_type::protocols` returns.
-typedef fw_protocol_type fw_protocol_type_q[$];
-
-// A list of API handles, as :sv:func:`fw_protocol_type::apis` returns.
-typedef fw_api_type fw_api_type_q[$];
-
-// A list of names, as :sv:func:`fw_protocol_type::bundles` returns.
-typedef string fw_string_q[$];
-
-// A list of component constructors, as
-// :sv:func:`fw_protocol_type::abstractors` returns.
-typedef fw_ctor #(fw_component) fw_component_ctor_q[$];
 
 `include "fw_protocol_family.svh"
 `include "fw_api_type.svh"
 `include "fw_protocol_type.svh"
-`include "fw_protocol_decl.svh"
 `include "fw_protocol.svh"
 `include "fw_api_type_of.svh"
 `include "fw_protocol_type_of.svh"
@@ -129,3 +119,12 @@ typedef fw_ctor #(fw_component) fw_component_ctor_q[$];
 `include "fw_export_cfg_sink.svh"
 `include "fw_socket_cfg_src.svh"
 `include "fw_socket_cfg_sink.svh"
+`include "fw_xtor_initiator.svh"
+`include "fw_xtor_target.svh"
+`include "fw_xtor_sock_initiator.svh"
+`include "fw_xtor_sock_target.svh"
+`include "fw_xtor_monitor.svh"
+
+// acc: optional run-time access to types and values (testing, debug,
+// reporting). See fw_acc.svh.
+`include "fw_acc.svh"

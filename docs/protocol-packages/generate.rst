@@ -168,28 +168,25 @@ The transactors
 ---------------
 
 The initiator implements ``<p>_req_if`` and calls ``<p>_rsp_if`` for each
-response beat; the target is its mirror image. Each holds a socket ``s``
-for the method side, ``pins`` for the pin side, and one std transactor per
-channel (``<ch>_x``):
+response beat; the target is its mirror image. Each extends the base
+class of its role, which holds ``pins`` for the pin side; it adds a socket
+``s`` for the method side and one std transactor per channel (``<ch>_x``):
 
 .. code-block:: systemverilog
 
    // excerpt of sbus_pkg_gen_pkg
-   class sbus_initiator extends fw_component implements sbus_req_if;
+   class sbus_initiator extends fw_xtor_initiator #(sbus_bundle) implements sbus_req_if;
        fw_socket #(sbus_rsp_if, sbus_req_if) s;
-       fw_bundle #(sbus_bundle) pins;
        fw_rv_initiator #(sbus_pkg::sbus_req_t) req_x;
        fw_rv_target #(sbus_pkg::sbus_rsp_t) rsp_x;
        ...
-       `fw_xtor_utils(sbus_initiator, sbus_proto)
+       `fw_xtor_utils(sbus_initiator)
 
-   class sbus_target extends fw_component implements sbus_rsp_if;
+   class sbus_target extends fw_xtor_target #(sbus_bundle) implements sbus_rsp_if;
        fw_socket #(sbus_req_if, sbus_rsp_if) s;
-       fw_mirror #(sbus_bundle) pins;
        ...
 
-   class sbus_monitor extends fw_component;
-       fw_monitor #(sbus_bundle) pins;
+   class sbus_monitor extends fw_xtor_monitor #(sbus_bundle);
        fw_rv_monitor #(sbus_pkg::sbus_req_t) req;
        fw_rv_monitor #(sbus_pkg::sbus_rsp_t) rsp;
        virtual function void add_req_listener(input sbus_req_if_listener l);

@@ -1,0 +1,9 @@
+{
+  "description": "FW-E-RUN-SYNC-ACCESS: run() writes a grandchild's port (an error) and a child's input (allowed).",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only",
+  "static-only": true
+}

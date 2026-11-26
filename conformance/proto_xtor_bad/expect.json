@@ -1,8 +1,5 @@
-{
-  "diagnostics": [
-    {"id": "FW-E-PROTO-XTOR", "path": "bad_p_xtor"},
-    {"id": "FW-E-PROTO-XTOR", "path": "half_abs"},
-    {"id": "FW-E-PROTO-XTOR", "path": "noapi_xtor"},
-    {"id": "FW-E-PROTO-XTOR", "path": "nobundle_xtor"}
-  ]
-}
+{"diagnostics": [
+  {"id": "FW-E-PROTO-XTOR", "path": "bad_p_xtor"},
+  {"id": "FW-E-PROTO-XTOR", "path": "half_abs"},
+  {"id": "FW-E-PROTO-XTOR", "path": "noapi_xtor"}
+]}

@@ -13,7 +13,7 @@ A **protocol** joins the parts of one interface standard: its method-level
 APIs, its pin-level bundles, and the transactors and abstractors that
 convert between them. The protocol class is a **hub**: every part
 registers with it, it names none of them except its hand-written APIs, and
-every part is found from it. Nothing in this layer is synthesized; a
+the tools find every part from it. Nothing in this layer is synthesized; a
 method-level connection becomes pins only through a transactor.
 
 ## Protocols and identity
@@ -23,28 +23,28 @@ method-level connection becomes pins only through a transactor.
   parameterized one declares `typedef C #(...) this_t;` and uses
   `` `fw_protocol_param_utils(C) ``.
 - A protocol has an identity at two levels:
-  - its **family**, the class without parameters: `p.family()`, one
-    object per class, holding the class name. Code written for any
-    specialization keys on it (generators, rules, coverage, naming);
+  - its **family**, the class without parameters, one per class. Code
+    written for any specialization keys on it (generators, rules,
+    coverage, naming);
   - its **specialization**, the class with its parameters: the
     `fw_protocol_type` handle `get_type()` returns, one object per
-    specialization. Connection checks and transactor choice key on it;
-    `p.params()` spells its parameters, for reporting.
-  An API has the same two levels: `fw_api_type_of #(API)::get()` and
-  `a.family()`.
+    specialization. Connection checks and transactor choice key on it.
+  An API has the same two levels: the interface class, and the handle
+  `fw_api_type_of #(API)::get()` of a specialization.
 - **No user-written strings.** Every registration macro takes the bare
   class name and only stringifies it, for the family name. The type comes
   from `C` in the plain form and from `this_t` in the `_param` form; the
   bare name is never used as a type, because inside a parameterized class
   it means the default specialization. `fw_protocol_type_of::get(family)`
   takes the family string, but only the macros call it; user code calls
-  `P::get_type()`.
+  `P::get_type()`. (A tool's expansion may use the bare name as a type to
+  key the family, which every specialization shares.)
 - **`this_t` is checked.** A missing `this_t` is a compile error. One that
   is not the class's own specialization (its parameters, in order)
   compiles in SV, and is `FW-E-PROTO-THIS` in a static front end.
 - **The prefix rule.** The prefix of derived names is the family name with
   a trailing `_proto` removed (`axi4_proto` → `axi4`). A protocol whose
-  name does not fit sets one with `d.prefix(s)` in `declare()`. It is the
+  name does not fit sets one with `` `fw_protocol_prefix(s) ``. It is the
   only name a user ever writes.
 - The same `this_t` rule and the same two forms hold for every
   registration macro: transactors (`` `fw_xtor_utils ``) and abstractors
@@ -56,45 +56,63 @@ Every registration points at the hub, so a kit builds in order (core
 first, generated code after), has no cycles, and a third party can add a
 bundle variant, transactor or abstractor without editing the protocol.
 
-- **APIs.** The static `declare(fw_protocol_decl d)` registers the
-  protocol's APIs with `d.api(h, dir)`, `h` an API handle and `dir`
-  `FW_PROTO_REQ` or `FW_PROTO_RSP`. At most one API per direction, each
-  registered once (`FW-E-PROTO-API`, on the protocol). The base
-  `declare()` registers nothing. An interface class cannot register
-  itself, so the protocol registers it; one API may belong to many
-  protocols (the std neutral `put` and `mem` APIs).
+- **APIs.** The protocol's registration macro names its APIs:
+  `` `fw_protocol_utils(C, REQ, RSP) `` (or
+  `` `fw_protocol_param_utils ``). `REQ` is the request API, called by the
+  initiating side; `RSP` the response API, called back on it. Either may
+  be left out (or given as `fw_no_api`), so a protocol has at most one API
+  per direction. The same API for both is `FW-E-PROTO-API`, on the
+  protocol. An interface class cannot register itself, so the protocol
+  names it; one API may belong to many protocols (the std neutral `put`
+  and `mem` APIs).
 - **Bundles.** A bundle class names its protocol with
-  `` `fw_bundle_protocol(PROTO) ``. A protocol may have several bundle
+  `` `fw_bundle_utils(C, PROTO) ``. A protocol may have several bundle
   forms (pin-level variants) and names none of them.
-- **Converters.** A transactor registers with
-  `` `fw_xtor[_param]_utils(C, PROTO) ``, an abstractor with
+- **Converters.** A transactor extends one of the role base classes,
+  each over its bundle type `B`, and registers with
+  `` `fw_xtor[_param]_utils(C) ``. The base holds the pin side, `pins`
+  (`fw_bundle`, `fw_mirror` or `fw_monitor #(B)`), and the method side,
+  both created by its `build()`, and states the role (static `role()`)
+  and the protocol (static `protocol()`, `B`'s). The method side's APIs
+  default to the protocol's (`B` re-exports them from
+  `` `fw_bundle_utils ``):
+
+  | Base | Role | Method side |
+  |---|---|---|
+  | `fw_xtor_initiator #(B, API = REQ)` | initiator | `fw_export #(API) t`: the transactor implements the request API |
+  | `fw_xtor_target #(B, API = REQ)` | target | `fw_port #(API) p`: the transactor calls it for each request |
+  | `fw_xtor_sock_initiator #(B, REQ, RSP)` | initiator | `fw_socket #(RSP, REQ) s`: implements `REQ`, delivers responses through `RSP` |
+  | `fw_xtor_sock_target #(B, REQ, RSP)` | target | `fw_socket #(REQ, RSP) s`: passes requests on through `REQ`, implements `RSP` |
+  | `fw_xtor_monitor #(B)` | monitor | none; the subclass adds its own |
+
+  A one-API base whose `API` is `fw_no_api` creates no endpoint. An
+  abstractor registers with
   `` `fw_abstractor[_param]_utils(C, FROM, TO) ``. Both are one
   registration kind, a **converter** with two sides and a direction; a
   transactor is the converter whose two sides are the same protocol, the
   API on one and the bundle on the other. A static front end checks the
-  registration against the converter's ports, and a runtime checks each
-  converter it creates after the connect phase: a transactor needs a
-  bundle port of `PROTO` and, unless it is a monitor (see "Derived
-  shapes"), an endpoint of one of `PROTO`'s APIs or of its channel APIs
-  (`<p>_req_if`, `<p>_rsp_if`); an abstractor an endpoint or bundle of
-  each side (`FW-E-PROTO-XTOR`, on the class).
+  registration against the converter class's ports (a check on the class
+  declaration; a runtime does not make it): a transactor needs,
+  unless it is a monitor (see "Derived shapes"), an endpoint of one of
+  its protocol's APIs or of its channel APIs (`<p>_req_if`,
+  `<p>_rsp_if`); an abstractor an endpoint or bundle of each side
+  (`FW-E-PROTO-XTOR`, on the class). A transactor's bundle port is
+  always there: it is the base's `pins`.
 - **Completeness.** The registered converters are the classes the
   design names: every converter class without parameters, and each
   specialization of a parameterized one that the source names (a member,
-  typedef, type parameter or base class), whether or not it is created.
-  `abstractors()` and `abstractor_for` answer from that set, the same in a
-  static front end and at run time; a specialization nothing names is
-  not in it. `of`, `role_of` and `api` are always complete, because a
-  bundle's protocol is present wherever the bundle is. Generators look
+  typedef, type parameter or base class), whether or not it is created;
+  a specialization nothing names is not in it. Generators look
   converters up statically, over every registration macro in the source;
   generated testbench and bind code names each specialization it needs,
   so those are in the set.
-- **Roles are derived, never registered.** A converter's role comes
-  from its pin side only: the mixin of its bundle member (`fw_bundle`
-  initiator, `fw_mirror` target, `fw_monitor` monitor). The method side
-  has no role rule: its endpoints are whatever the protocol's APIs need
-  (std's `fw_rv_initiator` takes requests in through an export), and
-  they are not compared with the pin side.
+- **Roles come from the base class, never registered.** A transactor's
+  role is its base class's: `fw_xtor_initiator` (pins `fw_bundle`),
+  `fw_xtor_target` (`fw_mirror`), `fw_xtor_monitor` (`fw_monitor`). It
+  is a static fact of the class, known whether or not it is created. The
+  method side has no role rule: its endpoints are whatever the
+  protocol's APIs need (std's `fw_rv_initiator` takes requests in
+  through an export), and they are not compared with the pin side.
 - **Finding a transactor is static.** From a bundle: its protocol, the
   protocol's registered transactors, and the one whose pin side is the
   opposite mixin over the same bundle type (a monitor tap: the monitor).
@@ -102,19 +120,11 @@ bundle variant, transactor or abstractor without editing the protocol.
 
 ## Queries
 
-Queries are static functions on `fw_protocol` and methods on the handles,
-never methods on bundles or components.
-
-| Query | Gives |
-|---|---|
-| `fw_protocol::of(x)` | the protocol of a bundle in any role, a transactor, an abstractor side or an endpoint; `null` if none |
-| `fw_protocol::role_of(b)` | initiator for an `fw_bundle`, target for an `fw_mirror`, monitor for an `fw_monitor` |
-| `fw_protocol::abstractor_for(from, to)` | a constructor of an abstractor between two protocols, in either direction, among the classes the design names; `null` if none |
-| `p.family()`, `p.params()`, `p.name()` | the family, the parameters, the canonical specialization name |
-| `p.api(dir)`, `p.apis()` | the API registered for `dir` (`null` if none), all of them |
-| `p.bundles()` | the bundle types that name `p` |
-| `p.abstractors()` | constructors of the abstractors with `p` on either side, among the classes the design names (see "Completeness") |
-| `a.protocols()`, `a.family()` | every protocol that registers API `a`; its family |
+The protocol layer has no run-time queries. What a protocol relates (its
+APIs, bundles, transactors and abstractors, a bundle's protocol and role)
+is static: the tools read it from the source and the IR (fw-hdl-fe-sv's
+scan, `ScanResult.xtor_for`, and the IR's protocol hubs). The handles
+(`fw_protocol_type`, `fw_api_type`) exist to be registered and compared.
 
 ## API conventions
 
@@ -218,8 +228,9 @@ API `<api>` with method `<m>`, and protocol prefix `<p>`:
 - **Two protocols.** When the abstract level exists on its own (a packet
   protocol over two PHYs), there are two protocols and an **abstractor**,
   registered with both. Neither protocol names the other.
-- **One hop.** `abstractor_for` finds a single converter. Chains are built
-  by connecting abstractors; path search across several is not defined.
+- **One hop.** An abstractor converts between two protocols. Chains are
+  built by connecting abstractors; path search across several is not
+  defined.
 - **Declared loss.** What an abstract level keeps is exactly its payload's
   fields. What it drops (UART bit timing) is dropped visibly, by not being
   in the payload, never silently.
@@ -282,7 +293,11 @@ instances carry `protocol` and `role`. Endpoints and sockets are objects of
 kind `api_endpoint`, sources and sinks of kind `cfg_src` and
 `cfg_sink`. Their links are in a top-level `bindings` list: kind `api`
 from port side to export side (each `connect` and `connect_up`), kind
-`cfg` from source to sink. Each appears only
-when the design has one,
+`cfg` from source to sink. `add_listener` is structural, like a
+connection: it is made in a phase method, and one made later (at run
+time) is `FW-E-CONN-PHASE`. Each `add_listener` is a record in a
+top-level `listeners` list: the sink, the call's order on it, the
+component that made the call, and the listener's path (null for a plain
+object). Each appears only when the design has one,
 so a design without protocols has none of them. Both implementations must
 agree on the table: that is how conformance checks the queries.

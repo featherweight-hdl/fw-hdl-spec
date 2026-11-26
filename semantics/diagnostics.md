@@ -22,7 +22,7 @@ caused it, and an object rejected at creation is left out of the tree
 | `FW-E-PARAM-WRITE` | component writes its params value (static front end) | the component |
 | `FW-E-PARAM-NULL` | a null constructor factory is used (static front end) | the component whose code used it |
 | `FW-E-PARAM-CTOR` | a constructor factory's realization is not a subclass of its base (SV: compile error) | the component whose params hold it |
-| `FW-E-CONN-PHASE` | connect or tie outside `connect()` | the endpoint whose method was called (first of a `connect_all` pair) |
+| `FW-E-CONN-PHASE` | connect or tie outside `connect()`; `add_listener` outside a phase method (at run time) | the endpoint whose method was called (first of a `connect_all` pair); for `add_listener`, the sink |
 | `FW-E-CONN-SCOPE` | endpoint outside the connecting component's scope | that endpoint |
 | `FW-E-CONN-TYPE` | non-equivalent value types, different bundle types, or a signal with a bundle | the first endpoint |
 | `FW-E-NET-MULTI` | more than one driver (source or tie) on a net | the least path among its sources and tied endpoints |
@@ -64,11 +64,17 @@ object.
 | ID | Condition | Path |
 |---|---|---|
 | `FW-E-WRITE-IN` | `write()` to an effective input | the signal |
-| `FW-E-WRITE-MULTI` | a signal written by more than one block (`step`, `comb`, `run()`); a component field written by blocks in two domains | the signal, or the component |
+| `FW-E-WRITE-MULTI` | a signal written by more than one block (`step`, `comb`, task code), other than one `step` block and the task code of the same component; a component field written by blocks in two domains | the signal, or the component |
 | `FW-E-STEP-DOMAINS` | a `step` block that writes signals of two clock domains | the component |
 | `FW-E-COMB-LOOP` | a settle still changing after 64 passes (run time) | each signal changed in the last pass |
-| `FW-E-CLOCK-NONE` | `tick` on a clock domain with no driver, no extern pin and no `period` | the object `tick` is keyed by |
+| `FW-E-CLOCK-NONE` | `tick` on a clock domain with no edges: no net, no `period`, or a derivation whose edges can't be computed | the object `tick` is keyed by |
+| `FW-E-CLOCK-PERIOD` | a computed edge time (`mul` > 1, `phase`) that isn't a whole number of the time precision | the domain |
+| `FW-E-RUN-SYNC-ACCESS` | task code touching a signal that is not its component's own or a direct child's port (static) | the signal |
+| `FW-E-XING-DRIVE-TWICE` | a second task write of a crossing port sampled by the same edge (run time; ignored) | the signal |
+| `FW-E-XING-SIDE` | a task-sync crossing's sync side used other than by its owner's sync code, or `take`/`give` outside a `step` block; its process side used from sync code | the crossing |
+| `FW-E-XING-COMB` | `take` or `give` in a `comb` block | the crossing |
 | `FW-E-EMIT-RUN` | a component that implements `run()` asked to be emitted (static front end) | the component |
+| `FW-E-XING-LOWER` | a task-sync crossing use the static front end can't lower to ready/valid ports (processes.md, "Lowering") | the component |
 | `FW-E-EMIT-TIME` | `fw_time` or a waiting domain operation in a lowered process (static front end) | the component |
 
 Protocols ([protocols](protocols.md)). An endpoint bound outside
@@ -82,8 +88,8 @@ the class declaration), the specialization (a key of the netlist's
 | ID | Condition | Path |
 |---|---|---|
 | `FW-E-PROTO-THIS` | a `_param_utils` class whose `this_t` is not its own specialization (static front end) | the class |
-| `FW-E-PROTO-API` | `declare()` registers two APIs for one direction, or one API twice | the protocol |
-| `FW-E-PROTO-XTOR` | a transactor or abstractor registered for a protocol it does not connect: the bundle or API side is missing ([protocols](protocols.md), "Converters"; static front end: every converter class; run time: each one created) | the class |
+| `FW-E-PROTO-API` | a protocol names the same API for both directions | the protocol |
+| `FW-E-PROTO-XTOR` | a transactor or abstractor registered for a protocol it does not connect: the bundle or API side is missing ([protocols](protocols.md), "Converters"; static front end only, on every converter class) | the class |
 | `FW-E-SOCK-UNBOUND` | a port, or a socket's port side, that resolves to no export after the connect phase | the port |
 | `FW-E-SOCK-MULTI` | a port bound twice | the port |
 | `FW-E-CFG-WRITE` | a write to a sink's `cfg` (static front end: any write target; run time: copy differs from the last push) | the sink |

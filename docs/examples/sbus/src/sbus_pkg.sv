@@ -30,16 +30,13 @@ package sbus_pkg;
 
     // The protocol: the hub every other part registers with.
     class sbus_proto extends fw_protocol;
-        `fw_protocol_utils(sbus_proto)
-        static function void declare(fw_protocol_decl d);
-            d.api(fw_api_type_of #(sbus_if)::get(), FW_PROTO_REQ);
-        endfunction
+        `fw_protocol_utils(sbus_proto, sbus_if)
     endclass
 
     // The pins, from the initiator's view: a bundle of two ready/valid
     // channels. req is driven by the initiator, rsp by the target.
     virtual class sbus_bundle extends fw_bundle_base;
-        `fw_bundle_protocol(sbus_proto)
+        `fw_bundle_utils(sbus_bundle, sbus_proto)
         fw_bundle #(fw_rv_if #(sbus_req_t)) req;
         fw_mirror #(fw_rv_if #(sbus_rsp_t)) rsp;
         virtual function void build();

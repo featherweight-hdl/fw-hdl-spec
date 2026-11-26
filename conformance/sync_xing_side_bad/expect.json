@@ -1,0 +1,20 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-XING-SIDE",
+      "path": "top.p.x.a"
+    },
+    {
+      "id": "FW-E-XING-SIDE",
+      "path": "top.p.x.b"
+    },
+    {
+      "id": "FW-E-XING-SIDE",
+      "path": "top.p.x.c"
+    }
+  ],
+  "trace": {
+    "clock": "top.clk",
+    "edges": 3
+  }
+}

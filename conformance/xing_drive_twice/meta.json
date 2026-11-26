@@ -1,0 +1,8 @@
+{
+  "description": "FW-E-XING-DRIVE-TWICE: two task writes of one port sampled by the same edge, both at one edge (a) or one at an edge and one between it and the next (b); the second is ignored. One write per edge (c) is fine. A second write by the same thread in the same time step that restores the value from before the first undoes it (u).",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

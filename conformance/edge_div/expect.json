@@ -1,0 +1,38 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-I-DOM-CROSS",
+      "path": "top.c.n"
+    }
+  ],
+  "trace": {
+    "clock": "top.clk2",
+    "edges": 3,
+    "signals": [
+      "top.c.n",
+      "top.h.s",
+      "top.t1.a",
+      "top.t2.a"
+    ],
+    "rows": [
+      [
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        3,
+        1,
+        20,
+        0
+      ],
+      [
+        5,
+        3,
+        20,
+        40
+      ]
+    ]
+  }
+}

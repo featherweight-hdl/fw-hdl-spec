@@ -1,5 +1,5 @@
-// A protocol whose name does not end in _proto sets its prefix in
-// declare().
+// A protocol whose name does not end in _proto sets its prefix with
+// `fw_protocol_prefix.
 `include "fw_hdl_macros.svh"
 
 package scenario;
@@ -8,15 +8,12 @@ package scenario;
     `include "test_apis.svh"
 
     class pfx_link_protocol extends fw_protocol;
-        `fw_protocol_utils(pfx_link_protocol)
-        static function void declare(fw_protocol_decl d);
-            d.prefix("lnk");
-            d.api(fw_api_type_of #(test_put_if #(byte))::get(), FW_PROTO_REQ);
-        endfunction
+        `fw_protocol_utils(pfx_link_protocol, test_put_if #(byte))
+        `fw_protocol_prefix("lnk")
     endclass
 
     virtual class lnk_bundle extends fw_rv_if #(byte);
-        `fw_bundle_protocol(pfx_link_protocol)
+        `fw_bundle_utils(lnk_bundle, pfx_link_protocol)
     endclass
 
     class top extends fw_component;

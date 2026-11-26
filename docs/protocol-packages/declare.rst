@@ -143,8 +143,8 @@ protocol declares its own specialization as ``this_t`` and uses
 order. A missing one does not compile; a wrong one compiles in SV and is
 ``FW-E-PROTO-THIS`` in fe-sv. A protocol has two identities:
 ``P::get_type()`` is the specialization (``fw_rv_proto #(byte)``), which
-connection checks and transactor choice key on, and
-``P::get_type().family()`` the class, which generators and naming key on.
+connection checks and transactor choice key on, and the class without
+parameters is the family, which generators and naming key on.
 
 Every registration macro comes in the same two forms, ``_utils`` for a
 plain class and ``_param_utils`` (with ``this_t``) for a parameterized
@@ -154,7 +154,7 @@ one:
 Class                          Plain                                   Parameterized
 =============================  ======================================  ===============================
 protocol                       ```fw_protocol_utils(C)``               ```fw_protocol_param_utils(C)``
-transactor                     ```fw_xtor_utils(C, P)``                ```fw_xtor_param_utils(C, P)``
+transactor                     ```fw_xtor_utils(C)``                   ```fw_xtor_param_utils(C)``
 abstractor                     ```fw_abstractor_utils(C, F, T)``       ```fw_abstractor_param_utils(C, F, T)``
 component                      ```fw_component_utils(C)``              ```fw_component_param_utils(C)``
 bundle (names its protocol)    ```fw_bundle_protocol(P)``              the same, ``P`` specialized
@@ -211,8 +211,8 @@ Rules for bundles:
 
 - **Roles.** The same bundle type is the initiator side as an
   ``fw_bundle``, the target side as an ``fw_mirror`` and a tap as an
-  ``fw_monitor``. ``fw_protocol::of(b)`` gives any of them its protocol,
-  ``fw_protocol::role_of(b)`` its role.
+  ``fw_monitor``; the mixin is the role, and the bundle type names the
+  protocol.
 - **No clock or reset.** They come from the domain of the component that
   holds the transactor (:doc:`../domains`). A device's pin names and
   polarity go in its pin map (:doc:`../wrapping`).

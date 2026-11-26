@@ -8,6 +8,11 @@
 // or :sv:class:`fw_monitor`.
 virtual class fw_bundle_base extends fw_object;
 
+    // The APIs of the bundle's protocol; :sv:macro:`fw_bundle_utils`
+    // redeclares them.
+    typedef fw_no_api __fw_req_api;
+    typedef fw_no_api __fw_rsp_api;
+
     // Creates the members. The role's ``create`` calls it.
     extern virtual function void build();
 

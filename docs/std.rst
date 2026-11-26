@@ -53,6 +53,26 @@ reads the core at each edge.
 .. autosvclass:: fw_hdl_std_pkg::fw_rv_target
    :members:
 
+The get endpoint is the pull counterpart of the initiator: a task calls
+``get``, which raises ``ready`` for the call and returns the beat at its
+handshake edge. Unlike the target, it takes nothing until a ``get`` is
+pending.
+
+.. autosvclass:: fw_hdl_std_pkg::fw_rv_get_ep
+   :members:
+
+The crossing endpoints are the outside of a task-sync crossing that a
+static front end has lowered to ready/valid ports (``semantics/processes.md``,
+"Lowering"): in a mixed simulation, task code calls them where it called the
+crossing. ``fw_from_sync_ep`` is ready on room, with ``waiting`` for the
+owner's ``<x>_wait``; ``fw_rv_get_ep`` is ready only while a ``get`` waits.
+
+.. autosvclass:: fw_hdl_std_pkg::fw_to_sync_ep
+   :members:
+
+.. autosvclass:: fw_hdl_std_pkg::fw_from_sync_ep
+   :members:
+
 .. autosvclass:: fw_hdl_std_pkg::fw_rv_monitor
    :members:
 

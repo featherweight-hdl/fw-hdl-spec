@@ -50,6 +50,13 @@
       "items": {
         "$ref": "#/$defs/binding"
       }
+    },
+    "listeners": {
+      "description": "Configuration listeners (protocols.md): one record per add_listener() on a sink made in a component's phase method (build or connect). Sorted by sink, then order. Present only when there is at least one.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/listener"
+      }
     }
   },
   "$defs": {
@@ -736,6 +743,39 @@
         },
         "to": {
           "$ref": "#/$defs/path"
+        }
+      }
+    },
+    "listener": {
+      "description": "One add_listener() call. 'sink' is the sink (cfg_sink or a configured endpoint) the call was made on. 'order' is the call's position among the recorded calls on that sink, from 0: the order in which a change runs the listeners' changed(). 'scope' is the component whose phase method made the call. 'listener' is the path of the listening object when it is an fw object in the tree (a component, an endpoint), else null: a plain object (held in a member or a local) has no path, and its class cannot be named at run time, so it is identified only by sink, order and scope.",
+      "type": "object",
+      "required": [
+        "sink",
+        "order",
+        "scope",
+        "listener"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "sink": {
+          "$ref": "#/$defs/path"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "scope": {
+          "$ref": "#/$defs/path"
+        },
+        "listener": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/path"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     }

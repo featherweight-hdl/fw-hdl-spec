@@ -1,5 +1,5 @@
-// A protocol that registers two APIs for the request direction:
-// FW-E-PROTO-API on the protocol.
+// A protocol that names one API for both directions: FW-E-PROTO-API on
+// the protocol.
 `include "fw_hdl_macros.svh"
 
 package scenario;
@@ -8,15 +8,11 @@ package scenario;
     `include "test_apis.svh"
 
     class dup_proto extends fw_protocol;
-        `fw_protocol_utils(dup_proto)
-        static function void declare(fw_protocol_decl d);
-            d.api(fw_api_type_of #(test_put_if #(byte))::get(), FW_PROTO_REQ);
-            d.api(fw_api_type_of #(test_get_if #(byte))::get(), FW_PROTO_REQ);
-        endfunction
+        `fw_protocol_utils(dup_proto, test_put_if #(byte), test_put_if #(byte))
     endclass
 
     virtual class dup_bundle extends fw_rv_if #(byte);
-        `fw_bundle_protocol(dup_proto)
+        `fw_bundle_utils(dup_bundle, dup_proto)
     endclass
 
     class top extends fw_component;

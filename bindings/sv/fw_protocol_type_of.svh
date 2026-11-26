@@ -1,6 +1,6 @@
 // The handle of protocol class ``P``: what ``P::get_type()`` returns
-// (:sv:macro:`fw_protocol_utils`). The first ``get`` runs
-// ``P::declare()``.
+// (:sv:macro:`fw_protocol_utils`). The first ``get`` registers ``P`` and
+// the APIs its macro names.
 //
 // :param P: the protocol class, with its parameters
 class fw_protocol_type_of #(type P = fw_protocol) extends fw_protocol_type;

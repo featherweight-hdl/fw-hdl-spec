@@ -1,0 +1,6 @@
+{
+  "description": "Configuration listeners: a component on its own sink, a plain object held in a member and one in a local (listener null), and a sibling component registered by the parent in connect(). Each add_listener is a netlist listener record: sink, order on the sink (call order), registering scope, listener path or null.",
+  "features": [
+    "protocols"
+  ]
+}

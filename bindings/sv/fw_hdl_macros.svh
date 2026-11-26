@@ -98,15 +98,24 @@
     `fw_component_utils(this_t)
 
 // Declares ``get_type`` for protocol class ``C``, which has no
-// parameters. Every protocol uses it or :sv:macro:`fw_protocol_param_utils`::
+// parameters, and names its APIs. Every protocol uses it or
+// :sv:macro:`fw_protocol_param_utils`::
 //
 //     static function fw_protocol_type get_type();
 //
 // ``get_type`` returns the protocol's handle, one object per class; see
-// :sv:class:`fw_protocol`.
+// :sv:class:`fw_protocol`. ``REQ`` is the request API, called by the
+// initiating side; ``RSP`` the response API, called back on it. A
+// direction with no API is left out, or given as :sv:class:`fw_no_api`.
+// The same API for both is ``FW-E-PROTO-API``. One API may belong to many
+// protocols.
 //
 // :param C: the class's name
-`define fw_protocol_utils(C) \
+// :param REQ: the request API (an interface class, with its parameters)
+// :param RSP: the response API
+`define fw_protocol_utils(C, REQ=fw_hdl_pkg::fw_no_api, RSP=fw_hdl_pkg::fw_no_api) \
+    typedef REQ __fw_req_api; \
+    typedef RSP __fw_rsp_api; \
     static function fw_protocol_type get_type(); \
         return fw_protocol_type_of #(C)::get(`"C`"); \
     endfunction
@@ -118,38 +127,50 @@
 //
 //     class rv_proto #(int W = 8) extends fw_protocol;
 //         typedef rv_proto #(W) this_t;
-//         `fw_protocol_param_utils(rv_proto)
+//         `fw_protocol_param_utils(rv_proto, fw_put_if #(logic [W-1:0]))
 //
 // :param C: the class's bare name, without parameters
-`define fw_protocol_param_utils(C) \
+// :param REQ: the request API
+// :param RSP: the response API
+`define fw_protocol_param_utils(C, REQ=fw_hdl_pkg::fw_no_api, RSP=fw_hdl_pkg::fw_no_api) \
+    typedef REQ __fw_req_api; \
+    typedef RSP __fw_rsp_api; \
     static function fw_protocol_type get_type(); \
         return fw_protocol_type_of #(this_t)::get(`"C`"); \
     endfunction
 
+// Sets the prefix of a protocol's derived names, when its class name does
+// not end in ``_proto``. Inside the protocol class, after its utils macro::
+//
+//     class link extends fw_protocol;
+//         `fw_protocol_utils(link, link_if)
+//         `fw_protocol_prefix("lnk")
+//
+// :param S: the prefix, a string literal
+`define fw_protocol_prefix(S) \
+    localparam string __fw_prefix = S;
+
 // Declares ``create`` for transactor (or monitor) ``C``, as
-// :sv:macro:`fw_component_utils` does, and registers ``C`` with protocol
-// ``PROTO``. Its role is not stated: it is derived from its pin side only,
-// the mixin of its bundle member (``fw_bundle`` initiator, ``fw_mirror``
-// target, ``fw_monitor`` monitor).
+// :sv:macro:`fw_component_utils` does, and registers ``C`` with its
+// protocol. ``C`` extends :sv:class:`fw_xtor_initiator`,
+// :sv:class:`fw_xtor_target` or :sv:class:`fw_xtor_monitor`, whose static
+// ``protocol()`` and ``role()`` say what it is registered as.
 //
 // :param C: the class, without parameters
-// :param PROTO: the protocol class, with its parameters
-`define fw_xtor_utils(C, PROTO) \
-    `fw_component_utils(C) \
-    static function fw_protocol_type __fw_xtor_protocol(); \
-        return PROTO::get_type(); \
-    endfunction
+`define fw_xtor_utils(C) \
+    `fw_component_utils(C)
 
 // As :sv:macro:`fw_xtor_utils`, for a parameterized transactor ``C`` that
 // declares its own specialization as ``this_t``::
 //
-//     typedef axi4_initiator_xtor #(P) this_t;
-//     `fw_xtor_param_utils(axi4_initiator_xtor, axi4_proto #(P))
+//     class axi4_initiator_xtor #(type P = axi4_cfg)
+//             extends fw_xtor_initiator #(axi4_if #(P));
+//         typedef axi4_initiator_xtor #(P) this_t;
+//         `fw_xtor_param_utils(axi4_initiator_xtor)
 //
 // :param C: the class's bare name, without parameters
-// :param PROTO: the protocol class, with its parameters
-`define fw_xtor_param_utils(C, PROTO) \
-    `fw_xtor_utils(this_t, PROTO)
+`define fw_xtor_param_utils(C) \
+    `fw_component_param_utils(C)
 
 // Declares ``create`` for abstractor ``C``, as
 // :sv:macro:`fw_component_utils` does, and registers ``C`` as a converter
@@ -176,13 +197,24 @@
 `define fw_abstractor_param_utils(C, FROM, TO) \
     `fw_abstractor_utils(this_t, FROM, TO)
 
-// Names the protocol of a bundle type: in the bundle class, it makes the
-// bundle a physical form of ``PROTO``. :sv:func:`fw_protocol::of` and
-// :sv:func:`fw_protocol::role_of` then answer for its instances in any
-// role.
+// Registers bundle class ``C`` with protocol ``PROTO``: the bundle is a
+// physical form of ``PROTO``, in any role (the role is the mixin:
+// fw_bundle, fw_mirror or fw_monitor). A protocol may have several bundle
+// forms and names none of them. A parameterized bundle passes its bare
+// name and ``PROTO`` with the bundle's parameters::
 //
+//     virtual class wb_bundle extends fw_bundle_base;
+//         `fw_bundle_utils(wb_bundle, wb_proto)
+//
+//     virtual class fw_rv_if #(type T = bit) extends fw_bundle_base;
+//         `fw_bundle_utils(fw_rv_if, fw_rv_proto #(T))
+//
+// :param C: the bundle class's bare name, without parameters
 // :param PROTO: the protocol class, with its parameters
-`define fw_bundle_protocol(PROTO) \
+`define fw_bundle_utils(C, PROTO) \
+    typedef PROTO __fw_proto; \
+    typedef __fw_proto::__fw_req_api __fw_req_api; \
+    typedef __fw_proto::__fw_rsp_api __fw_rsp_api; \
     static function fw_protocol_type __fw_bundle_protocol(); \
         return PROTO::get_type(); \
     endfunction

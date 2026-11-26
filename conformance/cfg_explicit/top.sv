@@ -25,15 +25,12 @@ package scenario;
     // The initiator transactor: API in, pins out; its cfg sink is bound
     // explicitly by whoever connects it. Its own export of the API may
     // stay open: nothing in this scenario calls through it.
-    class ux_init extends fw_component implements test_put_if #(uart_char_t);
-        `fw_xtor_utils(ux_init, test_uart_proto)
-        fw_export #(test_put_if #(uart_char_t)) t;
-        fw_bundle #(test_uart_serial)           pins;
-        fw_cfg_sink #(uart_cfg_t)               cfg;
+    class ux_init extends fw_xtor_initiator #(test_uart_serial) implements test_put_if #(uart_char_t);
+        `fw_xtor_utils(ux_init)
+        fw_cfg_sink #(uart_cfg_t) cfg;
         virtual function void build();
-            t    = fw_export #(test_put_if #(uart_char_t))::create("t", this);
-            pins = fw_bundle #(test_uart_serial)::create("pins", this);
-            cfg  = fw_cfg_sink #(uart_cfg_t)::create("cfg", this);
+            super.build();
+            cfg = fw_cfg_sink #(uart_cfg_t)::create("cfg", this);
         endfunction
         virtual task put(uart_char_t t);
         endtask

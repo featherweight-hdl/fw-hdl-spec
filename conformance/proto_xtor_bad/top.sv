@@ -1,7 +1,9 @@
 // Converters that do not connect what they register for: FW-E-PROTO-XTOR
-// on the class (its family name). A transactor needs a bundle port of its
-// protocol and (but a monitor) an endpoint of one of its APIs; an
-// abstractor an endpoint or bundle port of each side.
+// on the class (its family name). A transactor needs (but a monitor) an
+// endpoint of one of its protocol's APIs; its base class makes one from
+// the protocol's API, so it lacks one only when its protocol has none. Its
+// bundle port is its base class's pins, so it always has one. An
+// abstractor needs an endpoint or bundle port of each side.
 `include "fw_hdl_macros.svh"
 
 package scenario;
@@ -10,81 +12,52 @@ package scenario;
     `include "test_apis.svh"
 
     class xb_proto extends fw_protocol;
-        `fw_protocol_utils(xb_proto)
-        static function void declare(fw_protocol_decl d);
-            d.api(fw_api_type_of #(test_put_if #(byte))::get(), FW_PROTO_REQ);
-        endfunction
+        `fw_protocol_utils(xb_proto, test_put_if #(byte))
     endclass
 
     virtual class xb_bundle extends fw_rv_if #(byte);
-        `fw_bundle_protocol(xb_proto)
+        `fw_bundle_utils(xb_bundle, xb_proto)
     endclass
 
     class ob_proto extends fw_protocol;
-        `fw_protocol_utils(ob_proto)
-        static function void declare(fw_protocol_decl d);
-            d.api(fw_api_type_of #(test_put_if #(shortint))::get(), FW_PROTO_REQ);
-        endfunction
+        `fw_protocol_utils(ob_proto, test_put_if #(shortint))
     endclass
 
     virtual class ob_bundle extends fw_rv_if #(shortint);
-        `fw_bundle_protocol(ob_proto)
+        `fw_bundle_utils(ob_bundle, ob_proto)
     endclass
 
-    // Correct: the API through an export, the pins as an initiator.
-    class good_init extends fw_component implements test_put_if #(byte);
-        `fw_xtor_utils(good_init, xb_proto)
-        fw_export #(test_put_if #(byte)) t;
-        fw_bundle #(xb_bundle)           pins;
-        virtual function void build();
-            t    = fw_export #(test_put_if #(byte))::create("t", this);
-            pins = fw_bundle #(xb_bundle)::create("pins", this);
-        endfunction
+    // A protocol with no API.
+    class na_proto extends fw_protocol;
+        `fw_protocol_utils(na_proto)
+    endclass
+
+    virtual class na_bundle extends fw_rv_if #(byte);
+        `fw_bundle_utils(na_bundle, na_proto)
+    endclass
+
+    // Correct: the API through the base's export, the pins as an initiator.
+    class good_init extends fw_xtor_initiator #(xb_bundle) implements test_put_if #(byte);
+        `fw_xtor_utils(good_init)
         virtual task put(byte t);
         endtask
     endclass
 
     // Correct: a monitor needs no endpoint.
-    class good_mon extends fw_component;
-        `fw_xtor_utils(good_mon, xb_proto)
-        fw_monitor #(xb_bundle) pins;
-        virtual function void build();
-            pins = fw_monitor #(xb_bundle)::create("pins", this);
-        endfunction
+    class good_mon extends fw_xtor_monitor #(xb_bundle);
+        `fw_xtor_utils(good_mon)
     endclass
 
-    // No endpoint of xb_proto's API.
-    class noapi_xtor extends fw_component;
-        `fw_xtor_utils(noapi_xtor, xb_proto)
-        fw_mirror #(xb_bundle) pins;
-        virtual function void build();
-            pins = fw_mirror #(xb_bundle)::create("pins", this);
-        endfunction
+    // No endpoint: na_proto has no API.
+    class noapi_xtor extends fw_xtor_target #(na_bundle);
+        `fw_xtor_utils(noapi_xtor)
     endclass
 
-    // Its bundle port is of another protocol.
-    class nobundle_xtor extends fw_component implements test_put_if #(byte);
-        `fw_xtor_utils(nobundle_xtor, xb_proto)
-        fw_export #(test_put_if #(byte)) t;
-        fw_bundle #(ob_bundle)           pins;
-        virtual function void build();
-            t    = fw_export #(test_put_if #(byte))::create("t", this);
-            pins = fw_bundle #(ob_bundle)::create("pins", this);
-        endfunction
-        virtual task put(byte t);
-        endtask
-    endclass
-
-    // Parameterized, with no bundle port at all: the path is the family.
-    class bad_p_xtor #(int W = 8) extends fw_component implements test_put_if #(byte);
+    // Parameterized, with no endpoint (na_proto has no API): the path is
+    // the family.
+    class bad_p_xtor #(int W = 8) extends fw_xtor_initiator #(na_bundle);
         typedef bad_p_xtor #(W) this_t;
-        `fw_xtor_param_utils(bad_p_xtor, xb_proto)
-        fw_export #(test_put_if #(byte)) t;
-        virtual function void build();
-            t = fw_export #(test_put_if #(byte))::create("t", this);
-        endfunction
-        virtual task put(byte t);
-        endtask
+        `fw_xtor_param_utils(bad_p_xtor)
     endclass
 
     // From xb_proto to ob_proto, with nothing of xb_proto.
@@ -101,21 +74,29 @@ package scenario;
         good_init        gi;
         good_mon         gm;
         noapi_xtor       na;
-        nobundle_xtor    nb;
         bad_p_xtor #(16) bp;
         half_abs         ha;
+        fw_mirror #(ob_bundle) ob;
+        fw_bundle #(xb_bundle) xi;
+        fw_mirror #(na_bundle) nm;
+        fw_bundle #(na_bundle) xo;
         virtual function void build();
             gi = good_init::create("gi", this);
             gm = good_mon::create("gm", this);
             na = noapi_xtor::create("na", this);
-            nb = nobundle_xtor::create("nb", this);
             bp = bad_p_xtor #(16)::create("bp", this);
             ha = half_abs::create("ha", this);
+            ob = fw_mirror #(ob_bundle)::create("ob", this);
+            xi = fw_bundle #(xb_bundle)::create("xi", this);
+            nm = fw_mirror #(na_bundle)::create("nm", this);
+            xo = fw_bundle #(na_bundle)::create("xo", this);
         endfunction
         virtual function void connect();
-            gi.pins.connect(na.pins);
+            gi.pins.connect_up(xi);
             gm.pins.connect(gi.pins);
-            nb.pins.connect(ha.pins);
+            na.pins.connect_up(nm);
+            bp.pins.connect_up(xo);
+            ha.pins.connect_up(ob);
         endfunction
     endclass
 

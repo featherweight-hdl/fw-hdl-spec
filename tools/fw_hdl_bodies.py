@@ -23,9 +23,11 @@ def _ret(decl, ret: str) -> str:
 
 
 def _arg(a) -> str:
-    """An argument as the body declares it. The default is repeated:
+    """An argument as the body declares it, with its direction unless it is
+    an input (a ``ref`` must match the prototype). The default is repeated:
     Verilator takes defaults from an out-of-block body, not the prototype."""
-    s = " ".join(x for x in (a.type, a.name, a.dims) if x)
+    d = a.dir if a.dir and a.dir != "input" else ""
+    s = " ".join(x for x in (d, a.type, a.name, a.dims) if x)
     return s if a.default is None else "%s = %s" % (s, a.default)
 
 

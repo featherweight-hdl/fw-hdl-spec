@@ -1,0 +1,8 @@
+{
+  "description": "FW-E-XING-SIDE (X1), on the crossing: the process side used from sync code (x.a: try_put in x's step), the sync side used by sync code of a component that is not the owner (x.b: valid in p's step), and the sync side used from task code (x.c: ready in p's run()).",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

@@ -1,0 +1,8 @@
+{
+  "description": "FW-E-WRITE-MULTI: a signal written by a comb block and by run() of the same component; a step block and run() of the same component writing one signal is a default and a drive, not an error.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

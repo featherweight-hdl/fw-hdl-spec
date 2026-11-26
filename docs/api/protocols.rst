@@ -2,8 +2,8 @@ Protocols
 =========
 
 A protocol class is the hub of one interface standard: its APIs, bundles,
-transactors and abstractors register with it, and every part is found from
-it. A component reaches a protocol's APIs through endpoints and sockets,
+transactors and abstractors register with it, and the tools find every
+part from it. A component reaches a protocol's APIs through endpoints and sockets,
 and its run-time configuration through sources and sinks. The rules
 are in ``semantics/protocols.md``; the guide is :doc:`../protocols`.
 
@@ -78,4 +78,16 @@ Configuration
    :members:
 
 .. autosvclass:: fw_hdl_pkg::fw_socket_cfg_sink
+   :members:
+
+Transactors
+-----------
+
+.. autosvclass:: fw_hdl_pkg::fw_xtor_initiator
+   :members:
+
+.. autosvclass:: fw_hdl_pkg::fw_xtor_target
+   :members:
+
+.. autosvclass:: fw_hdl_pkg::fw_xtor_monitor
    :members:

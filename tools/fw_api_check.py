@@ -39,7 +39,12 @@ SK = syntax.SyntaxKind
 PKG = "fw_hdl_pkg"
 # Classes whose methods may have bodies in the spec.
 BODY_OK = {"fw_domain_kind", "fw_domain_kind_type_of",
-           "fw_clock_kind", "fw_reset_kind"}
+           "fw_clock_kind", "fw_reset_kind",
+           "fw_xtor_initiator", "fw_xtor_target", "fw_xtor_monitor",
+           "fw_xtor_sock_initiator", "fw_xtor_sock_target",
+           # acc (fw_acc.svh): plain SV shared by tools, but for its externs
+           "fw_acc_field", "fw_acc_type", "fw_acc_value_of", "fw_acc_component",
+           "fw_acc_component_of", "fw_acc_ctor_names", "fw_acc"}
 MACROS = {
     "fw_component_utils": "`fw_component_utils(probe)",
     "fw_extern_utils": "`fw_extern_utils(probe, \"probe_mod\")",
@@ -47,13 +52,14 @@ MACROS = {
     "fw_component_params_init": "`fw_component_params_init(probe_init)",
     "fw_domain_kind_utils": "`fw_domain_kind_utils(probe)",
     "fw_component_param_utils": "`fw_component_param_utils(probe)",
-    "fw_protocol_utils": "`fw_protocol_utils(probe)",
-    "fw_protocol_param_utils": "`fw_protocol_param_utils(probe)",
-    "fw_xtor_utils": "`fw_xtor_utils(probe, probe_proto)",
-    "fw_xtor_param_utils": "`fw_xtor_param_utils(probe, probe_proto)",
+    "fw_protocol_utils": "`fw_protocol_utils(probe, probe_req_if, probe_rsp_if)",
+    "fw_protocol_param_utils": "`fw_protocol_param_utils(probe, probe_req_if)",
+    "fw_protocol_prefix": "`fw_protocol_prefix(\"prb\")",
+    "fw_xtor_utils": "`fw_xtor_utils(probe)",
+    "fw_xtor_param_utils": "`fw_xtor_param_utils(probe)",
     "fw_abstractor_utils": "`fw_abstractor_utils(probe, probe_lo, probe_hi)",
     "fw_abstractor_param_utils": "`fw_abstractor_param_utils(probe, probe_lo, probe_hi)",
-    "fw_bundle_protocol": "`fw_bundle_protocol(probe_proto)",
+    "fw_bundle_utils": "`fw_bundle_utils(probe, probe_proto)",
     "fw_comb": "`fw_comb(probe_fn)",
     "fw_step": "`fw_step(probe_fn)",
 }

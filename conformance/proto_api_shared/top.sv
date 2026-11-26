@@ -7,14 +7,11 @@ package scenario;
     `include "test_uart_proto.svh"
 
     class uart2_proto extends fw_protocol;
-        `fw_protocol_utils(uart2_proto)
-        static function void declare(fw_protocol_decl d);
-            d.api(fw_api_type_of #(test_put_if #(uart_char_t))::get(), FW_PROTO_REQ);
-        endfunction
+        `fw_protocol_utils(uart2_proto, test_put_if #(uart_char_t))
     endclass
 
     virtual class uart2_bundle extends fw_rv_if #(uart_char_t);
-        `fw_bundle_protocol(uart2_proto)
+        `fw_bundle_utils(uart2_bundle, uart2_proto)
     endclass
 
     class top extends fw_component;

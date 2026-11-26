@@ -9,7 +9,7 @@
 //
 // :param T: the payload type
 virtual class fw_rv_if #(type T = bit) extends fw_bundle_base;
-    `fw_bundle_protocol(fw_rv_proto #(T))
+    `fw_bundle_utils(fw_rv_if, fw_rv_proto #(T))
 
     // The initiator has a transfer to offer.
     fw_output #(bit) valid;

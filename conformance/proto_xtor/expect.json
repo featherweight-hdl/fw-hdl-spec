@@ -17,11 +17,11 @@
     {"path": "top.m.pins.valid", "kind": "port", "type": "bit", "dir": "in", "width": 1},
     {"path": "top.m.s", "kind": "api_endpoint", "type": "fw_port#(test_put_if#(byte))"},
     {"path": "top.t", "kind": "component", "type": "xp_tgt_xtor", "params": {}, "param_src": {}},
+    {"path": "top.t.p", "kind": "api_endpoint", "type": "fw_port#(test_put_if#(byte))"},
     {"path": "top.t.pins", "kind": "mirror", "type": "xp_bundle", "protocol": "xp_proto", "role": "target"},
     {"path": "top.t.pins.data", "kind": "port", "type": "byte", "dir": "in", "width": 8},
     {"path": "top.t.pins.ready", "kind": "port", "type": "bit", "dir": "out", "width": 1},
-    {"path": "top.t.pins.valid", "kind": "port", "type": "bit", "dir": "in", "width": 1},
-    {"path": "top.t.s", "kind": "api_endpoint", "type": "fw_port#(test_put_if#(byte))"}
+    {"path": "top.t.pins.valid", "kind": "port", "type": "bit", "dir": "in", "width": 1}
   ],
   "nets": [
     {"scope": "top", "source": "top.i.pins.data", "tie": null, "sinks": ["top.m.pins.data", "top.t.pins.data"], "signals": [], "inouts": []},
@@ -34,6 +34,6 @@
   },
   "bindings": [
     {"kind": "api", "from": "top.m.s", "to": "top.k.t"},
-    {"kind": "api", "from": "top.t.s", "to": "top.k.t"}
+    {"kind": "api", "from": "top.t.p", "to": "top.k.t"}
   ]
 }

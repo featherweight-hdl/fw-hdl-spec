@@ -167,9 +167,11 @@ class fw_domain #(type K = fw_domain_kind) extends fw_domain_base;
     // Using a domain this way realizes it. fe-sv lowers none of them in a
     // task, and ``in_reset`` only in ``step()`` and ``comb()``.
 
-    // Waits for ``n`` active edges of the clock domain of ``obj``. A domain
-    // with no driver, no extern pin and no ``period`` on its root has no
-    // edges: ``FW-E-CLOCK-NONE``.
+    // Waits for ``n`` edges of the clock domain of ``obj``, counted from
+    // the call, and returns after the last one's update and settle. Edges
+    // are counted, not timed: a derived domain's edges are fixed from time
+    // 0. A domain with no edges (no net, no ``period``, or a derivation
+    // whose edges can't be computed) is ``FW-E-CLOCK-NONE``.
     //
     // :param obj: the calling component, or one of its interfaces
     // :param n: the number of edges, 1 or more

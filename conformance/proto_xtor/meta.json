@@ -1,5 +1,5 @@
 {
-  "description": "Initiator, target and monitor transactors registered with fw_xtor_utils, connected by their bundles and ports: the converters by role (derived from each transactor's pin mixin), api_endpoint objects and api bindings.",
+  "description": "Initiator, target and monitor transactors on fw_xtor_initiator/target/monitor base classes, registered with fw_xtor_utils, connected by their bundles and ports: the converters by role (each base class's static role()), api_endpoint objects and api bindings.",
   "features": [
     "protocols"
   ]

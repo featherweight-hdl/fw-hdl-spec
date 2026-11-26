@@ -26,9 +26,17 @@ Summary of the decisions a second implementation must reproduce:
   API endpoints and sockets are objects of kind `api_endpoint`;
   configuration sources and sinks of kind `cfg_src` and
   `cfg_sink`. A top-level `bindings` list holds their links: kind
-  `api` (port to export) and kind `cfg` (source to sink). Each
-  appears only when it has entries, so a design without protocols has
-  none of them.
+  `api` (port to export) and kind `cfg` (source to sink). A top-level
+  `listeners` list holds one record per `add_listener` made in a
+  component's phase method: `sink` (the sink or configured endpoint),
+  `order` (the call's position on that sink from 0, the order `changed`
+  runs in), `scope` (the component that made the call) and `listener`
+  (the listening object's path when it is an fw object, such as a
+  component or endpoint, else null). A plain object held in a member or
+  a local has no path, and a run-time implementation cannot name its
+  class, so it is known by sink, order and scope alone. Sorted by sink,
+  then order. Each of these appears only when it has entries, so a
+  design without protocols has none of them.
 - **Types** are spelled canonically: class name without package, every
   parameter value in declaration order including defaults, no spaces;
   vectors as `bit[7:0]`; struct/enum typedefs by name; struct values as
@@ -47,3 +55,18 @@ are compared. In both cases the elaboration must fail exactly when an
 `FW-E-` diagnostic is expected. Canonical text for byte comparison: keys
 sorted, two-space indent, a trailing newline (Python
 `json.dumps(x, indent=2, sort_keys=True) + "\n"`).
+
+**Type text at run time is informative.** A run-time implementation
+(one that elaborates in a simulator) has no portable way to spell a type:
+SV's `$typename` and `%p` are informative, tool-specific text, and
+nothing in the netlist may depend on them. So for a run-time
+implementation the comparison masks **type text**: an object's `type`,
+`top`, an object's `protocol`, the `protocols` table's keys and its
+records' `family`, `params`, `apis[].type`, `bundles` and converter
+`type`/`from`/`to`, domain kind names (`assoc` keys, extern
+`domain_pins[].kind`) and an extern parameter's `type`. When the
+implementation is given a static front end's names for the design's
+types, its type text is canonical and is compared too. **Value text**
+(`params`, `param_src`, domain `params`, `attr`, `provides`, extern
+parameter values, ties) is always compared: it is formatted from the
+types' static structure (field by field), never from `%p`.

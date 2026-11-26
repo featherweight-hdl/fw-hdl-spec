@@ -104,9 +104,8 @@ Domains ([semantics](../semantics/domains.md)); each needs feature
 | proto_bundle | a protocol's bundle as initiator, mirror and monitor: `role` | |
 | proto_xtor | initiator, target and monitor transactors: converters by role; sockets as `api_endpoint`; `api` bindings | |
 | proto_xtor_param | a parameterized transactor at two widths: one converter per specialization | |
-| proto_xtor_bad | `FW-E-PROTO-XTOR` (no API endpoint; a bundle port of another protocol; a parameterized transactor with no bundle port, on its family; an abstractor with nothing of one side); a monitor with no endpoint passes | |
+| proto_xtor_bad | `FW-E-PROTO-XTOR` (no API endpoint; a parameterized transactor with no API endpoint, on its family; an abstractor with nothing of one side); a monitor with no endpoint passes | yes |
 | proto_abs | an abstractor: a converter with two protocols, listed under both | |
-| proto_abs_query | `abstractor_for` (either direction, `null` for no abstractor) and `abstractors()` find an abstractor named only by its declaration; created through the returned constructor | |
 | sock_basic | `fw_socket#(OUT,IN)` bound to its mirror: `api_endpoint` objects with no protocol; one `api` binding | |
 | sock_up | `connect_up` through two levels: one `api` binding per call, inner to outer | |
 | sock_port_export | bare `fw_port` / `fw_export`: endpoints with no protocol | |
@@ -119,7 +118,8 @@ Domains ([semantics](../semantics/domains.md)); each needs feature
 | cfg_write_bad | `FW-E-CFG-WRITE` (a write into a consumer's `cfg`) | yes |
 | cfg_constref_ok | a consumer's `cfg` passed as `const ref`: no diagnostic | yes |
 | cfg_unbound | `FW-E-CFG-UNBOUND` | |
-| cfg_ep_basic | configured endpoints: port/export and socket, source to sink, through `connect_up`; `api` and `cfg` bindings | |
+| cfg_ep_basic | configured endpoints: port/export and socket, source to sink, through `connect_up`; `api` and `cfg` bindings; one `listeners` record per `add_listener` | |
+| cfg_listeners | `listeners`: a component on its own sink, plain objects (member, local: `listener` null), a sibling registered by the parent in `connect()`; three listeners on one sink | |
 | cfg_cross | `FW-E-DOM-CROSS` on a `cfg` binding across unrelated clocks | |
 
 Processes ([semantics](../semantics/processes.md)); each needs features
@@ -135,11 +135,11 @@ reset `top.rst`, synchronous, active low, asserted at edges 1 and 2.
   clock domain whose edges are counted; `edges`, how many the runner
   simulates (it stops early at a run-stopping error); and optionally
   `signals` (full names) and `rows`, one row per edge, one integer per
-  signal. Row *k* holds the values the step phase of edge *k* reads (after
-  its commit and settle); in lowered Verilog, the values just before
-  rising edge *k*. Values before any write are the type default.
-- A crossing is visible to the other domain at the writer's next commit,
-  later than in RTL; `proc_cdc` chooses its periods so that the two agree.
+  signal. Row *k* holds the values from before edge *k*: what its `step`
+  blocks read; in lowered Verilog, the values just before rising edge *k*.
+  Values before any write are the type default.
+- A register is visible to every other domain from its writer's update, as
+  in RTL.
 
 | Scenario | Checks | Mode |
 |---|---|---|
@@ -156,6 +156,18 @@ reset `top.rst`, synchronous, active low, asserted at edges 1 and 2.
 | proto_timed | kit timed channels (`_lib/test_uart_chan.svh`, over std `fw_timed_channel`): forwarding `uart_tx_chan` (delivery time, configuration passed to the VIP) and sinking `uart_txrx_chan` (each direction timed by its sender, `frame_err` on mismatch); also needs `protocols` | sim-only |
 | proc_write_in | `FW-E-WRITE-IN` (input port; a mirror's `valid`) | lowerable |
 | proc_write_multi | `FW-E-WRITE-MULTI` (two `step` blocks; `step` and `comb`) | lowerable |
+| xing_sample_drive | crossing ports: a `run()` read at an edge returns the value from before it, even after its own write (C2); a write reaches comb logic at once and `step` from the next edge (C3); several ports at one edge (C6) | sim-only |
+| xing_rv_default | a `step` default (drop `valid` after the handshake) and a `run()` drive at the same edge; the drive wins (C5); back-to-back puts with a stall | sim-only |
+| xing_drive_twice | `FW-E-XING-DRIVE-TWICE`: two writes sampled by one edge, both at the edge or one between edges | sim-only |
+| xing_edge_time | a delay ending at a generated edge resumes after its release (C4); between edges, reads see the current value and writes the next edge (C1) | sim-only |
+| xing_zero_time | a port call and a mailbox hand-off in zero time stay at the edge (C7) | sim-only |
+| xing_write_multi | `FW-E-WRITE-MULTI` (`comb` and `run()`); a `step` and `run()` of one component is not an error | sim-only |
+| xing_access | `FW-E-RUN-SYNC-ACCESS` (a grandchild's port); a child's input is allowed (static only) | sim-only |
+| sync_xing_ok | task-sync crossings from their sides: `put`/`get` in a parent's `run()`; `valid`/`peek` in `comb`, `ready`/`take`/`give` in `step`; a put shows at once (X3), a take and give act at the edge (X4, X5) | sim-only |
+| sync_xing_side_bad | `FW-E-XING-SIDE` (X1): process side from sync code; sync side from a non-owner's `step`; sync side from task code | sim-only |
+| sync_xing_comb_bad | `FW-E-XING-COMB` (X2): `take` and `give` in a comb block | sim-only |
+| edge_div | a derived domain's edges fixed from time 0, whenever `tick` is called; a root and a derived domain at one time are one group | sim-only |
+| edge_period_bad | `FW-E-CLOCK-PERIOD` (`mul` 3 of 10 ns at 1 ps); a 45-degree phase is fine | sim-only |
 
 Severity options are not covered: the scenario format has no options.
 

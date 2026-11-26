@@ -1,5 +1,6 @@
 {
-  "description": "Converters that do not connect what they register for: a transactor with no endpoint of its protocol's API, one whose bundle port is of another protocol, a parameterized one with no bundle port (path: the family), an abstractor with nothing of its FROM side. FW-E-PROTO-XTOR on each class; a monitor with no endpoint and a correct initiator pass.",
+  "description": "Converters that do not connect what they register for: a transactor with no endpoint of its protocol's API, a parameterized one with none either (path: the family), an abstractor with nothing of its FROM side. FW-E-PROTO-XTOR on each class; a monitor with no endpoint and a correct initiator pass. A transactor's bundle port is its base class's pins, so one with none or of another protocol cannot be written. Static only: a check on the class declaration.",
+  "static-only": true,
   "features": [
     "protocols"
   ]

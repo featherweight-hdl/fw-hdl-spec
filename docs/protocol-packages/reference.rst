@@ -62,9 +62,9 @@ run into, where they come from, and the usual fix.
      - fe-sv, rt-sv
      - ``declare()`` registers two APIs for one direction, or one twice
    * - ``FW-E-PROTO-XTOR``
-     - fe-sv, rt-sv
-     - a transactor with no bundle port of its protocol, or (not a monitor)
-       no endpoint of one of the protocol's APIs or channel APIs; an
+     - fe-sv
+     - a transactor (not a monitor) with no endpoint of one of its
+       protocol's APIs or channel APIs; an
        abstractor with no endpoint or bundle port of one of its sides. On
        the class (its family name)
    * - ``FW-E-CONN-PHASE``
@@ -171,15 +171,13 @@ What the current tools do not do, as of fw-hdl-fe-sv and fw-hdl-rt-sv of
        [W-1:0]``) is accepted, and a ``logic`` type in an API (std's
        ``fw_mem_if`` defaults) is kept as written
    * - F8
-     - struct-valued parameters and class-local typedefs: a payload struct
-       declared inside a class (to take the protocol's widths) is rejected
-       (``FW-E-GEN-SCOPE``)
+     - struct-valued parameters and class-local typedefs: Zuspec IR keeps
+       them (a class's typedefs, widths over its parameters), but GenKit
+       rejects a payload struct declared inside a class (to take the
+       protocol's widths) with ``FW-E-GEN-SCOPE``
      - payload structs are package-level, so their widths are fixed. A
        width that follows a parameter is a non-struct payload
        (``logic [W-1:0]``)
-   * - F8
-     - the emitter puts functions before tasks in a class
-     - none needed; matters only for diffs against hand-written code
    * - \-
      - a parameterized bundle or transactor is seen by Scan and GenKit only
        through a specialization the scanned source names
