@@ -300,14 +300,16 @@ Model sources are dfm FileSets of type **`fwHdlSource`**; RTL of externs is
   source that names one (a bench or a typedef).
 - `Elaborate` maps to IR for emission, so a top with `run()` fails there
   (`FW-E-EMIT-RUN`). Elaborate testbench tops with rt-sv instead.
-- Running on rt-sv: compile the dfm fileset `fw.hdl.rt.sv.fw_hdl_pkg` before your
-  sources. `fw_elab #(T)` elaborates `T` as `top` (netlist with
-  `+fw_netlist=<path>`) but doesn't run it; rt-sv has no public elaborate-and-run
-  entry yet, so copy wb_xtor's `tb/wb_xtor_tb_top.sv` and don't build on its
-  internal calls. `fw_pin_bridge #(type T, "top.path")` joins a class signal
-  (or a clock domain) to a module pin for mixed class/RTL simulation.
-  fe-sv's `gen_tb`/`gen_bind` generate a bench and bind monitors for std
-  ready/valid DUT ports (`docs/protocols.rst`, "Testbenches and bind modules").
+- Running on rt-sv (simulation): compile the dfm fileset
+  `fw.hdl.rt.sv.fw_hdl_pkg` before your sources. rt-sv has no public
+  elaborate-and-run entry yet, so copy wb_xtor's `tb/wb_xtor_tb_top.sv` and
+  don't build on its internal calls. rt-sv only simulates; it never produces
+  RTL. Lowering to RTL is fe-sv plus Zuspec (`Elaborate`/`EmitSV` above).
+  rt-sv's `+fw_netlist=<path>` dump is a conformance/diagnostic artifact, not
+  an input to anything.
+- Generated benches: fe-sv's `gen_tb`/`gen_bind` generate a bench and bind
+  monitors for std ready/valid DUT ports. Don't hand-write the pin-level glue
+  they place.
 
 A bench's top component creates a root clock with a period (`fw_clock_kind::root(10ns)`;
 nothing else drives it), `set`s it on itself, creates the driver, transactors and
