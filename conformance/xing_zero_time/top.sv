@@ -1,9 +1,9 @@
-// C7: task code resumed by other task code in the same time step is at the
-// same edge. At edge 4, src calls dst.put() through a port; put() writes
-// x and reads m, and hands the item through a mailbox to dst's own run(),
-// which resumes in the same time step and writes z and w. All four are at
-// edge 4: reads return the values from before edge 4, and the writes are
-// sampled by edge 5.
+// T3: task code resumed by other task code in the same time step is at the
+// same edge. At edge 4, src calls dst.put() through a port; put() records
+// the item in x and hands it through a mailbox to dst's own run(), which
+// resumes in the same time step and records item + 1 in z. Both puts are at
+// edge 4: the recorders (_lib/test_rec.svh) take them at edge 5, so both
+// show from row 6.
 `timescale 1ns/1ps
 `include "fw_hdl_macros.svh"
 
@@ -12,6 +12,7 @@ package scenario;
     import fw_hdl_std_pkg::*;
     `include "test_proc.svh"
     `include "test_apis.svh"
+    `include "test_rec.svh"
 
     // m counts edges: it reads k - 1 at edge k.
     class cnt extends fw_component implements fw_step_if;
@@ -33,7 +34,7 @@ package scenario;
         endfunction
         virtual task run();
             test_put_if #(bit [7:0]) i = p.get_if();
-            fw_reset_domain::wait_reset_done(this);   // edge 3
+            // run() starts at edge 3, after reset (processes.md, R1)
             fw_clock_domain::tick(this);              // edge 4
             i.put(8'd7);
         endtask
@@ -42,27 +43,21 @@ package scenario;
     class dst extends fw_component implements fw_run_if, test_put_if #(bit [7:0]);
         `fw_component_utils(dst)
         fw_export #(test_put_if #(bit [7:0])) e;
-        fw_input  #(bit [7:0]) m;
-        fw_output #(bit [7:0]) x, y, z, w;
+        test_rec #(bit [7:0])  x, z;
         mailbox #(bit [7:0])   mb = new();
         virtual function void build();
             e = fw_export #(test_put_if #(bit [7:0]))::create("e", this);
-            m = fw_input  #(bit [7:0])::create("m", this);
-            x = fw_output #(bit [7:0])::create("x", this);
-            y = fw_output #(bit [7:0])::create("y", this);
-            z = fw_output #(bit [7:0])::create("z", this);
-            w = fw_output #(bit [7:0])::create("w", this);
+            x = test_rec #(bit [7:0])::create("x", this);
+            z = test_rec #(bit [7:0])::create("z", this);
         endfunction
         virtual task put(bit [7:0] t);
-            x.write(t);
-            y.write(m.read());
+            x.put(t);
             mb.put(t);
         endtask
         virtual task run();
             bit [7:0] t;
             mb.get(t);
-            z.write(t + 8'd1);
-            w.write(m.read());
+            z.put(t + 8'd1);
         endtask
     endclass
 
@@ -80,7 +75,6 @@ package scenario;
         virtual function void connect();
             super.connect();
             s.p.connect(d.e);
-            d.m.connect(c.m);
         endfunction
     endclass
 

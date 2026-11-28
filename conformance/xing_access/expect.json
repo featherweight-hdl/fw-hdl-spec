@@ -1,8 +1,0 @@
-{
-  "diagnostics": [
-    {
-      "id": "FW-E-RUN-SYNC-ACCESS",
-      "path": "top.c.g.o"
-    }
-  ]
-}

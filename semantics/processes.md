@@ -29,8 +29,8 @@ waits on its component's domains. A static front end lowers `step()` and
 - **Request-update.** A `write(v)` from a `step` block stores a pending
   value, which becomes visible at the edge's update (below); one from a
   `comb` block is visible to the rest of the settle. Neither is ever
-  visible part-way through the evaluate phase. A write from task code is a
-  crossing drive ([Crossings](#crossings)).
+  visible part-way through the evaluate phase. Task code reads and writes
+  no signal ([Task code](#task-code)).
 
 ## Process kinds
 
@@ -48,7 +48,7 @@ waits on its component's domains. A static front end lowers `step()` and
   interface and any number of macro blocks; block names are unique per
   class (a duplicate is a compile error in the binding).
 - `step()`, `comb()` and `reset_state()` are functions: they cannot wait.
-  Only `run()` waits, through the domain operations and `fw_time`.
+  Only task code waits, through the domain operations and `fw_time`.
 
 ## Register or wire
 
@@ -58,17 +58,12 @@ A signal's kind follows from its writer; nothing marks it:
   update (as a nonblocking assignment);
 - written by a `comb` block: a **wire**, visible to the reads of the same
   settle;
-- written by task code: a **crossing port**, with register timing at the
-  edge it is written at ([Crossings](#crossings));
 - written by no process of the class tree: driven from outside (a port
   input, an extern pin, a tie), as in layer 1.
 
 A signal with more than one writing block (two `step` blocks, a `step` and
-a `comb` block, a `comb` block and task code, blocks of two components) is
-`FW-E-WRITE-MULTI`, on the signal. One `step` block and the task code of
-the **same** component may both write a signal: the block's write is the
-default and a task write overrides it (C5, [Crossings](#crossings)). Writes
-by one block from several call sites, or several writes in one call, are
+a `comb` block, blocks of two components) is `FW-E-WRITE-MULTI`, on the
+signal. Writes by one block from several call sites, or several writes in one call, are
 one writer; the last write of the call wins. The same holds for component
 fields a block writes; a field written by blocks in two domains is
 `FW-E-WRITE-MULTI` on the component. A static front end finds writers from
@@ -96,9 +91,9 @@ to.
   block's reset domain is asserted.
 - A **`comb` block** has no domain: it runs in every settle of each clock
   domain whose signals it reads.
-- **Task code** has no domain of its own: each signal it reads or writes
-  is a crossing port in that signal's interface's domains
-  ([Crossings](#crossings)).
+- **Task code** has no domain of its own and touches no signal: it reaches
+  a domain through the domain operations and the task-sync crossings of
+  its component ([Task code](#task-code)).
 - A block that reads an interface of another domain than its own is a
   crossing inside the component, which is its crossing element; it is
   allowed and listed in the netlist with the other crossings.
@@ -163,8 +158,8 @@ For each group, in order:
 
 After a group, registers and the comb logic computed from them both show
 the new values, as in RTL. A signal driven from outside the class tree (an
-extern pin), or by task code, that changes between edges settles the comb
-blocks that read it at once.
+extern pin) that changes between edges, and a task-sync crossing changed
+by task code (X3), settle the comb blocks that read them at once.
 
 Order at one time:
 - Groups of unrelated roots at the same time run in an unspecified order:
@@ -190,8 +185,7 @@ domain it:
 - settles its outputs at Settle, as its `comb` blocks would;
 
 and, when one of its comb inputs changes between edges, settles the outputs
-that depend on it at once. Its ports keep their rules for task code
-([Crossings](#crossings)). Such a replacement is not observable, except
+that depend on it at once. Such a replacement is not observable, except
 through time and introspection ([`fw_acc`](acc.md)).
 
 ## Reset
@@ -203,14 +197,39 @@ through time and introspection ([`fw_acc`](acc.md)).
 - No implementation forces the outputs of a component in reset: a
   component that drives a protocol sets its outputs in `reset_state()`.
 
+A reset domain **asserts** at an edge whose blocks read it asserted after
+one (or the start) that read it deasserted, and deasserts the other way.
+Task code reads it as `in_reset` does: at an edge, the value that edge's
+blocks read (T1); between edges, its driver's current value.
+
+- **R1 `run()` starts after reset.** A component's `run()` starts where
+  `wait_reset_done(this)` returns: when the run starts (time 0) if its
+  reset domain is deasserted then, else at the first edge with it
+  deasserted, after that edge's release (at that edge, T1).
+  `wait_reset_done(this)` at the top of `run()` is redundant, and legal.
+- **R2 Reset kills it.** At the edge where the reset domain asserts,
+  `run()` and every thread it forked are killed, before anything that edge
+  releases resumes. A call blocked on one of those threads dies with it,
+  including in a callee reached through a port (a target's API task runs
+  on its caller's thread) and in a crossing: it never returns. Component
+  fields keep their values unless `reset_state()` sets them.
+- **R3 And restarts it.** At the next edge with the reset deasserted,
+  `run()` starts again from the top, as in R1.
+- A component with no reset domain (simulation only: [domains](domains.md))
+  starts `run()` when the run starts, and it is never killed.
+- A `run()` that must act during its reset (drive a software reset, log
+  it) belongs to a component in an outer reset domain.
+
 ## Domain operations
 
-Static operations of `fw_domain`, keyed by `obj`: the calling component or
-one of its own ports or bundles in a role. Each acts on the domain `obj`
-resolves to (`get(obj)`), and using it realizes that domain.
+Static operations of `fw_domain`, keyed by `obj`: `this` of the code making
+the call, or one of its own ports or bundles in a role. That is the
+component whose method is running, not the component whose `run()` the
+thread belongs to: a target's API task, running on its caller's thread,
+passes its own `this` and waits on its own clock. Each acts on the domain
+`obj` resolves to (`get(obj)`), and using it realizes that domain.
 
-Task code is **at edge *k*** of a clock domain *d* when *d* released edge
-*k* in the current time step, and **between edges** of *d* otherwise.
+Task code is at an edge or between edges (T1, [Task code](#task-code)).
 
 - `tick(obj, n = 1)` (task): waits for *n* edges of the clock domain,
   counted from the call: at edge *k*, it returns at edge *k* + *n*;
@@ -223,84 +242,53 @@ Task code is **at edge *k*** of a clock domain *d* when *d* released edge
 - `wait_assert(obj)` (task): returns when the reset domain is next
   asserted.
 
-`obj` of another component is `FW-E-DOM-OBJ`; a domain that does not
-resolve is `FW-E-DOM-NONE`; `tick` on a domain that is not a clock domain,
-or a reset operation on one that is not a reset domain, is
-`FW-E-DOM-KIND`, each on `obj`. A clock domain with no edges (Edges,
-above) has nothing to wait for: `tick` on it is `FW-E-CLOCK-NONE`, on
-`obj`.
+`obj` of another component than the calling code's is `FW-E-DOM-OBJ`, a
+static rule: a static front end checks it from the code, and a run-time
+implementation, which can't tell whose method is running, doesn't. A
+domain that does not resolve is `FW-E-DOM-NONE`; `tick` on a domain that
+is not a clock domain, or a reset operation on one that is not a reset
+domain, is `FW-E-DOM-KIND`, each on `obj`. A clock domain with no edges
+(Edges, above) has nothing to wait for: `tick` on it is
+`FW-E-CLOCK-NONE`, on `obj`.
 
-## Crossings
+Open: a domain operation whose `obj` is in another clock domain than the
+thread's `run()` (a callee in another clock, called through a port) is a
+clock crossing; its rule is not decided.
 
-Task code (`run()`, and the methods it calls) never runs inside an edge:
-it runs after a group's release or between edges. It reads and writes
-signals with `read()` and `write()`, as `step` and `comb` blocks do. Each
-signal it touches is a **crossing port**, in the clock and reset domains
-of the signal's interface. The component whose code touches it is the
-crossing element, as for any interface pair in two domains
-([domains](domains.md), Crossings); nothing declares it.
+## Task code
 
-Task code of a component may touch its own ports, bundles in a role and
-local signals, and the ports of its direct children. Any other signal is
-`FW-E-RUN-SYNC-ACCESS`, on the signal: a static front end reports it from
-the code.
+**Task code** is `run()`, the threads it forks, and the tasks and
+functions they call (an export's API task, say). It runs on threads of its
+own, never inside an edge, and is simulation-only.
 
-For a crossing port *p* in clock domain *d*:
+Task code neither reads nor writes signals. It uses its component's
+task-sync crossings (below), component fields, the domain operations,
+`fw_time` and port calls; the protocol timing stays in `step` and `comb`
+blocks, which lower. A `read()` or `write()` of a signal from task code is
+`FW-E-TASK-SIGNAL`, on the component whose code makes it: a static front
+end reports it from the code; a run-time implementation at the access, and
+ignores the write.
 
-- **C1 Position.** Task code is at an edge of *d*, or between edges
-  (Domain operations). `read()` and `write()` don't wait. An operation
-  that must act at an edge waits for one with `tick` first, as a
-  synchronizer does: entering a clock domain from task code costs the
-  wait to its next edge.
-- **C2 Sample.** At edge *k*, `read()` returns *p*'s value just before
-  *k*: what the `step` blocks of *k* read, and for a wire, its value as
-  settled before *k*. That holds after any write made at *k*. Between
-  edges, it returns *p*'s current value.
-- **C3 Drive.** `write(v)` takes effect at once: *p* takes *v*, and the
-  comb blocks that read it settle. At edge *k*, that is after *k*'s
-  update, so the `step` blocks read *v* from edge *k* + 1. Between edges,
-  the next edge's `step` blocks read it. That is the timing of a register
-  written at *k*.
-- **C4 Order.** A group's release comes before the task code it resumes,
+For a clock domain *d*:
+
+- **T1 Position.** Task code is **at edge *k*** of *d* when *d* released
+  edge *k* in the current time step, and **between edges** of *d*
+  otherwise. It runs after a group's release or between edges, never in
+  one. An operation that must act at an edge waits for one first (`tick`,
+  a blocking crossing call), as a synchronizer does: entering a clock
+  domain from task code costs the wait to its next edge.
+- **T2 Order.** A group's release comes before the task code it resumes,
   and an implementation that generates edges (a `period` root and the
   domains computed from it) processes them before a `fw_time::delay` that
-  ends at the same time resumes. So C2 and C3 don't depend on the order of
-  processes. A delay that ends at the time of an edge from a net is a
-  race, as in RTL.
-- **C5 Drives per edge.** A task write of *p* is sampled by the next edge
-  of *d*: *k* + 1 for a write at *k* or between *k* and *k* + 1. A second
-  task write of *p* sampled by the same edge is `FW-E-XING-DRIVE-TWICE`,
-  on *p*, at run time; it is ignored. Two writes would be two values in
-  one cycle, for example two beats. The one exception is an **undo**: a
-  write by the same thread, in the same time step as the last one, that
-  restores *p*'s value from before that one. It undoes that write, so the
-  edge has no task write of *p* yet. Within a time step, a call's writes
-  then settle as comb logic would. For example, a target that drops
-  `ready` before a `put` and raises it again when the `put` returns at once
-  has not driven `ready`. Any other second write, including one that
-  changes the value again, is still an error.
-
-  A `step` block of the same component may also write *p*. Its write is
-  the **default**, as at the top of an `always_ff`: at edge *k* it gives
-  *p*'s value after the update, and a task write at *k* comes after the
-  update, so it overrides the default. A default may be conditional, such
-  as dropping `valid` after a handshake. A `step` block that doesn't write
-  *p* holds it.
-- **C6 Several ports at one edge.** Task code may read a port and write
-  it, or write other ports, at the same edge.
-- **C7 Blocking operations return at an edge.** `tick` returns after an
-  edge's release; code after it is at that edge until it consumes time.
-  Task code resumed by other task code in the same time step (a mailbox,
-  an event) is at the same edges as that code. A wait that consumes time
-  leaves the edge.
-- **C8 Reset.** While *p*'s reset domain is asserted, the component's
-  `reset_state()` gives *p*'s value at each edge, as a default (C5). Task
-  code that drives a protocol waits with `wait_reset_done` first.
-
-A crossing port read by `step` blocks of another component behaves, for
-them, as a register of *d*. A task write that feeds a `comb` block with no
-register in between is still register timing (C3): comb logic settles on
-it after the edge, never within it.
+  ends at the same time resumes. So whether task code is at an edge
+  doesn't depend on the order of processes. A delay that ends at the time
+  of an edge from a net is a race, as in RTL.
+- **T3 Zero time stays at the edge.** `tick`, and a crossing call that an
+  edge releases (X5), return after the edge's release; code after them is
+  at that edge until it consumes time. Task code resumed by other task
+  code in the same time step (a port call's return, a mailbox, an event)
+  is at the same edges as that code. A wait that consumes time leaves the
+  edge.
 
 ## Task-sync crossings
 
@@ -326,23 +314,32 @@ and `comb` blocks, which lower.
 - **X3 A process-side change re-evaluates the owner.** A process-side call
   that changes a crossing (an item put or got, a `get` starting or
   stopping to wait) takes effect at once, and the owner's comb blocks
-  settle on it. That is the timing of a register written at that edge
-  (C3): `comb` shows it at once, and `step` blocks read it from the next
-  edge.
+  settle on it. That is the timing of a register written at that edge:
+  `comb` shows it at once, and `step` blocks read it from the next edge.
 - **X4 Sync reads the state before the edge.** At edge *k*, a `step`
   block sees each crossing as it was before *k*.
 - **X5 Sync-side changes act at the edge.** A `take` or `give` at edge *k*
   takes effect in *k*'s update. A process-side call it releases resumes
-  after *k*'s release, at edge *k* (C4, C7).
+  after *k*'s release, at edge *k* (T2, T3).
 - **X6 Blocking.** `fw_to_sync::put` waits while the crossing is full. With
   depth 1 (the default) it returns at the edge where its item is taken;
   with a larger depth, once the item is queued. `fw_from_sync::get` waits
   for an item. `waiting()` is true while a `get` waits with no item queued
   for it, so a `give` then is taken at this edge with nothing buffered.
 - **X7 Items, not values.** Each item is separate: several puts sampled by
-  one edge are not an error, unlike C5.
-- **X8 Reset.** While the owner's reset domain is asserted, its crossings
-  are emptied at each edge; blocked calls stay blocked.
+  one edge are not an error.
+- **X8 Reset.** At each edge where the owner's reset domain is asserted,
+  its crossings are emptied (items queued or given are dropped), in the
+  edge's update: `comb()` sees nothing during reset and drives no
+  transfer. A call blocked on the crossing from the owner's reset domain is
+  killed with its thread (R2).
+- **X9 No calls into reset.** A process-side call (`put`, `get`,
+  `try_put`, `try_get`) while the owner's reset domain is asserted, or one
+  blocked at the edge where it asserts, comes from a thread of another
+  reset domain (a thread of the owner's is killed, R2) or of none. It is
+  `FW-E-XING-RESET`, on the crossing, and returns at once (a blocked call
+  at that edge, after its release): `try_*` returns 0; `get`'s item is the
+  type default; a `put`'s item is dropped. A run-time check.
 
 A target transactor, which calls out through a port, still has a `run()`
 for that call: it gets each request from a `fw_from_sync`, calls the port,
@@ -370,7 +367,14 @@ A static front end lowers `step` blocks, `comb` blocks and `reset_state()`
 to RTL. It does not lower:
 
 - `run()`: asked to emit a component that implements `fw_run_if` is
-  `FW-E-EMIT-RUN`, on the component;
+  `FW-E-EMIT-RUN`, on the component, unless its `run()` only hands off.
+  A hand-off `run()` uses only the process side of the component's
+  task-sync crossings, calls through the component's own API ports, and
+  locals: it reads and writes no component state and no signal, and uses
+  no time. It is left out of the module, as other task code is: its
+  crossings lower to ports (below), and whatever drives them stands for it
+  (a target transactor's `run()`, which gets a request, calls its port and
+  puts the response);
 - `fw_time`, or a waiting domain operation, in a lowered process:
   `FW-E-EMIT-TIME`, on the component. `in_reset` is lowered in `step()`
   and `comb()`.
@@ -402,9 +406,10 @@ drives the ports (in a mixed simulation, the task side):
   `peek()` of its queue; for a `fw_from_sync`, `x_ready` is `ready()`
   (room in its queue, not a waiting `get`: an item given while no `get`
   waits is queued) and `x_wait` is `waiting()` (X6). std's
-  `fw_to_sync_ep` and `fw_from_sync_ep` are these outsides.
-- A child's crossing ports become ports of its parent, `<child>_<port>`,
-  up to the top.
+  `fw_to_sync_ep` and `fw_from_sync_ep` are these outsides. Emptying in
+  reset (X8) and `FW-E-XING-RESET` (X9) are the outside's too.
+- A child's task-sync crossing ports become ports of its parent,
+  `<child>_<port>`, up to the top.
 - A step block takes or gives at most once per crossing per edge (one
   port moves one item). A crossing use the front end can't lower
   (`take` into something other than a local of the block, `take` or

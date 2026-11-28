@@ -162,7 +162,7 @@ endclass
 // The pin core of :sv:class:`fw_rv_monitor`: per cycle, ``fire`` is the
 // handshake (``valid && ready``) and ``first`` the first cycle of a
 // transfer (``valid`` with no stalled beat before it). It lowers to RTL;
-// the monitor's ``run()`` reads it at each edge.
+// the monitor's ``step()`` reads it at each edge.
 //
 // :param T: the payload type
 class fw_rv_mon_core #(type T = bit) extends fw_component implements fw_step_if;
@@ -234,7 +234,7 @@ endclass
 //
 // :param T: the payload type
 class fw_rv_monitor #(type T = bit) extends fw_xtor_monitor #(fw_rv_if #(T))
-        implements fw_run_if;
+        implements fw_step_if;
     typedef fw_rv_monitor #(T) this_t;
     `fw_xtor_param_utils(fw_rv_monitor)
 
@@ -278,21 +278,18 @@ class fw_rv_monitor #(type T = bit) extends fw_xtor_monitor #(fw_rv_if #(T))
         end
     endfunction
 
-    // Samples the link at each edge of its clock domain; the listeners are
-    // called beside the hooks, so an override need not call ``super``.
-    virtual task run();
-        T d;
-        forever begin
-            fw_clock_domain::tick(this);
-            d = pins.data.read();
-            if (c.first.read()) begin
-                pre(d);
-                foreach (m_listeners[i]) m_listeners[i].put_pre(d);
-            end
-            if (c.fire.read()) begin
-                post(d);
-                foreach (m_listeners[i]) m_listeners[i].put_post(d);
-            end
+    // At each edge of its clock domain, reports the cycle before it; the
+    // listeners are called beside the hooks, so an override need not call
+    // ``super``.
+    virtual function void step();
+        T d = pins.data.read();
+        if (c.first.read()) begin
+            pre(d);
+            foreach (m_listeners[i]) m_listeners[i].put_pre(d);
         end
-    endtask
+        if (c.fire.read()) begin
+            post(d);
+            foreach (m_listeners[i]) m_listeners[i].put_post(d);
+        end
+    endfunction
 endclass

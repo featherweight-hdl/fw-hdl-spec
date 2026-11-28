@@ -1,5 +1,5 @@
 {
-  "description": "A protocol whose declare() registers two APIs for the request direction: FW-E-PROTO-API on the protocol.",
+  "description": "A protocol that names one API for both directions in `fw_protocol_utils: FW-E-PROTO-API on the protocol.",
   "features": [
     "protocols"
   ]

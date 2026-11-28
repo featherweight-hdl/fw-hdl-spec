@@ -15,6 +15,6 @@
   ],
   "trace": {
     "clock": "top.clk",
-    "edges": 3
+    "edges": 4
   }
 }

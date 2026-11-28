@@ -98,9 +98,9 @@ Domains ([semantics](../semantics/domains.md)); each needs feature
 | proto_basic | `protocols` table of an unparameterized protocol; `protocol`/`role` on a bundle | |
 | proto_param | `test_rv_proto` at two widths: one family, two specializations | |
 | proto_this_bad | `FW-E-PROTO-THIS` (`this_t` is the default specialization) | yes |
-| proto_api_dup | `FW-E-PROTO-API` (two request APIs) | |
+| proto_api_dup | `FW-E-PROTO-API` (the same API as request and response) | |
 | proto_api_shared | one API registered by two protocols | |
-| proto_prefix | prefix set with `d.prefix()` | |
+| proto_prefix | prefix set with `` `fw_protocol_prefix `` | |
 | proto_bundle | a protocol's bundle as initiator, mirror and monitor: `role` | |
 | proto_xtor | initiator, target and monitor transactors: converters by role; sockets as `api_endpoint`; `api` bindings | |
 | proto_xtor_param | a parameterized transactor at two widths: one converter per specialization | |
@@ -125,7 +125,9 @@ Domains ([semantics](../semantics/domains.md)); each needs feature
 Processes ([semantics](../semantics/processes.md)); each needs features
 `domains` and `processes`. The top extends `test_proc_top`
 (`_lib/test_proc.svh`): root clock `top.clk`, period 10 and no driver;
-reset `top.rst`, synchronous, active low, asserted at edges 1 and 2.
+reset `top.rst`, synchronous, active low, asserted at edges 1 and 2. A
+`run()` starts at edge 3, after that reset (processes.md, R1).
+`test_rst_pulse` drives a second reset that asserts again later.
 
 - `meta.json` key `processes`: `lowerable` (a static front end lowers the
   scenario; its Verilog must give the same trace and diagnostics) or
@@ -140,6 +142,13 @@ reset `top.rst`, synchronous, active low, asserted at edges 1 and 2.
   Values before any write are the type default.
 - A register is visible to every other domain from its writer's update, as
   in RTL.
+- Task code touches no signal (processes.md). To show a value in the trace
+  it puts it to a **recorder**, `test_rec #(T)` (`_lib/test_rec.svh`): a
+  child component whose `fw_to_sync` (depth 4) its `step()` takes one item
+  from per edge and writes to its output `o`. The trace lists
+  `<recorder>.o`. A value put at edge *k* shows from row *k* + 2 (put
+  between edges *k* - 1 and *k*: row *k* + 1), one edge after a register
+  written at *k*. "(recorded)" below marks the scenarios that use it.
 
 | Scenario | Checks | Mode |
 |---|---|---|
@@ -148,25 +157,26 @@ reset `top.rst`, synchronous, active low, asserted at edges 1 and 2.
 | proc_comb_chain | settle in passes (comb blocks out of order); `step` reads settled values | lowerable |
 | proc_comb_loop | `FW-E-COMB-LOOP`; the run stops | sim-only |
 | proc_rv | ready/valid source; sink `ready` a `` `fw_comb `` of `valid` | lowerable |
-| proc_run_put | `run()` puts back to back: one cycle each, no added latency | sim-only |
+| proc_run_put | `run()` puts back to back through std `fw_rv_initiator`: one cycle each, no added latency; also needs `protocols` | sim-only |
 | proc_reset_state | `reset_state()` in reset; `step()` out of it | lowerable |
 | proc_cdc | one component in two clocks: a `` `fw_step `` in the other domain | lowerable |
 | proc_step_domains | `FW-E-STEP-DOMAINS` | lowerable |
-| proc_time | `fw_time::delay`, `now`; a root clock's `period`; `tick` | sim-only |
-| proto_timed | kit timed channels (`_lib/test_uart_chan.svh`, over std `fw_timed_channel`): forwarding `uart_tx_chan` (delivery time, configuration passed to the VIP) and sinking `uart_txrx_chan` (each direction timed by its sender, `frame_err` on mismatch); also needs `protocols` | sim-only |
+| proc_time | `fw_time::delay`, `now`; a root clock's `period`; `tick` (recorded) | sim-only |
+| proc_run_reset | `run()` follows its reset (R1-R3): starts after the deassert, killed mid-wait with its forked thread at the assert, restarted from the top; fields keep their values (recorded) | sim-only |
+| proc_callee_tick | an API task on its caller's `run()` thread does `tick(this)` on its own clock: domain operations key on the calling code's `this`, no `FW-E-DOM-OBJ` (recorded) | sim-only |
+| proto_timed | kit timed channels (`_lib/test_uart_chan.svh`, over std `fw_timed_channel`): forwarding `uart_tx_chan` (delivery time, configuration passed to the VIP) and sinking `uart_txrx_chan` (each direction timed by its sender, `frame_err` on mismatch; recorded); also needs `protocols` | sim-only |
 | proc_write_in | `FW-E-WRITE-IN` (input port; a mirror's `valid`) | lowerable |
 | proc_write_multi | `FW-E-WRITE-MULTI` (two `step` blocks; `step` and `comb`) | lowerable |
-| xing_sample_drive | crossing ports: a `run()` read at an edge returns the value from before it, even after its own write (C2); a write reaches comb logic at once and `step` from the next edge (C3); several ports at one edge (C6) | sim-only |
-| xing_rv_default | a `step` default (drop `valid` after the handshake) and a `run()` drive at the same edge; the drive wins (C5); back-to-back puts with a stall | sim-only |
-| xing_drive_twice | `FW-E-XING-DRIVE-TWICE`: two writes sampled by one edge, both at the edge or one between edges | sim-only |
-| xing_edge_time | a delay ending at a generated edge resumes after its release (C4); between edges, reads see the current value and writes the next edge (C1) | sim-only |
-| xing_zero_time | a port call and a mailbox hand-off in zero time stay at the edge (C7) | sim-only |
-| xing_write_multi | `FW-E-WRITE-MULTI` (`comb` and `run()`); a `step` and `run()` of one component is not an error | sim-only |
-| xing_access | `FW-E-RUN-SYNC-ACCESS` (a grandchild's port); a child's input is allowed (static only) | sim-only |
-| sync_xing_ok | task-sync crossings from their sides: `put`/`get` in a parent's `run()`; `valid`/`peek` in `comb`, `ready`/`take`/`give` in `step`; a put shows at once (X3), a take and give act at the edge (X4, X5) | sim-only |
+| xing_rv_default | back-to-back puts through std `fw_rv_initiator` with a stall: valid and data hold, no idle cycle, no repeated beat; also needs `protocols` | sim-only |
+| xing_edge_time | a delay ending at a generated edge resumes after its release (T2): a put then is taken at the next edge; a put between edges is taken at the next edge (recorded) | sim-only |
+| xing_zero_time | a port call and a mailbox hand-off in zero time stay at the edge (T3): their puts are taken at the next edge (recorded) | sim-only |
+| xing_write_multi | `FW-E-WRITE-MULTI` (two `comb` blocks); two writes in one `step` call are one writer, the last wins | lowerable |
+| task_signal_bad | `FW-E-TASK-SIGNAL`: a `run()` writes a signal; an export task it calls reads one | sim-only |
+| sync_xing_ok | task-sync crossings from their sides: `put`/`get` in a parent's `run()`; `valid`/`peek` in `comb`, `ready`/`take`/`give` in `step`; a put shows at once (X3), a take and give act at the edge (X4, X5); answers recorded | sim-only |
 | sync_xing_side_bad | `FW-E-XING-SIDE` (X1): process side from sync code; sync side from a non-owner's `step`; sync side from task code | sim-only |
 | sync_xing_comb_bad | `FW-E-XING-COMB` (X2): `take` and `give` in a comb block | sim-only |
-| edge_div | a derived domain's edges fixed from time 0, whenever `tick` is called; a root and a derived domain at one time are one group | sim-only |
+| xing_reset_bad | `FW-E-XING-RESET` (X9): from another reset domain, a `put` while the owner's reset is asserted returns at once and drops its item; a `get` blocked when it asserts returns then (X8 empties the crossing); a put after the deassert goes through (recorded) | sim-only |
+| edge_div | a derived domain's edges fixed from time 0, whenever `tick` is called (recorded); a root and a derived domain at one time are one group | sim-only |
 | edge_period_bad | `FW-E-CLOCK-PERIOD` (`mul` 3 of 10 ns at 1 ps); a 45-degree phase is fine | sim-only |
 
 Severity options are not covered: the scenario format has no options.

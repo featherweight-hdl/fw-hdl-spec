@@ -1,0 +1,8 @@
+{
+  "description": "run() follows its reset (R1-R3): it starts at the first edge with the reset deasserted; at the edge where the reset asserts it is killed mid-wait with the thread it forked; at the next deassert it starts again from the top, and component fields keep their values. Recorded in the top's reset domain.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

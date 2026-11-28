@@ -1,5 +1,5 @@
 {
-  "description": "fw_time in run(): a delay of 25 off the root clock's period of 10; a write at 25 is committed at the edge at 30; tick() then returns at 30.",
+  "description": "fw_time in run(): run() starts at 30, after reset; a delay of 25 off the root clock's period of 10 ends at 55; tick() from 55 returns at 60. Values are recorded through a recorder: a put at 55 is taken at the edge at 60, a put at 60 at the edge at 70.",
   "features": [
     "domains",
     "processes"

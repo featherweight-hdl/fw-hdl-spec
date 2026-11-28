@@ -4,5 +4,9 @@
       "id": "FW-E-CLOCK-PERIOD",
       "path": "top.clk3"
     }
-  ]
+  ],
+  "trace": {
+    "clock": "top.clk",
+    "edges": 1
+  }
 }

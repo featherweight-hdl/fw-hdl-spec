@@ -1,0 +1,8 @@
+{
+  "description": "FW-E-XING-RESET (X9): a run() in another reset domain calls into crossings whose owner's reset is asserted. A get blocked when the reset asserts returns at that edge (the crossing is emptied, X8); a put while it is asserted returns at once and drops its item; after the deassert a put goes through.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

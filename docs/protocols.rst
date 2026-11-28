@@ -19,17 +19,15 @@ The hub
 -------
 
 A protocol class extends :sv:class:`fw_protocol`, has only static members,
-and declares ``get_type()`` with :sv:macro:`fw_protocol_utils`. Its
-``declare()`` registers the APIs, at most one per direction:
+and declares ``get_type()`` with :sv:macro:`fw_protocol_utils`, which also
+names the APIs, at most one per direction: the request API (called by the
+initiating side) and then the response API (called back on it). A
+direction with no API is left out:
 
 .. code-block:: systemverilog
 
    class test_uart_proto extends fw_protocol;
-       `fw_protocol_utils(test_uart_proto)
-
-       static function void declare(fw_protocol_decl d);
-           d.api(fw_api_type_of #(test_put_if #(uart_char_t))::get(), FW_PROTO_REQ);
-       endfunction
+       `fw_protocol_utils(test_uart_proto, test_put_if #(uart_char_t))
        ...
    endclass
 
@@ -37,10 +35,10 @@ An API is an ordinary interface class, here a one-method ``put``. It
 cannot register itself, so the protocol registers it, and one API may
 belong to many protocols.
 
-The macro takes the bare class name and nothing else: no user-written
+The macro takes the bare class name and the API types: no user-written
 strings. Derived names start with the family name less a trailing
 ``_proto`` (``axi4_proto`` gives ``axi4``); a protocol whose name does not
-fit sets one with ``d.prefix("...")``.
+fit sets one with :sv:macro:`fw_protocol_prefix` after its utils macro.
 
 A parameterized protocol declares its own specialization as ``this_t`` and
 uses :sv:macro:`fw_protocol_param_utils`:
@@ -49,7 +47,7 @@ uses :sv:macro:`fw_protocol_param_utils`:
 
    class rv_proto #(int W = 8) extends fw_protocol;
        typedef rv_proto #(W) this_t;
-       `fw_protocol_param_utils(rv_proto)
+       `fw_protocol_param_utils(rv_proto, fw_put_if #(logic [W-1:0]))
    endclass
 
 ``P::get_type()`` is the specialization (``rv_proto #(16)``), and the
@@ -61,13 +59,13 @@ specialization is ``FW-E-PROTO-THIS``.
 The bundle
 ----------
 
-A bundle names its protocol with :sv:macro:`fw_bundle_protocol`. It is
+A bundle names its protocol with :sv:macro:`fw_bundle_utils`. It is
 written from the initiator's (here the transmitter's) view, as any bundle:
 
 .. code-block:: systemverilog
 
    virtual class test_uart_serial extends fw_bundle_base;
-       `fw_bundle_protocol(test_uart_proto)
+       `fw_bundle_utils(test_uart_serial, test_uart_proto)
 
        fw_output #(bit) tx;
        fw_input  #(bit) rx;
@@ -132,8 +130,9 @@ and connected like signals: in ``build()`` and in ``connect()``:
 A port binds once (``FW-E-SOCK-MULTI``); an export may serve many ports.
 ``connect_up`` passes a child's endpoint through the parent's endpoint of
 the same type. After the connect phase every port must reach an export
-(``FW-E-SOCK-UNBOUND``). Endpoints take domain associations as bundles do,
-so a connection between two clock domains is reported as a crossing.
+(``FW-E-SOCK-UNBOUND``), except, when lowering, a port that only a
+hand-off ``run()`` calls through (lowering drops that code). Endpoints take domain associations as bundles do,
+so a connection between two clock domains is reported as a domain crossing.
 
 What is generated
 -----------------
@@ -175,9 +174,11 @@ shapes"). For API ``<api>`` with method ``<m>``, and protocol prefix
        channel ``valid``, ``ready`` and payload field
    * - ``<p>_initiator``, ``<p>_target``, ``<p>_monitor``
      - for a bundle whose channels are all ``fw_rv_if``: the transactors
-       (one :sv:class:`fw_rv_initiator` or :sv:class:`fw_rv_target` per
-       channel, the direction from the bundle mixin, joined to the channel
-       APIs by a socket) and a monitor (one :sv:class:`fw_rv_monitor` per
+       (extending :sv:class:`fw_xtor_sock_initiator` and
+       :sv:class:`fw_xtor_sock_target`, whose socket ``s`` carries the
+       channel APIs, with one :sv:class:`fw_rv_initiator` or
+       :sv:class:`fw_rv_target` per channel, the direction from the bundle
+       mixin) and a monitor (one :sv:class:`fw_rv_monitor` per
        channel; ``add_req_listener``/``add_rsp_listener`` attach a channel
        API's ``_listener``, whose ``<ch>_pre``/``<ch>_post`` are called at
        the channel's first cycle and handshake); all three are registered
@@ -197,25 +198,35 @@ Transactors
 A transactor converts between the protocol's API and its bundle. It is a
 component with an endpoint on one side and a bundle on the other. It
 extends the base class of its role over its bundle type,
-:sv:class:`fw_xtor_initiator`, :sv:class:`fw_xtor_target` or
+:sv:class:`fw_xtor_initiator`, :sv:class:`fw_xtor_target` (one API, an
+export or a port), :sv:class:`fw_xtor_sock_initiator`,
+:sv:class:`fw_xtor_sock_target` (request and response APIs, a socket) or
 :sv:class:`fw_xtor_monitor`, and registers with the hub with
 :sv:macro:`fw_xtor_utils` (which also declares ``create``). The base holds
 the pin side, ``pins`` (``fw_bundle``, ``fw_mirror`` or ``fw_monitor``),
 and states the role and the protocol (the bundle's) as static facts of the
-class. The method side has no role rule; here the initiator takes its
-requests in through an export:
+class. The base also creates the method side: an export ``t`` of the
+protocol's request API for an initiator, which implements the API; a port
+``p`` for a target. The method side has no role rule.
 
-.. code-block:: systemverilog
+A transactor's task code (its API tasks, its ``run()``) neither reads nor
+writes a signal (``FW-E-TASK-SIGNAL``): it hands each item to its sync code (``comb()``, ``step()``),
+which alone reads and writes the pins, through task-sync crossings,
+``fw_to_sync`` and ``fw_from_sync`` (``semantics/processes.md``, "Task-sync
+crossings"). The initiator of the hand-written APB example
+(``docs/examples/apb``, :doc:`protocol-packages/behaviour`):
 
-   class ux_init extends fw_xtor_initiator #(test_uart_serial)  // pins, out
-           implements test_put_if #(uart_char_t);
-       `fw_xtor_utils(ux_init)
-       fw_export #(test_put_if #(uart_char_t)) t;     // the API, in
-       fw_cfg_sink #(uart_cfg_t)               cfg;
-       virtual function void build();
-           super.build();                             // creates pins
-           ...
-   endclass
+.. literalinclude:: examples/apb/src/apb_pkg.sv
+   :language: systemverilog
+   :dedent:
+   :start-at: class apb_initiator
+   :end-before: // Selects while a request waits
+
+``comb()`` drives the transfer while ``reqs`` holds a request, and
+``step()`` takes it and gives the response at the edge where PREADY is
+high. A target's ``run()`` only gets a request, calls its port and puts the
+response; a ``run()`` that does no more is not lowered and is not an error
+when the transactor is emitted.
 
 The registration is checked against the ports (``FW-E-PROTO-XTOR``): a
 transactor needs, unless it is a monitor, an endpoint of one of the
@@ -476,7 +487,6 @@ writes no pins and no bridges:
        endfunction
        virtual task run();
            bit [7:0] d;
-           fw_reset_domain::wait_reset_done(this);
            dut_in.put(8'd17);                 // drives the DUT's in pins
            dut_out_rx.get(d);                 // what the DUT's out pins gave
        endtask

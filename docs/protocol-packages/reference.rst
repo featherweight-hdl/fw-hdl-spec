@@ -60,7 +60,8 @@ run into, where they come from, and the usual fix.
        specialization, parameters in order
    * - ``FW-E-PROTO-API``
      - fe-sv, rt-sv
-     - ``declare()`` registers two APIs for one direction, or one twice
+     - ```fw_protocol_utils`` (or ``_param_utils``) names the same API as
+       both ``REQ`` and ``RSP``
    * - ``FW-E-PROTO-XTOR``
      - fe-sv
      - a transactor (not a monitor) with no endpoint of one of its
@@ -102,7 +103,11 @@ run into, where they come from, and the usual fix.
    * - ``FW-E-EMIT-RUN``
      - fe-sv
      - a component with ``run()`` (a transactor, an adapter) asked to be
-       emitted; only the design is emitted
+       emitted; only the design is emitted. A ``run()`` that only hands off
+       (it calls task-sync crossing methods and the component's API ports, and
+       touches no state, pins or time) is not an error: it is left out of
+       the RTL like other task code (``semantics/processes.md``, "Task-sync
+       crossings")
    * - ``FW-E-PIN-PATH``
      - rt-sv
      - an ``fw_pin_bridge`` path names no signal of the class top
@@ -120,7 +125,7 @@ run into, where they come from, and the usual fix.
      - gen_tb, gen_bind
      - a DUT port's own bundle has no protocol but bundles inside it do. A
        port is one protocol: give its bundle one
-       (`` `fw_bundle_protocol``), or make each protocol bundle its own
+       (`` `fw_bundle_utils``), or make each protocol bundle its own
        port
 
 Known limits
@@ -212,7 +217,8 @@ A new protocol package, in the order this guide builds it:
 
 #. The fit check: channels, roles, configuration, timing, known limits.
 #. ``<p>_pkg.sv``: payload structs (``bit`` members), APIs, the protocol
-   with ``declare()``, the bundle(s); a typedef naming one specialization
+   naming its APIs in ```fw_protocol_utils``, the bundle(s) with
+   ```fw_bundle_utils``; a typedef naming one specialization
    of each parameterized bundle.
 #. ``flow.yaml``: the ``fwHdlSource`` FileSet and ``fw.hdl.fe.sv.GenKit``.
 #. Behaviour package: adapters, reference model, hand-written transactors

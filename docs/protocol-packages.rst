@@ -67,6 +67,11 @@ Run it from the workspace root:
 
 Other packages to read beside it:
 
+- *apb*, in ``docs/examples/apb/``: an APB-style bus on plain signals,
+  whose package is written entirely by hand, transactors included
+  (task-sync crossings; :doc:`protocol-packages/behaviour`,
+  "Hand-written transactors"). Its ``check.py`` simulates it back to back,
+  with a mutant that must fail, and lowers the transactors to SV.
 - the **std ready/valid protocol** in ``std/`` (``fw_rv_proto.svh``,
   ``fw_rv_if.svh``, ``fw_rv_xtor.svh``): one channel, a parameterized
   protocol, and the hand-written transactors that every generated one is

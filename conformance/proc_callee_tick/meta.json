@@ -1,0 +1,8 @@
+{
+  "description": "A domain operation is keyed by this of the calling code: an API task, running on its caller's run() thread, waits on its own clock with tick(this). No FW-E-DOM-OBJ.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

@@ -81,8 +81,7 @@ local signal, or an inout. `dir` is the endpoint's effective direction
 Checked in each scope, for the ports of each direct child:
 
 - a child's effective input that is on no net of the scope (neither
-  connected nor tied) and that the scope's task code doesn't write
-  ([processes](processes.md), Crossings) is `FW-E-IN-OPEN`, on that port;
+  connected nor tied) is `FW-E-IN-OPEN`, on that port;
 - an unconnected output or inout is legal.
 
 The top component's own ports are its module's ports and are never open.

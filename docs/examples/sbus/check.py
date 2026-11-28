@@ -80,7 +80,7 @@ def main(out: Path):
     # 3. Against RTL
     rtl = [str(HERE / "rtl" / "sbus_mem_rtl.sv")]
     r = elaborate([kit, str(gen), str(src / "sbus_wrap_pkg.sv")],
-                  top="sbus_wrap_pkg::sbus_sys", incdirs=inc, rtl=rtl)
+                  top="sbus_wrap_pkg::sbus_sys", incdirs=inc, rtl=rtl, lower=True)
     if not r.ok:
         sys.exit(f"FAIL: elaborate: {[str(d) for d in r.diags]}")
     ctxt, top = r.to_ir()

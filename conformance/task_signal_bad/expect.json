@@ -1,0 +1,16 @@
+{
+  "diagnostics": [
+    {
+      "id": "FW-E-TASK-SIGNAL",
+      "path": "top.r"
+    },
+    {
+      "id": "FW-E-TASK-SIGNAL",
+      "path": "top.w"
+    }
+  ],
+  "trace": {
+    "clock": "top.clk",
+    "edges": 4
+  }
+}

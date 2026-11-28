@@ -24,7 +24,7 @@ bug and check that it fails. (Changing sbus_mem_rtl's write response to
        ``tests/unit/gen/src/proto_chan/xtor_b2b.sv``
    * - Static checks
      - the same composition through fe-sv's elaboration: unbound ports,
-       phase and type errors, crossings, before any simulation
+       phase and type errors, domain crossings, before any simulation
      - sbus ``check.py``
    * - Against RTL
      - the RTL wrapped, emitted, and driven by the same transactors and

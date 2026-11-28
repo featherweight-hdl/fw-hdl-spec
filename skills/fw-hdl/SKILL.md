@@ -118,9 +118,14 @@ class cnt extends fw_component implements fw_step_if, fw_reset_state_if;
 endclass
 ```
 
-**Task code** (`run()`, export tasks) is simulation-only and never runs inside an
-edge. It waits with `fw_clock_domain::tick(this, n)`,
-`fw_reset_domain::wait_reset_done(this)`, `wait_assert(this)`, `fw_time::delay(d)`.
+**Task code** (`run()`, export tasks, what they call, threads they fork) is
+simulation-only, never runs inside an edge, and neither reads nor writes signals
+(`FW-E-TASK-SIGNAL`). `run()` follows its component's reset: it starts once the
+reset deasserts, is killed with every thread it forked when the reset asserts,
+and starts again at the next deassert (no `wait_reset_done` needed). It waits
+with `fw_clock_domain::tick(this, n)`, `wait_assert(this)`, `fw_time::delay(d)`.
+In domain ops `this` is the code's own component, also inside an API
+implementation running on a caller's thread.
 Keep protocol timing out of it: task code hands work to sync code through
 **task-sync crossings** (§6), which lower to ready/valid ports.
 
@@ -202,7 +207,7 @@ never on type-name strings.
 | `fw_rv_target #(T)` | each beat becomes a `put` through its port `p` |
 | `fw_rv_get_ep #(T)` | pull side: `get(d)` raises `ready` only while called |
 | `fw_rv_monitor #(T)` + `fw_rv_mon_listener` | `put_pre`/`put_post` at first cycle / handshake; `add_listener(l)` |
-| `fw_to_sync_ep`, `fw_from_sync_ep` | the outside of a lowered crossing (mixed sim) |
+| `fw_to_sync_ep`, `fw_from_sync_ep` | the outside of a lowered task-sync crossing (mixed sim) |
 | `fw_inbox #(T)` | a put/get queue for tests; `stall` back-pressures |
 | `fw_timed_channel` | base of a kit's timed channel |
 
@@ -210,52 +215,63 @@ Back to back with no RTL: `xi.pins.connect(xt.pins)`, a monitor taps the same bu
 
 **Transactors** are one class each: the API on one side, the bundle on the other.
 Extend `fw_xtor_initiator #(B)` (gives `fw_bundle pins` and `fw_export t`),
-`fw_xtor_target #(B)` (`fw_mirror pins`, `fw_port p`) or `fw_xtor_monitor #(B)`
-(`fw_monitor pins`), register with `` `fw_xtor_utils(C) `` /
+`fw_xtor_target #(B)` (`fw_mirror pins`, `fw_port p`), `fw_xtor_sock_initiator`/
+`fw_xtor_sock_target #(B, REQ, RSP)` (a socket `s` for a request and a response API)
+or `fw_xtor_monitor #(B)` (`fw_monitor pins`), register with `` `fw_xtor_utils(C) `` /
 `` `fw_xtor_param_utils(C) ``, and call `super.build()` first.
 
-**Pins are driven by `step()`/`comb()`, never by `run()`.** The API task only hands
-off through `fw_to_sync #(T)` / `fw_from_sync #(T)` (created in `build()`):
+**Task code never touches signals.** Only `step()`/`comb()` read and write pins; task code
+(API tasks, `run()`) only hands off through task-sync crossings, `fw_to_sync #(T)` /
+`fw_from_sync #(T)` (created in `build()`):
 
 | | Task side | Sync side |
 |---|---|---|
 | `fw_to_sync` | `put` (blocking), `try_put` | `valid()`, `peek()`, `take(t)` (step only) |
 | `fw_from_sync` | `get` (blocking), `try_get` | `ready()`, `waiting()`, `give(v)` (step only) |
 
-From fw-hdl `examples/wb_xtor/src/wb_pkg.sv` (no thread at all):
+From `docs/examples/apb/src/apb_pkg.sv` (the initiator has no thread at all):
 
 ```systemverilog
-class wb_initiator #(int AW = 32, int DW = 32) extends fw_xtor_initiator #(wb_bundle #(AW, DW))
-        implements wb_if #(AW, DW), fw_comb_if, fw_step_if;
-    typedef wb_initiator #(AW, DW) this_t;
-    `fw_xtor_param_utils(wb_initiator)
-    fw_to_sync #(req_t) reqs;  fw_from_sync #(rsp_t) rsps;   // created in build()
-virtual task access(output rsp_t rsp, input req_t req);
+class apb_initiator extends fw_xtor_initiator #(apb_bundle)
+        implements apb_if, fw_comb_if, fw_step_if, fw_reset_state_if;
+    `fw_xtor_utils(apb_initiator)
+    fw_to_sync #(apb_req_t) reqs;  fw_from_sync #(apb_rsp_t) rsps;   // created in build()
+    bit acc;                                       // in the access phase
+virtual task access(output apb_rsp_t rsp, input apb_req_t req);
     reqs.put(req);  rsps.get(rsp);                 // hand off, wait
 endtask
-virtual function void comb();                      // drive the bus from the waiting request
-    req_t r = reqs.peek();
-    bit   v = reqs.valid() && rsps.ready();
-    pins.cyc.write(v);  pins.stb.write(v);  pins.adr.write(r.adr);  ...
+virtual function void comb();                      // drive the transfer from the waiting request
+    apb_req_t r = reqs.peek();
+    bit sel = reqs.valid() && rsps.ready();
+    pins.psel.write(sel);  pins.penable.write(sel && acc);  pins.paddr.write(r.addr);  ...
 endfunction
-virtual function void step();                      // at the termination edge
-    req_t r; rsp_t p;
-    if (pins.stb.read() && (pins.ack.read() || pins.err.read())) begin
-        void'(reqs.take(r));
-        p.dat = pins.dat_r.read();  p.err = pins.err.read();
-        void'(rsps.give(p));
+virtual function void step();                      // setup, then access until PREADY
+    apb_req_t r; apb_rsp_t s;
+    if (pins.psel.read()) begin
+        if (!pins.penable.read()) acc = 1;
+        else if (pins.pready.read()) begin
+            void'(reqs.take(r));
+            s.rdata = pins.prdata.read();  s.slverr = pins.pslverr.read();
+            void'(rsps.give(s));  acc = 0;
+        end
     end
 endfunction
+virtual function void reset_state();  acc = 0;  endfunction
 ```
 
-(A class implementing an interface class doesn't inherit its typedefs, so the
-transactor re-declares `typedef wb_if #(AW, DW)::req_t req_t;`.)
+(The payloads are package-level typedefs. A parameterized API declares them in the
+interface class instead, and a class implementing it doesn't inherit them, so the
+transactor re-declares them: fw-hdl `examples/wb_xtor/src/wb_pkg.sv`.)
 
 A target that calls out through its port keeps a `run()` *only* to make that call
 (`reqs.get(r); i.access(s, r); rsps.put(s);`); its pin timing stays in
-`step()`/`comb()`. A class with `run()` can't be lowered. `take`/`give` in `comb()`
-is `FW-E-XING-COMB`; task code touching signals beyond its own and its children's is
-`FW-E-RUN-SYNC-ACCESS`.
+`step()`/`comb()`. A class whose `run()` does more than hand off (task-sync crossing methods and
+its API-port calls) can't be lowered (`FW-E-EMIT-RUN`). At a lowering top (fe-sv
+`elaborate(..., lower=True)`, dfm `Elaborate` with `lower: true`) the target's port
+may stay unbound (lowering drops `run()`; simulation and a plain elaboration must bind it), and
+the top needs a reset domain (`FW-E-DOM-NONE` otherwise). `take`/`give` in `comb()`
+is `FW-E-XING-COMB`; task code reading or writing any signal is `FW-E-TASK-SIGNAL`,
+including an API function that task code calls through a port.
 
 **Writing a protocol kit** (protocol + APIs + payloads + bundles, with GenKit deriving
 proxies, listeners, transactions, pin maps and rv transactors): use the
@@ -320,11 +336,13 @@ models, and connects them: wb_xtor's `tb/wb_xtor_tb.sv`, class `top_c`.
 - Guides (`docs/`): `overview.rst` (recipe, phases), `wrapping.rst`, `domains.rst`,
   `protocols.rst`, `std.rst`, `api/processes.rst`; API reference under `docs/api/`.
 - Rules (`semantics/`): `elaboration`, `params`, `signals`, `bundles`, `connections`,
-  `processes` (edges, crossings, lowering), `domains`, `protocols`, `diagnostics` (`FW-E-...`).
+  `processes` (edges, task-sync crossings, lowering), `domains`, `protocols`, `diagnostics` (`FW-E-...`).
 
 Declarations with doc comments: `bindings/sv/*.svh`, `bindings/sv/fw_hdl_macros.svh`,
 `std/*.svh`. Small runnable models for any one rule: `conformance/<scenario>/top.sv`.
 Worked examples: `tests/sv/smoke/smoke_pkg.sv` (params, ctor factories, overrides,
-externs) and fw-hdl's `examples/wb_xtor` (protocol, bundle, transactors, bench, mixed
-sim, scan). Some prose in `docs/protocols.rst` predates the macros; where it differs,
+externs), `docs/examples/apb` (a hand-written protocol package and transactor pair on
+plain signals, task-sync crossings, bench with a mutant, lowered; `check.py`),
+`docs/examples/sbus` (a GenKit kit of rv channels), and fw-hdl's `examples/wb_xtor`
+(Wishbone: transactors, bench, mixed sim, shell and bridges). Where prose and code differ,
 `bindings/sv` and `std/` are authoritative.

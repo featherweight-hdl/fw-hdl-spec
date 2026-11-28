@@ -18,6 +18,24 @@ class test_rst_gen extends fw_component implements fw_step_if;
     endfunction
 endclass
 
+// A second reset's generator: rst_n reads 0 at edges 1 and 2, and again at
+// edges lo to hi (set by the parent in build()); 1 otherwise. It has no
+// reset of its own.
+class test_rst_pulse extends fw_component implements fw_step_if;
+    `fw_component_utils(test_rst_pulse)
+    fw_output #(bit) rst_n;
+    int lo = 6, hi = 7;
+    int k;              // edges so far
+    virtual function void build();
+        rst_n = fw_output #(bit)::create("rst_n", this);
+    endfunction
+    // At edge k, the value edge k + 1 reads.
+    virtual function void step();
+        k++;
+        rst_n.write(k + 1 > 2 && !(k + 1 >= lo && k + 1 <= hi));
+    endfunction
+endclass
+
 // Base of a process scenario's top: root clock clk, period 10 and no
 // driver (edges at 10, 20, ...); synchronous reset rst, active low, driven
 // by test_rst_gen rg: asserted at edges 1 and 2.

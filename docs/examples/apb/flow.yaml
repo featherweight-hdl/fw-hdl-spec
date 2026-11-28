@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://dv-flow.github.io/flow.dv.schema.json
+# The apb example of docs/protocol-packages/behaviour.rst: a hand-written
+# protocol package (src/apb_pkg.sv) and its back-to-back bench.
+#
+#   dfm run check    simulate in rt-sv (and the mutant), elaborate with
+#                    fe-sv, lower the transactors to SV and lint them
+package:
+  name: apb
+
+  tasks:
+  - name: check
+    shell: bash
+    run: |
+      python3 $TASK_SRCDIR/check.py out

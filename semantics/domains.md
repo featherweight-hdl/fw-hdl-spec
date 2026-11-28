@@ -93,6 +93,13 @@ extern maps) is `FW-E-DOM-UNUSED`, on the component.
 `null` is legal until something needs the domain: `relate`, an extern pin,
 `drive` on it. Those report `FW-E-DOM-NONE`, on the object that needed it.
 
+Lowering needs a reset domain: every component lowered to RTL has one, at
+least inherited. Lowering a top whose default reset domain resolves to
+`null`, in a design with process code (`step`, `comb`, `run()`;
+[processes](processes.md)), is `FW-E-DOM-NONE`, on the top. A structural
+design (signals, connections, externs) needs none. Simulation keeps
+`null` legal, for a bench with no sync code.
+
 ## Relation
 
 `fw_domain #(K)::relate(a, b)` returns:

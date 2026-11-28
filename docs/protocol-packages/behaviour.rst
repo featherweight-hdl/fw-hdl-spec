@@ -83,23 +83,89 @@ in :doc:`../protocols`, "Endpoints and sockets"):
   (elsewhere ``FW-E-CONN-PHASE``). A port binds once
   (``FW-E-SOCK-MULTI``); an export may serve many ports; every port must
   reach an export by the end of the connect phase
-  (``FW-E-SOCK-UNBOUND``). ``connect_up`` passes a child's endpoint
+  (``FW-E-SOCK-UNBOUND``); when lowering, a target's port that only its
+  hand-off ``run()`` calls through may stay unbound. ``connect_up`` passes a child's endpoint
   through its parent's.
 - Endpoints take domain associations as bundles do, so a method-level
-  connection between two clock domains is reported as a crossing.
+  connection between two clock domains is reported as a domain crossing.
 
 Hand-written transactors
 ------------------------
 
 A bundle whose channels are all ``fw_rv_if`` gets its transactors from
 GenKit. Any other bundle (APB, a UART line, a bus sampled every cycle)
-needs one written by hand. std's ready/valid initiator is the shape:
+needs them written by hand. The worked example is *apb*, an APB-style bus
+with one transfer in flight, in ``docs/examples/apb/`` of fw-hdl-spec:
 
-.. literalinclude:: ../../std/fw_rv_xtor.svh
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - File
+     - What it is
+   * - ``src/apb_pkg.sv``
+     - the whole package: payloads, the API ``apb_if``, the protocol, the
+       bundle, and the initiator and target transactors
+   * - ``tb/apb_tb.sv``, ``tb/apb_tb_top.sv``
+     - the two back to back over one bundle, with a memory model, a
+       driver and a pin-level checker; ``+mut`` swaps in a broken
+       initiator, which must fail
+   * - ``tb/apb_emit.sv``
+     - both transactors on a top's pins, for lowering to SV
+   * - ``check.py``, ``flow.yaml``
+     - runs it all (``dfm run check``): the bench and its mutant in
+       rt-sv, the bench in fe-sv's static elaboration, and the lowered
+       transactors linted
+
+.. code-block:: shell
+
+   direnv exec . python packages/fw-hdl-spec/docs/examples/apb/check.py build/apb
+
+The declarations are those of :doc:`declare`: payload structs and the API
+at package level, the protocol naming its API in its macro, and the bundle
+naming its protocol:
+
+.. literalinclude:: ../examples/apb/src/apb_pkg.sv
    :language: systemverilog
    :dedent:
-   :start-at: class fw_rv_initiator
-   :end-before: // The ready/valid target transactor
+   :start-at: // One request
+   :end-before: // The initiator.
+
+**Task code never touches signals.** A transactor has two kinds of code:
+*task code* (its API task, its ``run()``), which only hands items through
+task-sync crossings, and *sync code* (``comb()`` and ``step()``), which is
+the only code that reads and writes pins. An ``fw_to_sync #(T)`` carries
+items from task code into sync code, an ``fw_from_sync #(T)`` carries them
+out; the task side calls ``put`` and ``get``, the sync side looks with
+``valid``/``peek`` or ``ready``/``waiting`` in ``comb()`` and moves items
+with ``take``/``give`` in ``step()`` (rules X1-X8 in
+``semantics/processes.md``, "Task-sync crossings"). The protocol timing is
+then all in sync code, which lowers to RTL; the crossings lower to
+ready/valid ports of the module.
+
+The initiator implements the API. ``access`` puts the request and gets the
+response, and that is all; ``comb()`` drives the transfer from the waiting
+request, and ``step()`` moves it through the setup and access phases and,
+at the edge where PREADY is high, takes the request and gives the
+response, so ``access`` returns at that edge:
+
+.. literalinclude:: ../examples/apb/src/apb_pkg.sv
+   :language: systemverilog
+   :dedent:
+   :start-at: class apb_initiator
+   :end-at: endclass
+
+The target calls the API through its port, so it has a ``run()``, which
+only hands off: it gets each request from a ``fw_from_sync``, makes the
+port call, and puts the response to a ``fw_to_sync``. ``step()`` gives the
+request at the setup edge and takes the response at the edge that ends the
+transfer; ``comb()`` raises PREADY while a response waits:
+
+.. literalinclude:: ../examples/apb/src/apb_pkg.sv
+   :language: systemverilog
+   :dedent:
+   :start-at: class apb_target
+   :end-at: endclass
 
 A transactor:
 
@@ -110,28 +176,32 @@ A transactor:
 - has a **pin side**, the base's ``pins``: an ``fw_bundle`` for an
   initiator, an ``fw_mirror`` for a target, an ``fw_monitor`` for a
   monitor, created by the base's ``build()`` (an override calls
-  ``super.build()``). Its role and protocol are the base's, static facts
-  of the class;
-- has a **method side**: an export of the protocol's request API for an
-  initiator, a port of it for a target, listeners for a monitor. This is
-  the usual shape, not a rule: the method side does not set the role and
-  is not checked against the pin side;
-- runs in ``run()`` (it implements ``fw_run_if``), waits for edges with
-  ``fw_clock_domain::tick(this)``, and reads and writes pins with
-  ``read()`` and ``write()``. Clock and reset come from its component's
-  domains;
-- **adds no latency**: a call drives the pins in the cycle it is made and
-  returns at the handshake edge; nothing is buffered;
-- hands calls to its own ``run()`` (``fw_rv_initiator::put`` through two
-  mailboxes), so the pins are driven from the transactor's clock domain
-  whoever calls it.
+  ``super.build()`` first, then creates its crossings). Its role and
+  protocol are the base's, static facts of the class;
+- has a **method side**: the base's export ``t`` of the protocol's request
+  API for an initiator (the transactor implements the API), its port ``p``
+  for a target. This is the usual shape, not a rule: the method side does
+  not set the role and is not checked against the pin side;
+- drives and samples the pins only in ``comb()`` and ``step()``, with
+  ``write()`` and ``read()``; clock and reset come from its component's
+  domains, and ``reset_state()`` resets its own state;
+- hands every call through task-sync crossings: an API task only puts and
+  gets, a ``run()`` only gets, calls its port and puts. Its task code
+  neither reads nor writes a signal and has no ``tick`` of its own: it blocks only in the
+  crossings, which return at an edge;
+- **adds no latency**: a call drives the pins from the edge it is made at
+  and returns at the edge that ends the transfer; nothing is buffered
+  (depth-1 crossings).
 
-A monitor is a transactor whose pins are an ``fw_monitor`` and whose method
-side is a list of listeners: it calls ``<m>_pre`` at the first cycle of a
-transfer and ``<m>_post`` at its end, and never drives a pin. Keep its
-per-cycle logic in a small component of ``fw_comb``/``step`` blocks (as
-``fw_rv_mon_core``), which lowers to RTL and can be proved formally
-(:doc:`testing`). The conformance scenario ``proto_xtor`` has an
+A ``run()`` that only hands off is left out of the RTL when the
+transactor is lowered, as an API task is; one that does more is
+``FW-E-EMIT-RUN`` (:doc:`reference`). std's ready/valid initiator and
+target (``std/fw_rv_xtor.svh``) have the same shape over one ready/valid
+channel, and fw-hdl ``examples/wb_xtor`` is a larger one (Wishbone, with a
+generated shell and bridges).
+
+Monitors are covered later: their pin-to-listener side waits for a
+sync-to-task crossing. The conformance scenario ``proto_xtor`` has an
 initiator, a target and a monitor of one protocol registered by hand.
 
 The tools find a transactor statically: from a bundle, its protocol, its

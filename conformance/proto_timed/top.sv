@@ -4,9 +4,11 @@
 // (50 ns at 200 Mbaud, 100 ns at 100 Mbaud), and v sees d's configuration
 // through f. Two devices ua and ub are joined by a sinking uart_txrx_chan
 // x: each character is timed by its sender's configuration, and once ub
-// moves to 100 Mbaud (at 55) the characters either way arrive with
-// frame_err set. Every send starts off a clock edge, and every delivery
-// is committed at the next edge.
+// moves to 100 Mbaud (at 85) the characters either way arrive with
+// frame_err set. Every run() starts at 30, after reset (processes.md,
+// R1), and every send starts off a clock edge. Each receiver records
+// what it gets through recorders (_lib/test_rec.svh): a delivery shows from
+// the row after its next edge.
 `timescale 1ns/1ps
 `include "fw_hdl_macros.svh"
 
@@ -15,25 +17,27 @@ package scenario;
     import fw_hdl_std_pkg::*;
     `include "test_proc.svh"
     `include "test_uart_chan.svh"
+    `include "test_rec.svh"
 
     // Records the last character received and when.
     virtual class rx_rec extends fw_component implements uart_put_if;
-        fw_output #(bit [7:0]) data;
-        fw_output #(bit)       err;
-        fw_output #(time)      t;
+        test_rec #(bit [7:0]) data;
+        test_rec #(bit)       err;
+        test_rec #(time)      t;
         virtual function void build();
-            data = fw_output #(bit [7:0])::create("data", this);
-            err  = fw_output #(bit)::create("err", this);
-            t    = fw_output #(time)::create("t", this);
+            data = test_rec #(bit [7:0])::create("data", this);
+            err  = test_rec #(bit)::create("err", this);
+            t    = test_rec #(time)::create("t", this);
         endfunction
         virtual task put(uart_char_t c);
-            data.write(c.data);
-            err.write(c.frame_err);
-            t.write(fw_time::now());
+            data.put(c.data);
+            err.put(c.frame_err);
+            t.put(fw_time::now());
         endtask
     endclass
 
-    // A device with a configured port: 0x11 at 200 Mbaud, then 0x12 at 100.
+    // A device with a configured port: 0x11 at 200 Mbaud (sent at 35,
+    // arrives 85), then 0x12 at 100 (arrives 185).
     class dev extends fw_component implements fw_run_if;
         `fw_component_utils(dev)
         fw_port_cfg_src #(uart_put_if, uart_cfg_t) p;
@@ -54,16 +58,16 @@ package scenario;
     class vip extends rx_rec;
         `fw_component_utils(vip)
         fw_export_cfg_sink #(uart_put_if, uart_cfg_t) e;
-        fw_output #(int unsigned) baud;
+        test_rec #(int unsigned) baud;
         virtual function void build();
             super.build();
             e = fw_export_cfg_sink #(uart_put_if, uart_cfg_t)::create("e", this);
-            baud = fw_output #(int unsigned)::create("baud", this);
+            baud = test_rec #(int unsigned)::create("baud", this);
             e.set_imp(this);
         endfunction
         virtual task put(uart_char_t c);
             super.put(c);
-            baud.write(e.cfg.baud);
+            baud.put(e.cfg.baud);
         endtask
     endclass
 
@@ -78,8 +82,8 @@ package scenario;
         endfunction
     endclass
 
-    // Sends 0x21 at 5 (arrives 55) and 0x22 at 62, after ub's change
-    // (arrives 112, frame_err).
+    // Sends 0x21 at 35 (arrives 85) and 0x22 at 92, after ub's change
+    // (arrives 142, frame_err).
     class uart_a extends uart implements fw_run_if;
         `fw_component_utils(uart_a)
         virtual task run();
@@ -91,8 +95,8 @@ package scenario;
         endtask
     endclass
 
-    // Sends 0x31 at 5 (arrives 55), moves to 100 Mbaud, sends 0x32 (100 ns,
-    // arrives 155, frame_err).
+    // Sends 0x31 at 35 (arrives 85), moves to 100 Mbaud, sends 0x32 (100 ns,
+    // arrives 185, frame_err).
     class uart_b extends uart implements fw_run_if;
         `fw_component_utils(uart_b)
         virtual task run();

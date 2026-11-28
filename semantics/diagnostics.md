@@ -43,7 +43,7 @@ Domains ([domains](domains.md)):
 | `FW-E-DOM-BIND` | the same object, kind and name set twice | the target |
 | `FW-E-DOM-OBJ` | `set` on an object that is not a direct child, the calling component or one of its interfaces; on a bundle member; a named association on an interface; `port_name` or `provides` on another component | the target |
 | `FW-E-DOM-UNUSED` | a named association never read with `get` | the component |
-| `FW-E-DOM-NONE` | a needed domain is `null`: a derivation source, an extern pin's domain, an argument of `relate` | the domain being created, the extern, or the calling component |
+| `FW-E-DOM-NONE` | a needed domain is `null`: a derivation source, an extern pin's domain, an argument of `relate`; the default reset domain of a top being lowered, in a design with process code (domains.md, "Lookup") | the domain being created, the extern, the calling component, or the lowered top |
 | `FW-E-DOM-KIND` | a derivation source not of the domain's kind; a reset's `clock` that is not a clock domain | the domain being created |
 | `FW-E-DOM-DRIVER` | a domain with more than one driver | the domain |
 | `FW-E-DOM-NODRIVER` | a realized domain with no driver | the domain |
@@ -57,23 +57,24 @@ Domains ([domains](domains.md)):
 | `FW-W-DOM-RSTSYNC` | a component's reset is synchronous to a clock unrelated to its clock domain | the component where the mismatch starts |
 
 Processes ([processes](processes.md)). A domain operation keyed by another
-component's object is `FW-E-DOM-OBJ`, on a domain of the wrong kind
+component's object than the calling code's is `FW-E-DOM-OBJ` (static
+only: a run-time implementation doesn't check it), on a domain of the wrong kind
 `FW-E-DOM-KIND`, on an unresolved domain `FW-E-DOM-NONE`; each on that
 object.
 
 | ID | Condition | Path |
 |---|---|---|
 | `FW-E-WRITE-IN` | `write()` to an effective input | the signal |
-| `FW-E-WRITE-MULTI` | a signal written by more than one block (`step`, `comb`, task code), other than one `step` block and the task code of the same component; a component field written by blocks in two domains | the signal, or the component |
+| `FW-E-WRITE-MULTI` | a signal written by more than one block (`step`, `comb`); a component field written by blocks in two domains | the signal, or the component |
 | `FW-E-STEP-DOMAINS` | a `step` block that writes signals of two clock domains | the component |
 | `FW-E-COMB-LOOP` | a settle still changing after 64 passes (run time) | each signal changed in the last pass |
 | `FW-E-CLOCK-NONE` | `tick` on a clock domain with no edges: no net, no `period`, or a derivation whose edges can't be computed | the object `tick` is keyed by |
 | `FW-E-CLOCK-PERIOD` | a computed edge time (`mul` > 1, `phase`) that isn't a whole number of the time precision | the domain |
-| `FW-E-RUN-SYNC-ACCESS` | task code touching a signal that is not its component's own or a direct child's port (static) | the signal |
-| `FW-E-XING-DRIVE-TWICE` | a second task write of a crossing port sampled by the same edge (run time; ignored) | the signal |
+| `FW-E-TASK-SIGNAL` | task code (`run()` and what it calls, forked threads, an export's API task, an API function called from task code through a port) reading or writing a signal (processes.md, "Task code"); run time: the write is ignored | the component |
 | `FW-E-XING-SIDE` | a task-sync crossing's sync side used other than by its owner's sync code, or `take`/`give` outside a `step` block; its process side used from sync code | the crossing |
 | `FW-E-XING-COMB` | `take` or `give` in a `comb` block | the crossing |
-| `FW-E-EMIT-RUN` | a component that implements `run()` asked to be emitted (static front end) | the component |
+| `FW-E-XING-RESET` | a process-side call (`put`, `get`, `try_*`) on a task-sync crossing while its owner's reset domain is asserted, or blocked at the edge where it asserts, from a thread of another reset domain or none (X9); run time: the call returns at once, `try_*` returns 0 | the crossing |
+| `FW-E-EMIT-RUN` | a component that implements `run()` asked to be emitted (static front end), unless its `run()` only hands off: task-sync crossing calls, its API-port calls and locals, no state, signals or time (processes.md, "Lowering") | the component |
 | `FW-E-XING-LOWER` | a task-sync crossing use the static front end can't lower to ready/valid ports (processes.md, "Lowering") | the component |
 | `FW-E-EMIT-TIME` | `fw_time` or a waiting domain operation in a lowered process (static front end) | the component |
 
@@ -90,10 +91,16 @@ the class declaration), the specialization (a key of the netlist's
 | `FW-E-PROTO-THIS` | a `_param_utils` class whose `this_t` is not its own specialization (static front end) | the class |
 | `FW-E-PROTO-API` | a protocol names the same API for both directions | the protocol |
 | `FW-E-PROTO-XTOR` | a transactor or abstractor registered for a protocol it does not connect: the bundle or API side is missing ([protocols](protocols.md), "Converters"; static front end only, on every converter class) | the class |
-| `FW-E-SOCK-UNBOUND` | a port, or a socket's port side, that resolves to no export after the connect phase | the port |
+| `FW-E-SOCK-UNBOUND` | a port, or a socket's port side, that resolves to no export after the connect phase; at a lowering top, not a port whose component's `run()` is hand-off only and that no `step` or `comb` code calls through (protocols.md, "Resolution") | the port |
 | `FW-E-SOCK-MULTI` | a port bound twice | the port |
 | `FW-E-CFG-WRITE` | a write to a sink's `cfg` (static front end: any write target; run time: copy differs from the last push) | the sink |
 | `FW-E-CFG-UNBOUND` | a sink that no source reaches after the connect phase | the sink |
+
+`FW-E-RUN-SYNC-ACCESS` and `FW-E-XING-DRIVE-TWICE` are retired with
+crossing ports (task code reading and writing signals): task code touches
+no signal. `FW-W-TASK-SIGNAL`, the static front end's warning form of
+`FW-E-TASK-SIGNAL` while shipping code moved off signal access, is
+retired: the static check reports the error.
 
 `FW-E-NAME-BAD` is an addition to the initial list in core-layer1.md 3.10,
 which requires legal names but gave no ID.

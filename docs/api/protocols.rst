@@ -13,9 +13,6 @@ Protocol classes and their handles
 .. autosvclass:: fw_hdl_pkg::fw_protocol
    :members:
 
-.. autosvclass:: fw_hdl_pkg::fw_protocol_decl
-   :members:
-
 .. autosvclass:: fw_hdl_pkg::fw_protocol_type
    :members:
 
@@ -37,6 +34,8 @@ APIs
 
 .. autosvclass:: fw_hdl_pkg::fw_api_type_of
    :members:
+
+.. autosvclass:: fw_hdl_pkg::fw_no_api
 
 Endpoints and sockets
 ---------------------
@@ -87,6 +86,12 @@ Transactors
    :members:
 
 .. autosvclass:: fw_hdl_pkg::fw_xtor_target
+   :members:
+
+.. autosvclass:: fw_hdl_pkg::fw_xtor_sock_initiator
+   :members:
+
+.. autosvclass:: fw_hdl_pkg::fw_xtor_sock_target
    :members:
 
 .. autosvclass:: fw_hdl_pkg::fw_xtor_monitor

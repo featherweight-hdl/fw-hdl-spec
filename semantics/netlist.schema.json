@@ -410,7 +410,7 @@
           "$ref": "#/$defs/assoc"
         },
         "protocol": {
-          "description": "The protocol the bundle type names with fw_bundle_protocol, as a key of 'protocols'. Absent when it names none.",
+          "description": "The protocol the bundle type names with fw_bundle_utils, as a key of 'protocols'. Absent when it names none.",
           "$ref": "#/$defs/type"
         },
         "role": {
@@ -496,7 +496,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^FW-[EWI]-[A-Z]+-[A-Z]+$"
+          "pattern": "^FW-[EWI]-[A-Z]+(-[A-Z]+)+$"
         },
         "path": {
           "type": "string"
@@ -613,7 +613,7 @@
           "type": "string"
         },
         "apis": {
-          "description": "The APIs declare() registers, sorted by dir.",
+          "description": "The APIs the protocol names in fw_protocol_utils (or fw_protocol_param_utils), sorted by dir.",
           "type": "array",
           "items": {
             "type": "object",

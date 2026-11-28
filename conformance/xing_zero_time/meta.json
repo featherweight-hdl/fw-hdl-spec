@@ -1,5 +1,5 @@
 {
-  "description": "C7: a port call and a mailbox hand-off in zero time stay at the edge: reads return the values from before it and writes are sampled by the next edge.",
+  "description": "T3: a port call and a mailbox hand-off in zero time stay at the edge: puts to task-sync crossings (recorders) from both are taken at the next edge.",
   "features": [
     "domains",
     "processes"

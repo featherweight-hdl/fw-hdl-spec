@@ -1,0 +1,8 @@
+{
+  "description": "FW-E-TASK-SIGNAL, on the component: a run() writes its output, and an export task called from it reads its input.",
+  "features": [
+    "domains",
+    "processes"
+  ],
+  "processes": "sim-only"
+}

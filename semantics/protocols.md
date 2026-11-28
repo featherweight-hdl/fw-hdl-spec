@@ -211,7 +211,15 @@ API `<api>` with method `<m>`, and protocol prefix `<p>`:
   any `connect_up` chain, to one export, and through it to an
   implementation, once. A port that resolves to no export is
   `FW-E-SOCK-UNBOUND`, on the port; calls through a resolved port reach
-  the implementation directly.
+  the implementation directly. Simulation, and any elaboration that is
+  not for lowering (a netlist, say), requires every port to resolve.
+  At a lowering top, a port may stay unbound when its component's `run()`
+  is hand-off only ([processes](processes.md), "Lowering") and no `step`
+  or `comb` code calls through it: lowering drops the task code that
+  uses it, and the port's boundary is the crossings' ports, which lower
+  to module ports. A static front end is told the top is a lowering
+  top; it then decides an unbound port of a component that implements
+  `run()` when it lowers, not when it elaborates.
 - **Domains.** Endpoints and sockets are interfaces of the domain layer:
   they take associations as bundles do ([domains](domains.md)). A
   connection whose two ends resolve to different domains of a kind is a

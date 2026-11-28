@@ -1,8 +1,9 @@
 {
-  "description": "C5: a step block's default (drop valid after a handshake) and a run() put's explicit drive at the same edge; the explicit drive wins. Back-to-back puts with one stall: no idle cycle, no repeated beat.",
+  "description": "Back-to-back puts 1, 2, 3 through std fw_rv_initiator with one stall at the sink: valid and data hold through the stall; no idle cycle, no repeated beat.",
   "features": [
     "domains",
-    "processes"
+    "processes",
+    "protocols"
   ],
   "processes": "sim-only"
 }

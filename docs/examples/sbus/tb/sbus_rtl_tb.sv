@@ -58,7 +58,6 @@ package sbus_rtl_tb_pkg;
 
         virtual task run();
             sbus_rsp_t rsp;
-            fw_reset_domain::wait_reset_done(this);
             host.access(rsp, '{addr: 8'h10, wdata: 32'hdeadbeef, we: 1});
             check(rsp, '{rdata: 32'hdeadbeef, err: 0});
             host.access(rsp, '{addr: 8'h10, wdata: 0, we: 0});

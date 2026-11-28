@@ -1,8 +1,9 @@
 {
-  "description": "A run() initiator puts 1, 2, 3 back to back on a ready/valid bundle (R2.4, core-layer2 5.2): a write in the run phase of edge k is committed at edge k+1, and a put completes at the edge where ready is seen, so the puts take one cycle each, with no added latency.",
+  "description": "Back-to-back puts 1, 2, 3 on a ready/valid bundle through std fw_rv_initiator (R2.4, core-layer2 5.2), from a run() through a port: one cycle each, no added latency; task code touches no signal.",
   "features": [
     "domains",
-    "processes"
+    "processes",
+    "protocols"
   ],
   "processes": "sim-only"
 }

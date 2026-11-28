@@ -7,6 +7,23 @@
   ],
   "trace": {
     "clock": "top.clk",
-    "edges": 4
+    "edges": 4,
+    "signals": [
+      "top.b.p"
+    ],
+    "rows": [
+      [
+        0
+      ],
+      [
+        1
+      ],
+      [
+        0
+      ],
+      [
+        1
+      ]
+    ]
   }
 }

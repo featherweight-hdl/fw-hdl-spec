@@ -1,5 +1,5 @@
 {
-  "description": "A protocol whose name does not end in _proto sets its prefix with d.prefix() in declare(): the table shows it.",
+  "description": "A protocol whose name does not end in _proto sets its prefix with `fw_protocol_prefix: the table shows it.",
   "features": [
     "protocols"
   ]

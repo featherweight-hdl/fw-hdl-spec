@@ -1,5 +1,5 @@
 {
-  "description": "Timed kit channels placed by the user (protocol-kit prep 3.5): a forwarding uart_tx_chan from a device's configured port to a VIP's export, timed by the device's configuration and passing it on; a sinking uart_txrx_chan between two devices' sockets, timed by each sender's configuration, setting frame_err once the configurations differ. The trace holds each receiver's last character and its delivery time.",
+  "description": "Timed kit channels placed by the user (protocol-kit prep 3.5): a forwarding uart_tx_chan from a device's configured port to a VIP's export, timed by the device's configuration and passing it on; a sinking uart_txrx_chan between two devices' sockets, timed by each sender's configuration, setting frame_err once the configurations differ. The trace holds each receiver's last character and its delivery time, through recorders (one edge after the delivery).",
   "features": [
     "domains",
     "processes",

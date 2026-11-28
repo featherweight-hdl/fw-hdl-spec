@@ -27,17 +27,17 @@ package scenario;
     class par extends fw_component implements fw_step_if, fw_run_if;
         `fw_component_utils(par)
         xc x;
-        fw_output #(bit) v, r;
+        fw_output #(bit) v;
+        bit r;
         virtual function void build();
             x = xc::create("x", this);
             v = fw_output #(bit)::create("v", this);
-            r = fw_output #(bit)::create("r", this);
         endfunction
         virtual function void step();
             v.write(x.b.valid());
         endfunction
         virtual task run();
-            r.write(x.c.ready());
+            r = x.c.ready();
         endtask
     endclass
 

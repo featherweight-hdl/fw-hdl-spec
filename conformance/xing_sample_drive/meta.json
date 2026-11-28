@@ -1,8 +1,0 @@
-{
-  "description": "Crossing ports: at edge k a run() reads the values from before k, even of a port it has just written (C2); its writes reach comb logic at once and step blocks from edge k + 1 (C3); several ports at one edge (C6).",
-  "features": [
-    "domains",
-    "processes"
-  ],
-  "processes": "sim-only"
-}

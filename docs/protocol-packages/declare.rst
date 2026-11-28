@@ -114,15 +114,16 @@ A class extending ``fw_protocol``, with only static members:
    :start-at: class sbus_proto
    :end-before: // The pins
 
-- ```fw_protocol_utils(C)`` declares ``get_type()``. It takes the bare
-  class name: no names are ever written as strings.
-- ``declare()`` registers the APIs with ``d.api(h, dir)``, at most one per
-  direction, ``FW_PROTO_REQ`` (the initiator calls it) and
-  ``FW_PROTO_RSP`` (the target calls it back). Two for one direction, or
-  one twice, is ``FW-E-PROTO-API``.
+- ```fw_protocol_utils(C, REQ, RSP)`` declares ``get_type()`` and names
+  the APIs, at most one per direction: ``REQ``, the request API, which the
+  initiating side calls, and ``RSP``, the response API, called back on it.
+  Leave a direction out (or give ``fw_no_api``) when it has no API; sbus
+  names only ``REQ``. The same API for both is ``FW-E-PROTO-API``. The
+  macro takes the bare class name: no names are ever written as strings.
 - The **prefix** of every derived name is the class name less a trailing
   ``_proto`` (``sbus_proto`` gives ``sbus``). A protocol whose name does
-  not fit sets one with ``d.prefix("...")`` in ``declare()``.
+  not fit sets one with ```fw_protocol_prefix("...")`` after its utils
+  macro.
 - Static helper functions of the protocol go here too: the UART protocol
   of the conformance library has ``xfer_time(cfg, t)`` and
   ``mismatch(tx, rx, t)``, which its timed channels call.
@@ -150,21 +151,21 @@ Every registration macro comes in the same two forms, ``_utils`` for a
 plain class and ``_param_utils`` (with ``this_t``) for a parameterized
 one:
 
-=============================  ======================================  ===============================
+=============================  ======================================  =========================================
 Class                          Plain                                   Parameterized
-=============================  ======================================  ===============================
-protocol                       ```fw_protocol_utils(C)``               ```fw_protocol_param_utils(C)``
+=============================  ======================================  =========================================
+protocol                       ```fw_protocol_utils(C, REQ, RSP)``     ```fw_protocol_param_utils(C, REQ, RSP)``
 transactor                     ```fw_xtor_utils(C)``                   ```fw_xtor_param_utils(C)``
 abstractor                     ```fw_abstractor_utils(C, F, T)``       ```fw_abstractor_param_utils(C, F, T)``
 component                      ```fw_component_utils(C)``              ```fw_component_param_utils(C)``
-bundle (names its protocol)    ```fw_bundle_protocol(P)``              the same, ``P`` specialized
-=============================  ======================================  ===============================
+bundle (names its protocol)    ```fw_bundle_utils(C, P)``              the same, ``P`` specialized
+=============================  ======================================  =========================================
 
 The bundles
 -----------
 
 A bundle is the protocol's pin-level form. It extends ``fw_bundle_base``,
-names its protocol with ```fw_bundle_protocol``, and is written from the
+names its protocol with ```fw_bundle_utils``, and is written from the
 initiator's view. For a handshaked protocol make it a **bundle of
 channels**: one ``fw_rv_if`` member per channel, ``fw_bundle`` for a
 channel the initiator drives and ``fw_mirror`` for one it receives:
@@ -190,13 +191,13 @@ So name channels as the protocol does (AXI4: ``aw``, ``w``, ``b``,
 ``ar``, ``r``), and not ``pins``, ``s``, ``p`` or ``t``, which the
 generated transactors use for their own members.
 
-A **parameterized bundle** names its protocol's specialization and passes
-its parameters on:
+A **parameterized bundle** passes its bare name and its protocol's
+specialization, with the bundle's parameters passed on:
 
 .. code-block:: systemverilog
 
    virtual class test_ch_bundle #(int W = 8) extends fw_bundle_base;
-       `fw_bundle_protocol(test_ch_proto #(W))
+       `fw_bundle_utils(test_ch_bundle, test_ch_proto #(W))
        fw_bundle #(fw_rv_if #(logic [W-1:0])) req;
        fw_mirror #(fw_rv_if #(test_ch_rsp_t)) rsp;
        ...

@@ -1,7 +1,9 @@
-// A run() initiator puts 1, 2, 3 back to back on a ready/valid bundle (R2.4,
-// core-layer2 5.2): a write in the run phase of edge k is committed at edge
-// k+1, and a put completes at the edge where ready is seen, so the puts take
-// one cycle each, with no added latency.
+// Back-to-back puts on a ready/valid bundle through std fw_rv_initiator
+// (R2.4, core-layer2 5.2): a run() puts 1, 2, 3 through a port bound to the
+// initiator's export. The initiator's comb() offers an item from the call
+// on, and its step() takes it at the handshake, where put returns; so the
+// puts take one cycle each, with no added latency. Task code touches no
+// signal.
 `timescale 1ns/1ps
 `include "fw_hdl_macros.svh"
 
@@ -10,21 +12,17 @@ package scenario;
     import fw_hdl_std_pkg::*;
     `include "test_proc.svh"
 
+    // Task code: puts 1, 2, 3 through its port, back to back.
     class drv extends fw_component implements fw_run_if;
         `fw_component_utils(drv)
-        fw_bundle #(fw_rv_if #(bit [7:0])) out;
+        fw_port #(fw_put_if #(bit [7:0])) p;
         virtual function void build();
-            out = fw_bundle #(fw_rv_if #(bit [7:0]))::create("out", this);
+            p = fw_port #(fw_put_if #(bit [7:0]))::create("p", this);
         endfunction
         virtual task run();
-            fw_reset_domain::wait_reset_done(this);
-            for (int i = 1; i <= 3; i++) begin
-                out.valid.write(1);
-                out.data.write(8'(i));
-                do fw_clock_domain::tick(this);
-                while (!out.ready.read());
-            end
-            out.valid.write(0);
+            fw_put_if #(bit [7:0]) i = p.get_if();
+            for (int n = 1; n <= 3; n++)
+                i.put(8'(n));
         endtask
     endclass
 
@@ -52,16 +50,19 @@ package scenario;
 
     class top extends test_proc_top;
         `fw_component_utils(top)
-        drv    d;
-        rv_snk k;
+        drv                          d;
+        fw_rv_initiator #(bit [7:0]) x;
+        rv_snk                       k;
         virtual function void build();
             super.build();
             d = drv::create("d", this);
+            x = fw_rv_initiator #(bit [7:0])::create("x", this);
             k = rv_snk::create("k", this);
         endfunction
         virtual function void connect();
             super.connect();
-            d.out.connect(k.in);
+            d.p.connect(x.t);
+            x.pins.connect(k.in);
         endfunction
     endclass
 

@@ -4,8 +4,8 @@
     "clock": "top.clk",
     "edges": 8,
     "signals": [
-      "top.d.out.valid",
-      "top.d.out.data",
+      "top.x.pins.valid",
+      "top.x.pins.data",
       "top.k.got",
       "top.k.n"
     ],
@@ -48,13 +48,13 @@
       ],
       [
         0,
-        3,
+        0,
         3,
         3
       ],
       [
         0,
-        3,
+        0,
         3,
         3
       ]
